@@ -1073,9 +1073,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8175f04f59570648bf8547c638f7946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectPrefab1: {fileID: 5018950055216721061, guid: c15f037642a1e1b439d19869e86e1ddf, type: 3}
-  objectPrefab2: {fileID: 6017100943722803059, guid: 10d4ee2e07ed6c043bcfb109fd37b49a, type: 3}
-  objectPrefab3: {fileID: 4302348770041685365, guid: 4a29ab90eb0c70c4bb83a1669921b701, type: 3}
+  objectManager: {fileID: 0}
 --- !u!1 &393862282
 GameObject:
   m_ObjectHideFlags: 0
@@ -2591,6 +2589,7 @@ GameObject:
   - component: {fileID: 1258133030}
   - component: {fileID: 1258133029}
   - component: {fileID: 1258133034}
+  - component: {fileID: 1258133035}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2694,6 +2693,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b72737c83803eb84a8e859e95976819b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  objectManager: {fileID: 0}
+--- !u!114 &1258133035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1258133028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8175f04f59570648bf8547c638f7946, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectManager: {fileID: 0}
 --- !u!1001 &1258551773
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3260,9 +3273,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 377195124}
+      - m_Target: {fileID: 1258133035}
         m_TargetAssemblyTypeName: RedactorCharPicker, Assembly-CSharp
-        m_MethodName: SetObject1
+        m_MethodName: OnButton1Clicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3393,9 +3406,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 377195124}
+      - m_Target: {fileID: 1258133035}
         m_TargetAssemblyTypeName: RedactorCharPicker, Assembly-CSharp
-        m_MethodName: SetObject2
+        m_MethodName: OnButton2Clicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3767,9 +3780,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 377195124}
+      - m_Target: {fileID: 1258133035}
         m_TargetAssemblyTypeName: RedactorCharPicker, Assembly-CSharp
-        m_MethodName: SetObject3
+        m_MethodName: OnButton3Clicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

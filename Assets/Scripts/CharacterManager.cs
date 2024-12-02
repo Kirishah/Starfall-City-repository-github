@@ -3,11 +3,20 @@ using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
 {
+    public static CharacterManager Instance;
     public GameObject[] objects = new GameObject[3]; // Array to hold your objects
     public GameObject currentObject;
 
     void Awake()
     {
+        // Check if an instance already exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject); // Destroy this instance if one already exists
+            return;
+        }
+
+        Instance = this;
         DontDestroyOnLoad(gameObject); // Make this object persistent
     }
 
@@ -15,8 +24,11 @@ public class CharacterManager : MonoBehaviour
     {
         if (currentObject != null)
         {
-            Destroy(currentObject); // Destroy the current object if it exists
+            Destroy(currentObject);
+            
         }
-        currentObject = Instantiate(objects[index]); // Instantiate the new object
+
+        currentObject = Instantiate(objects[index]);
+        
     }
 }
