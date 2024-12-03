@@ -6,6 +6,7 @@ public class CharacterManager : MonoBehaviour
     public static CharacterManager Instance;
     public GameObject[] objects = new GameObject[3]; // Array to hold your objects
     public GameObject currentObject;
+    public int selectedIndex;
 
     void Awake()
     {
@@ -29,6 +30,7 @@ public class CharacterManager : MonoBehaviour
         }
 
         currentObject = Instantiate(objects[index]);
-        
+        currentObject.transform.position = new Vector3(5.3f, 0.2f, 5.5f);
+        selectedIndex = index;
     }
 }
