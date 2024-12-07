@@ -30,7 +30,7 @@ public class CharacterManager : MonoBehaviour
         }
 
         currentObject = Instantiate(objects[index]);
-        currentObject.transform.position = new Vector3(5.3f, 0.2f, 5.5f);
+        currentObject.transform.position = new Vector3(1.0f, 4.7f, -5.7f);
         selectedIndex = index;
     }
 }
