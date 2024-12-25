@@ -6,7 +6,6 @@ public class PlayerMovement : MonoBehaviour
 {
     public Camera cam;
     public NavMeshAgent player;
-    public GameObject targetDest;
 
     void Update()
     {
@@ -24,7 +23,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (Physics.Raycast(ray, out hitPoint))
         {
-            targetDest.transform.position = hitPoint.point;
             player.SetDestination(hitPoint.point);
         }
         else
