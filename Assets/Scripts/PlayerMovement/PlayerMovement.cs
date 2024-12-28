@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public Camera cam;
     public NavMeshAgent player;
+    public Animator anim;
 
     void Update()
     {
@@ -24,6 +25,8 @@ public class PlayerMovement : MonoBehaviour
         if (Physics.Raycast(ray, out hitPoint))
         {
             player.SetDestination(hitPoint.point);
+            anim.SetBool("is_Standing", false);
+            anim.SetFloat("speed_f", 1);
         }
         else
         {
@@ -31,6 +34,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     
+
+
+
 }
 
     

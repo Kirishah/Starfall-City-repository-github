@@ -13847,7 +13847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5484509280775788226, guid: 32d5504af6283aa4e846e4cc79020f61, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.078
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5484509280775788226, guid: 32d5504af6283aa4e846e4cc79020f61, type: 3}
       propertyPath: m_LocalPosition.y
@@ -24028,6 +24028,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 193936851}
   player: {fileID: 1561419829}
+  anim: {fileID: 1561419830}
 --- !u!195 &1561419829
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -24050,6 +24051,11 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!95 &1561419830 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 1944650095631043768, guid: 32d5504af6283aa4e846e4cc79020f61, type: 3}
+  m_PrefabInstance: {fileID: 951891890}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1564656728
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33024,7 +33030,7 @@ SceneRoots:
   - {fileID: 193936852}
   - {fileID: 1880563711}
   - {fileID: 1650066635}
+  - {fileID: 951891890}
   - {fileID: 1450665194}
   - {fileID: 1677941891}
   - {fileID: 1365901400}
-  - {fileID: 951891890}
