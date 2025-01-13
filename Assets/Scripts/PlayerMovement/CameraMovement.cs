@@ -5,6 +5,12 @@ public class CameraMovement : MonoBehaviour
     private float moveSpeed = 5.0f; // Speed of camera movement
     private Vector3 minBound = new Vector3(-3.6f, 9.5f, -8.6f); // Minimum clamp position
     private Vector3 maxBound = new Vector3(20f, 9.5f, 8.5f);   // Maximum clamp position
+    private Camera m_Camera;
+
+    private void Awake()
+    {
+        m_Camera = GetComponent<Camera>();
+    }
 
     void Update()
     {
