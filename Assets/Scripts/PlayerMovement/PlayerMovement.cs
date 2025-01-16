@@ -1,11 +1,20 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.AI;
+using Invector.vCharacterController;
+using SojaExiles;
 
 public class PlayerMovement : MonoBehaviour
 {
     public Camera cam;
     public NavMeshAgent player;
+
+    public vThirdPersonController character;
+
+    private void Start()
+    {
+        player.updateRotation = false;
+    }
 
     void Update()
     {
@@ -28,6 +37,14 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             Debug.Log("Raycast did not hit any collider."); // Log if nothing was hit
+        }
+
+        if (player.remainingDistance > player.stoppingDistance)
+        {
+            character.MoveCharacter(player.desiredVelocity);
+        } else
+        {
+            character.MoveCharacter(Vector3.zero);
         }
     }
     
