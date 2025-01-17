@@ -2650,6 +2650,7 @@ GameObject:
   m_Component:
   - component: {fileID: 179735474}
   - component: {fileID: 179735475}
+  - component: {fileID: 179735476}
   m_Layer: 0
   m_Name: IsometricCamera
   m_TagString: Untagged
@@ -2687,6 +2688,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   panLimitX: {x: -4, y: 20}
   panLimitZ: {x: -9, y: 9}
+--- !u!114 &179735476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179735473}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85ae02e436096eb459b91539101bb1ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1561419831}
+  distanceFromPlayer: 5
+  minDistanceFromPlayer: 2
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 8192
+  offset: {x: 0, y: 0, z: 0}
+  smoothSpeed: 0.125
 --- !u!1001 &187584530
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2897,7 +2918,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: -100
+  near clip plane: -1
   far clip plane: 300
   field of view: 44.2
   orthographic: 1
@@ -2926,7 +2947,7 @@ Transform:
   m_GameObject: {fileID: 193936848}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: -3.94, y: 7.3, z: -2.31}
+  m_LocalPosition: {x: -3.94, y: 4, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -25664,7 +25685,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1001 &1564656728
 PrefabInstance:
   m_ObjectHideFlags: 0
