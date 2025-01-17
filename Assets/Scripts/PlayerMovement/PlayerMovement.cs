@@ -18,6 +18,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float speed = 5f;
     private const bool V = false;
 
+    [Header("Destination Indicator")]
+    public GameObject destinationIndicatorPrefab; 
+    private GameObject destinationIndicator; 
+
     private void Start()
     {
         player.updateRotation = V;
@@ -33,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
             MovePlayer();
         }
         CalculateVelocity();
+        CheckIfReachedDestination();
     }
 
     void MovePlayer()
@@ -52,13 +57,34 @@ public class PlayerMovement : MonoBehaviour
 
             // Calculate the movement direction
             moveDirection = (targetPosition - transform.position).normalized * speed;
+
+            if (destinationIndicator == null)
+            {
+                destinationIndicator = Instantiate(destinationIndicatorPrefab, hitPoint.point, Quaternion.identity);
+            }
+            else
+            {
+                destinationIndicator.transform.position = hitPoint.point;
+            }
         }
         else
         {
             Debug.Log("Raycast did not hit any collider."); // Log if nothing was hit
         }
+    }
 
- 
+    void CheckIfReachedDestination()
+    {
+        
+        if (player.remainingDistance <= player.stoppingDistance)
+        {
+            
+            if (destinationIndicator != null)
+            {
+                Destroy(destinationIndicator);
+                destinationIndicator = null; 
+            }
+        }
     }
 
     void CalculateVelocity()
