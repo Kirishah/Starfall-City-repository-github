@@ -6,6 +6,7 @@ public class PlayerAnimation : MonoBehaviour
 {
     private Animator animator;
     private PlayerMovement playerMovement;
+    private bool isStopping = false;
 
 
     void Start()
@@ -23,26 +24,23 @@ public class PlayerAnimation : MonoBehaviour
     void CheckMovement()
     {
         // Check if the player is moving
-        if (playerMovement.player.remainingDistance > playerMovement.player.stoppingDistance)
+        Vector3 velocity = playerMovement.GetVelocity(); // Replace with your method to get velocity
+        bool isMoving = velocity.magnitude > 0.1f;
+
+        if (isMoving)
         {
+            // If the player is moving, set the running animation
+            animator.SetBool("is_Running", true);
             animator.SetBool("is_Standing", false);
-            animator.SetBool("is_Stopping", false);
+            Debug.Log("Running");
         }
         else
         {
-            animator.SetBool("is_Stopping", true);
-            StartCoroutine(TransitionToStanding());
+            // If the player is not moving, set the standing animation
+            animator.SetBool("is_Running", false);
+            animator.SetTrigger("Stopping");
+            Debug.Log("Standing");
         }
-    }
-
-    private IEnumerator TransitionToStanding()
-    {
-        while (animator.GetCurrentAnimatorStateInfo(0).IsName("Stopping")) 
-        {
-            yield return null;
-        }
-        animator.SetBool("is_Standing", true);
-        animator.SetBool("is_Stopping", false);
     }
 }
 

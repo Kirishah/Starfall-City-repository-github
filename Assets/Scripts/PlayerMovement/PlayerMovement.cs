@@ -2,26 +2,37 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.AI;
 using Invector.vCharacterController;
-using SojaExiles;
+using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("References")]
+    private CharacterController characterController;
     public Camera cam;
     public NavMeshAgent player;
 
-    public vThirdPersonController character;
+    [Header("Movement Settings")]
+    private Vector3 moveDirection;
+    private Vector3 lastPosition;
+    private Vector3 velocity;
+    [SerializeField] private float speed = 5f;
+    private const bool V = false;
 
     private void Start()
     {
-        player.updateRotation = false;
+        player.updateRotation = V;
+        characterController = GetComponent<CharacterController>();
+
+        lastPosition = transform.position;
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(1)) // Right mouse button
+        if (Input.GetMouseButton(1)) // Right mouse button
         {
             MovePlayer();
         }
+        CalculateVelocity();
     }
 
     void MovePlayer()
@@ -32,25 +43,38 @@ public class PlayerMovement : MonoBehaviour
 
         if (Physics.Raycast(ray, out hitPoint))
         {
+            // Set the destination for the NavMeshAgent
             player.SetDestination(hitPoint.point);
+
+            // Calculate the movement direction
+            Vector3 targetPosition = hitPoint.point;
+            targetPosition.y = transform.position.y; // Keep the y position the same to avoid vertical movement
+
+            // Calculate the movement direction
+            moveDirection = (targetPosition - transform.position).normalized * speed;
         }
         else
         {
             Debug.Log("Raycast did not hit any collider."); // Log if nothing was hit
         }
 
-        if (player.remainingDistance > player.stoppingDistance)
-        {
-            character.MoveCharacter(player.desiredVelocity);
-        } else
-        {
-            character.MoveCharacter(Vector3.zero);
-        }
+ 
     }
-    
 
+    void CalculateVelocity()
+    {
+        // Calculate the velocity based on the change in position over time
+        velocity = (transform.position - lastPosition) / Time.deltaTime;
 
+        // Update last position for the next frame
+        lastPosition = transform.position;
+    }
 
+    public Vector3 GetVelocity()
+    {
+        
+        return velocity;
+    }
 }
 
     
