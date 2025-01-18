@@ -6,7 +6,11 @@ public class PlayerAnimation : MonoBehaviour
 {
     private Animator animator;
     private PlayerMovement playerMovement;
-    private bool isStopping = false;
+    private Player3DMovement player3DMovement;
+
+    private float speedThreshold = 0.1f; 
+    private float smoothTime = 0.1f; 
+    private float currentSpeed;
 
 
     void Start()
@@ -14,6 +18,7 @@ public class PlayerAnimation : MonoBehaviour
         // Get the Animator component and PlayerMovement component
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovement>();
+        player3DMovement = GetComponent<Player3DMovement>();
     }
 
     void Update()
@@ -24,8 +29,12 @@ public class PlayerAnimation : MonoBehaviour
     void CheckMovement()
     {
         // Check if the player is moving
-        Vector3 velocity = playerMovement.GetVelocity(); // Replace with your method to get velocity
-        bool isMoving = velocity.magnitude > 0.1f;
+        Vector3 velocity = playerMovement.GetVelocity(); 
+
+        float targetSpeed = velocity.magnitude;
+        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, smoothTime);
+        bool isMoving = currentSpeed > speedThreshold;
+
 
         if (isMoving)
         {

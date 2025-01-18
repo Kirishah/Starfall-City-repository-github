@@ -7,16 +7,13 @@ using UnityEngine.EventSystems;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
-    private CharacterController characterController;
     public Camera cam;
     public NavMeshAgent player;
 
     [Header("Movement Settings")]
-    private Vector3 moveDirection;
     private Vector3 lastPosition;
     private Vector3 velocity;
-    [SerializeField] private float speed = 5f;
-    private const bool V = false;
+    // private const bool V = false;
 
     [Header("Destination Indicator")]
     public GameObject destinationIndicatorPrefab; 
@@ -24,8 +21,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        player.updateRotation = V;
-        characterController = GetComponent<CharacterController>();
+       // player.updateRotation = V;
 
         lastPosition = transform.position;
     }
@@ -53,10 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
             // Calculate the movement direction
             Vector3 targetPosition = hitPoint.point;
-            targetPosition.y = transform.position.y; // Keep the y position the same to avoid vertical movement
-
-            // Calculate the movement direction
-            moveDirection = (targetPosition - transform.position).normalized * speed;
+            targetPosition.y = transform.position.y; // Keep the y position the same to avoid vertical 
 
             if (destinationIndicator == null)
             {
@@ -82,12 +75,12 @@ public class PlayerMovement : MonoBehaviour
             if (destinationIndicator != null)
             {
                 Destroy(destinationIndicator);
-                destinationIndicator = null; 
+                destinationIndicator = null;
             }
         }
     }
 
-    void CalculateVelocity()
+    protected void CalculateVelocity()
     {
         // Calculate the velocity based on the change in position over time
         velocity = (transform.position - lastPosition) / Time.deltaTime;
