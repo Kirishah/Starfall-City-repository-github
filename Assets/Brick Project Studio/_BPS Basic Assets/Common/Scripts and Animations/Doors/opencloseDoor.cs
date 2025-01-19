@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace SojaExiles
 
@@ -11,11 +12,13 @@ namespace SojaExiles
 		public Animator openandclose;
 		public bool open;
 		public Transform Player;
+        public NavMeshObstacle navMeshObstacle;
 
-		void Start()
+        void Start()
 		{
 			open = false;
-		}
+            navMeshObstacle.carving = true;
+        }
 
 		void OnMouseOver()
 		{
@@ -29,7 +32,8 @@ namespace SojaExiles
 						{
 							if (Input.GetMouseButtonDown(0))
 							{
-								StartCoroutine(opening());
+                                navMeshObstacle.enabled = false;
+                                StartCoroutine(opening());
 							}
 						}
 						else
@@ -38,7 +42,8 @@ namespace SojaExiles
 							{
 								if (Input.GetMouseButtonDown(0))
 								{
-									StartCoroutine(closing());
+                                    navMeshObstacle.enabled = true;
+                                    StartCoroutine(closing());
 								}
 							}
 
