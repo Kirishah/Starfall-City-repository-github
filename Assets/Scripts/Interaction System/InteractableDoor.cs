@@ -27,10 +27,12 @@ public class InteractableDoor : Interactable
             if (isOpen)
             {
                 StartCoroutine(CloseDoor());
+                navMeshObstacle.enabled = true;
             }
             else
             {
                 StartCoroutine(OpenDoor());
+                navMeshObstacle.enabled = false;
             }
         }
         else
@@ -40,7 +42,6 @@ public class InteractableDoor : Interactable
     }
     private IEnumerator OpenDoor()
     {
-        print("you are opening the door");
         openandclose.Play("Opening");
         isOpen = true;
         yield return new WaitForSeconds(.5f);
@@ -48,7 +49,6 @@ public class InteractableDoor : Interactable
 
     private IEnumerator CloseDoor()
     {
-        print("you are closing the door");
         openandclose.Play("Closing");
         isOpen = false;
         yield return new WaitForSeconds(.5f);
