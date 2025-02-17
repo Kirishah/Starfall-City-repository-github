@@ -7,9 +7,10 @@ public class NPCInteractable : Interactable
     public override void Interact()
     {
         DialogueManager dialogueManager = FindFirstObjectByType<DialogueManager>();
+        Debug.Log("Interacting with NPC");
         if (dialogueManager != null)
         {
-            dialogueManager.StartDialogue(dialogue); // Start the dialogue
+            dialogueManager.StartDialogue(1); // Start the dialogue
         }
     }
 }

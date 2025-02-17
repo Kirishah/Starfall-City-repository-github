@@ -1,7 +1,10 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class Interactable : MonoBehaviour
 {
+    [Header("Base Settings")]
+    public string interactionText = "Press E to interact";
     public abstract void Interact();
 }
 

@@ -8,7 +8,7 @@ public class InteractionManager : MonoBehaviour
     void Update()
     {
         DetectInteractable();
-        if ((Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0)) && currentInteractable != null)
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(1)) && currentInteractable != null)
         {
             Debug.Log("Interaction called");
             currentInteractable.Interact();
