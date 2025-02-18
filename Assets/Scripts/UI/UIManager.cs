@@ -20,7 +20,17 @@ public class UIManager : MonoBehaviour
     public void ShowDialogue(Dialogue dialogue)
     {
         dialoguePanel.SetActive(true);
-        speakerText.text = dialogue.speaker;
+        if (dialogue == null)
+        {
+            Debug.LogError("Dialogue is null!");
+            return;
+        }
+        if (speakerText == null || dialogueText == null)
+        {
+            Debug.LogError("TMP_Text fields are not assigned in the Inspector!");
+            return;
+        }
+        speakerText.text = !string.IsNullOrEmpty(dialogue.speaker) ? dialogue.speaker : "Unknown";
         dialogueText.text = dialogue.text;
 
         // Clear existing choices
@@ -43,8 +53,19 @@ public class UIManager : MonoBehaviour
             // Add a "Continue" button if no choices
             GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
             btn.GetComponentInChildren<TMP_Text>().text = "Continue";
-            btn.GetComponent<Button>().onClick.AddListener(() => {
-                DialogueManager.Instance.SelectChoice(-1); // End dialogue
+            btn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                Dialogue currentDialogue = DialogueManager.Instance.GetCurrentDialogue();
+                if (currentDialogue != null && currentDialogue.targetLocation != 0)
+                {
+                    DialogueManager.Instance.TransferToLocation(currentDialogue.targetLocation);
+                }
+
+                else
+                {
+                    DialogueManager.Instance.SelectChoice(-1);
+                }
+
             });
         }
     }

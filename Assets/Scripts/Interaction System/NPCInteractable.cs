@@ -2,15 +2,12 @@ using UnityEngine;
 
 public class NPCInteractable : Interactable
 {
-    public Dialogue dialogue; // Reference to the dialogue data
+    [Header("Dialogue Settings")]
+    public int startDialogueID;
 
     public override void Interact()
     {
-        DialogueManager dialogueManager = FindFirstObjectByType<DialogueManager>();
-        Debug.Log("Interacting with NPC");
-        if (dialogueManager != null)
-        {
-            dialogueManager.StartDialogue(1); // Start the dialogue
-        }
+        DialogueManager.Instance.StartDialogue(startDialogueID);
+        onInteract.Invoke(); 
     }
 }

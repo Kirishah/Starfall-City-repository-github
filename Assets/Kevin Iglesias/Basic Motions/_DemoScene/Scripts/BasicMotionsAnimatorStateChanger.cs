@@ -27,7 +27,7 @@ namespace KevinIglesias
         override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             //CALL CHANGE STATE FUNCTION FROM MAIN SCRIPT
-            animator.transform.parent.GetComponent<BasicMotionsCharacterController>().ChangeState(newState); 
+            // animator.transform.parent.GetComponent<BasicMotionsCharacterController>().ChangeState(newState); 
         }
     }
 }
