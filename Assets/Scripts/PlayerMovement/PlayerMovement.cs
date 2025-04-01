@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
-    public Camera cam;
+    private Camera cam;
     public NavMeshAgent player;
 
     [Header("Movement Settings")]
@@ -17,8 +17,12 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Destination Indicator")]
     public GameObject destinationIndicatorPrefab; 
-    private GameObject destinationIndicator; 
+    private GameObject destinationIndicator;
 
+    private void Awake()
+    {
+        cam = GetComponent<Camera>();
+    }
     private void Start()
     {
        // player.updateRotation = V;

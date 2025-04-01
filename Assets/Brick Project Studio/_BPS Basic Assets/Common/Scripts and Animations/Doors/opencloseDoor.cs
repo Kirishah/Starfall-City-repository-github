@@ -22,7 +22,6 @@ namespace SojaExiles
 
 		void OnMouseOver()
 		{
-			{
 				if (Player)
 				{
 					float dist = Vector3.Distance(Player.position, transform.position);
@@ -51,9 +50,6 @@ namespace SojaExiles
 
 					}
 				}
-
-			}
-
 		}
 
 		IEnumerator opening()
