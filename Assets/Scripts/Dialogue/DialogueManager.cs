@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,6 +16,11 @@ public class DialogueManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         string jsonPath = "Dialogue";
+        LoadDialogues(jsonPath);
+    }
+
+    private void LoadDialogues(string jsonPath)
+    {
         if (dialogueLoader != null)
         {
             dialogues = dialogueLoader.LoadDialogues(jsonPath);
@@ -27,13 +33,20 @@ public class DialogueManager : MonoBehaviour
 
     public void StartDialogue(int startID)
     {
-        currentDialogue = dialogues.Find(d => d.id == startID);
+        currentDialogue = FindDialogue(startID);
         if (currentDialogue == null)
         {
             Debug.LogError($"Dialogue with ID {startID} not found!");
             return;
         }
         UIManager.Instance.ShowDialogue(currentDialogue);
+    }
+
+    private Dialogue FindDialogue(int id)
+    {
+
+        return dialogues?.Find(d => d.id == id);
+
     }
 
     public void SelectChoice(int targetID)
@@ -45,7 +58,7 @@ public class DialogueManager : MonoBehaviour
         }
         if (dialogues != null)
         {
-            currentDialogue = dialogues.Find(d => d.id == targetID);
+            currentDialogue = FindDialogue(targetID);
 
             if (currentDialogue != null && UIManager.Instance != null)
             {
@@ -70,31 +83,7 @@ public class DialogueManager : MonoBehaviour
 
     public void TransferToLocation(int targetLocation)
     {
-        // Load the target scene or activate/deactivate GameObjects as needed
-        StartCoroutine(LoadSceneAsync(targetLocation));
-
+        // Let GameManager handle the scene transition
+        GameManager.Instance.LoadSceneWithTransition(targetLocation);
     }
-
-    private IEnumerator LoadSceneAsync(int targetLocation)
-    {
-        AsyncOperation operation = SceneManager.LoadSceneAsync(targetLocation);
-        operation.allowSceneActivation = false; // Optional: Control when to activate
-
-        while (!operation.isDone)
-        {
-            Debug.Log("Loading progress: " + operation.progress);
-
-            // Optional: Activate scene when progress reaches 0.9 (90%)
-            if (operation.progress >= 0.9f)
-            {
-                operation.allowSceneActivation = true;
-            }
-
-            yield return null; // Wait for next frame
-        }
-    }
-
-    
-
-
 }
