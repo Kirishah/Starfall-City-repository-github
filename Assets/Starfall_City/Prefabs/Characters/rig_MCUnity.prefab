@@ -481,7 +481,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 4
+  m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -505,7 +505,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 902bf15338ac8ce4bad6380c1a565f9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 0}
   player: {fileID: 4594381363505249578}
   destinationIndicatorPrefab: {fileID: 1766793217509936268, guid: 3f180648f211cb74ab08ca093831ca13, type: 3}
 --- !u!114 &8985186135630980990
@@ -557,7 +556,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faa7667ea031b344b9862a3ecff20978, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
+  moveSpeed: 2.25
   turnSpeed: 90
 --- !u!114 &3172285000563172967
 MonoBehaviour:

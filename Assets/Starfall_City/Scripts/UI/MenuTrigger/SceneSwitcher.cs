@@ -70,10 +70,4 @@ public class SceneSwitcher : MonoBehaviour
     {
 
     }
-
-    //Switches in Character Redactor
-    public void StartGame()
-    {
-        SceneManager.LoadScene(2);
-    }
 }
