@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
     public DialogueLoader dialogueLoader;
+
+    [Header("UI Components")]
+    [SerializeField] private GameObject dialoguePanel;
+    [SerializeField] private TMP_Text speakerText;
+    [SerializeField] private TMP_Text dialogueText;
+    [SerializeField] private Transform choiceContainer;
+    [SerializeField] private GameObject choiceButtonPrefab;
 
     private List<Dialogue> dialogues;
     private Dialogue currentDialogue;
@@ -39,7 +48,7 @@ public class DialogueManager : MonoBehaviour
             Debug.LogError($"Dialogue with ID {startID} not found!");
             return;
         }
-        UIManager.Instance.ShowDialogue(currentDialogue);
+        ShowDialogue(currentDialogue);
     }
 
     private Dialogue FindDialogue(int id)
@@ -62,7 +71,7 @@ public class DialogueManager : MonoBehaviour
 
             if (currentDialogue != null && UIManager.Instance != null)
             {
-                UIManager.Instance.ShowDialogue(currentDialogue);
+                ShowDialogue(currentDialogue);
             }
             else
             {
@@ -73,7 +82,61 @@ public class DialogueManager : MonoBehaviour
 
     void EndDialogue()
     {
-        UIManager.Instance.HideDialogue();
+        HideDialogue();
+    }
+
+    public void ShowDialogue(Dialogue dialogue)
+    {
+        dialoguePanel.SetActive(true);
+        if (dialogue == null)
+        {
+            Debug.LogError("Dialogue is null!");
+            return;
+        }
+
+        if (speakerText == null || dialogueText == null)
+        {
+            Debug.LogError("TMP_Text fields are not assigned in the Inspector!");
+            return;
+        }
+
+        speakerText.text = !string.IsNullOrEmpty(dialogue.speaker) ? dialogue.speaker : "Unknown";
+        dialogueText.text = dialogue.text;
+
+        // Clear existing choices
+        foreach (Transform child in choiceContainer) Destroy(child.gameObject);
+
+        // Add new choices
+        if (dialogue.choices != null && dialogue.choices.Count > 0)
+        {
+            foreach (Choice choice in dialogue.choices)
+            {
+                GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
+                btn.GetComponentInChildren<TMP_Text>().text = choice.text;
+                btn.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID));
+            }
+        }
+        else
+        {
+            // Add a "Continue" button if no choices
+            GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
+            btn.GetComponentInChildren<TMP_Text>().text = "Continue";
+            btn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                if (currentDialogue != null && currentDialogue.targetLocation != 0)
+                {
+                    TransferToLocation(currentDialogue.targetLocation);
+                }
+                else
+                {
+                    SelectChoice(-1);
+                }
+            });
+        }
+    }
+    public void HideDialogue()
+    {
+        dialoguePanel.SetActive(false);
     }
 
     public Dialogue GetCurrentDialogue()

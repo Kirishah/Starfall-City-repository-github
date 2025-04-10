@@ -1,77 +1,100 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
 
-    public GameObject dialoguePanel;
-    public TMP_Text speakerText;
-    public TMP_Text dialogueText;
-    public Transform choiceContainer;
-    public GameObject choiceButtonPrefab;
+    [SerializeField] private GameObject menuBar;
+    [SerializeField] private bool pauseTime = true;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    public void ShowDialogue(Dialogue dialogue)
+    private void Start()
     {
-        dialoguePanel.SetActive(true);
-        if (dialogue == null)
+        if (menuBar != null)
         {
-            Debug.LogError("Dialogue is null!");
-            return;
-        }
-        if (speakerText == null || dialogueText == null)
-        {
-            Debug.LogError("TMP_Text fields are not assigned in the Inspector!");
-            return;
-        }
-        speakerText.text = !string.IsNullOrEmpty(dialogue.speaker) ? dialogue.speaker : "Unknown";
-        dialogueText.text = dialogue.text;
-
-        // Clear existing choices
-        foreach (Transform child in choiceContainer) Destroy(child.gameObject);
-
-        // Add new choices
-        if (dialogue.choices != null && dialogue.choices.Count > 0)
-        {
-            foreach (Choice choice in dialogue.choices)
-            {
-                GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
-                btn.GetComponentInChildren<TMP_Text>().text = choice.text;
-                btn.GetComponent<Button>().onClick.AddListener(() => {
-                    DialogueManager.Instance.SelectChoice(choice.targetID);
-                });
-            }
+            menuBar.SetActive(false);
         }
         else
         {
-            // Add a "Continue" button if no choices
-            GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
-            btn.GetComponentInChildren<TMP_Text>().text = "Continue";
-            btn.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                Dialogue currentDialogue = DialogueManager.Instance.GetCurrentDialogue();
-                if (currentDialogue != null && currentDialogue.targetLocation != 0)
-                {
-                    DialogueManager.Instance.TransferToLocation(currentDialogue.targetLocation);
-                }
-
-                else
-                {
-                    DialogueManager.Instance.SelectChoice(-1);
-                }
-
-            });
+            Debug.LogError("MenuBar reference is not set", this);
         }
     }
 
-    public void HideDialogue()
+    private void Update()
     {
-        dialoguePanel.SetActive(false);
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ToggleMenuBar();
+        }
+    }
+
+    public void ToggleMenuBar()
+    {
+        if (menuBar == null) return;
+
+        bool newState = !menuBar.activeSelf;
+        menuBar.SetActive(newState);
+
+        if (pauseTime)
+        {
+            Time.timeScale = newState ? 0 : 1;
+            Debug.Log($"Game {(newState ? "Paused" : "Resumed")}");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (pauseTime)
+        {
+            Time.timeScale = 1;
+        }
+    }
+
+   
+
+
+    //Switches in Game Menu Bar
+    public void ContinueGame()
+    {
+        ToggleMenuBar();
+    }
+    public void Load()
+    {
+
+    }
+    public void Save()
+    {
+
+    }
+    public void Options()
+    {
+
+    }
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+    public void ExitGame()
+    {
+#if UNITY_EDITOR
+        // If we are in the editor, stop play mode
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        // If we are in a standalone build, quit the application
+        Application.Quit();
+#endif
     }
 }

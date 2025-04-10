@@ -2,7 +2,7 @@
 - Project name: Neighbours-call-repository-github
 - Unity version: Unity 6000.0.28f1
 - Active game object:
-  - Name: Main Camera
-  - Tag: MainCamera
-  - Layer: Default
+  - Name: Canvas
+  - Tag: Untagged
+  - Layer: UI
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
