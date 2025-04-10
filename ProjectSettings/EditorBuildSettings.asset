@@ -6,13 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Menu.unity
+    path: Assets/Starfall_City/Scenes/Menu.unity
     guid: ae666798a74d3a5488e0c0ec42a1265d
   - enabled: 1
-    path: Assets/Scenes/Apartment.unity
+    path: Assets/Starfall_City/Scenes/Apartment.unity
     guid: 11c6edd9a20a62946b006074fcd538f9
   - enabled: 1
-    path: Assets/Scenes/VerticalSlice/Mansion.unity
+    path: Assets/Starfall_City/Scenes/VerticalSlice/Mansion.unity
     guid: 83a2dba641a41364fa87ac616b7ad8a6
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

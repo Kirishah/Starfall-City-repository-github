@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneSwitcher : MonoBehaviour
 {
-    public MenuTrigger menuTrigger;
+    public UIManager menuTrigger;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -69,11 +69,5 @@ public class SceneSwitcher : MonoBehaviour
     public void OpenCredits()
     {
 
-    }
-
-    //Switches in Character Redactor
-    public void StartGame()
-    {
-        SceneManager.LoadScene(2);
     }
 }

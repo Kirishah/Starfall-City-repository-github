@@ -1,0 +1,152 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
+
+public class DialogueManager : MonoBehaviour
+{
+    public static DialogueManager Instance;
+    public DialogueLoader dialogueLoader;
+
+    [Header("UI Components")]
+    [SerializeField] private GameObject dialoguePanel;
+    [SerializeField] private TMP_Text speakerText;
+    [SerializeField] private TMP_Text dialogueText;
+    [SerializeField] private Transform choiceContainer;
+    [SerializeField] private GameObject choiceButtonPrefab;
+
+    private List<Dialogue> dialogues;
+    private Dialogue currentDialogue;
+
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+        string jsonPath = "Dialogue";
+        LoadDialogues(jsonPath);
+    }
+
+    private void LoadDialogues(string jsonPath)
+    {
+        if (dialogueLoader != null)
+        {
+            dialogues = dialogueLoader.LoadDialogues(jsonPath);
+        }
+        else
+        {
+            Debug.LogError("No DialogueLoader component found.");
+        }
+    }
+
+    public void StartDialogue(int startID)
+    {
+        currentDialogue = FindDialogue(startID);
+        if (currentDialogue == null)
+        {
+            Debug.LogError($"Dialogue with ID {startID} not found!");
+            return;
+        }
+        ShowDialogue(currentDialogue);
+    }
+
+    private Dialogue FindDialogue(int id)
+    {
+
+        return dialogues?.Find(d => d.id == id);
+
+    }
+
+    public void SelectChoice(int targetID)
+    {
+        if (targetID == -1)
+        {
+            EndDialogue();
+            return;
+        }
+        if (dialogues != null)
+        {
+            currentDialogue = FindDialogue(targetID);
+
+            if (currentDialogue != null && UIManager.Instance != null)
+            {
+                ShowDialogue(currentDialogue);
+            }
+            else
+            {
+                Debug.LogError("Failed to find dialogue or UIManager instance.");
+            }
+        }
+    }
+
+    void EndDialogue()
+    {
+        HideDialogue();
+    }
+
+    public void ShowDialogue(Dialogue dialogue)
+    {
+        dialoguePanel.SetActive(true);
+        if (dialogue == null)
+        {
+            Debug.LogError("Dialogue is null!");
+            return;
+        }
+
+        if (speakerText == null || dialogueText == null)
+        {
+            Debug.LogError("TMP_Text fields are not assigned in the Inspector!");
+            return;
+        }
+
+        speakerText.text = !string.IsNullOrEmpty(dialogue.speaker) ? dialogue.speaker : "Unknown";
+        dialogueText.text = dialogue.text;
+
+        // Clear existing choices
+        foreach (Transform child in choiceContainer) Destroy(child.gameObject);
+
+        // Add new choices
+        if (dialogue.choices != null && dialogue.choices.Count > 0)
+        {
+            foreach (Choice choice in dialogue.choices)
+            {
+                GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
+                btn.GetComponentInChildren<TMP_Text>().text = choice.text;
+                btn.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID));
+            }
+        }
+        else
+        {
+            // Add a "Continue" button if no choices
+            GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
+            btn.GetComponentInChildren<TMP_Text>().text = "Continue";
+            btn.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                if (currentDialogue != null && currentDialogue.targetLocation != 0)
+                {
+                    TransferToLocation(currentDialogue.targetLocation);
+                }
+                else
+                {
+                    SelectChoice(-1);
+                }
+            });
+        }
+    }
+    public void HideDialogue()
+    {
+        dialoguePanel.SetActive(false);
+    }
+
+    public Dialogue GetCurrentDialogue()
+    {
+        return currentDialogue;
+    }
+
+    public void TransferToLocation(int targetLocation)
+    {
+        // Let GameManager handle the scene transition
+        GameManager.Instance.LoadSceneWithTransition(targetLocation);
+    }
+}
