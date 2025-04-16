@@ -8,10 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     [Header("Persistent Data")]
-    public PlayerData PlayerData { get; private set; }
-    public Inventory Inventory { get; private set; }
-
-    // В случае компаньонов: public List<CompanionData> Companions { get; private set; }
+    public SaveData PlayerData { get; private set; }
 
     public GameObject playerPrefab;
 
@@ -30,9 +27,7 @@ public class GameManager : MonoBehaviour
     }
     void InitializeData()
     {
-        PlayerData = new PlayerData();
-        Inventory = new Inventory();
-       // Если будут компаньоны: Companions = new List<CompanionData>();
+        PlayerData = new SaveData();
     }
 
     public void LoadSceneWithTransition(int targetLocation)
@@ -72,18 +67,6 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("Player object not found!");
         }
-        // Если будут companions:
-        /* Companions.Clear();
-        foreach (GameObject companion in GameObject.FindGameObjectsWithTag("Companion"))
-        {
-            Companions.Add(new CompanionData
-            {
-                Position = companion.transform.position,
-                Rotation = companion.transform.rotation,
-                // ... other fields
-            });
-        }
-        */
     }
     public void LoadAfterSceneTransition()
     {
@@ -96,12 +79,5 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("Player prefab not assigned!");
         }
-
-        /* Load companions
-        foreach (CompanionData data in Companions)
-        {
-            Instantiate(companionPrefab, data.Position, data.Rotation);
-        }
-        */
     }
 }
