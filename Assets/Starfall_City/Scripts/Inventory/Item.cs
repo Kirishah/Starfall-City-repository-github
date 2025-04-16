@@ -9,4 +9,12 @@ public class Item : ScriptableObject
     public bool IsStackable = true;
     public int MaxStack = 99;
     [TextArea] public string Description;
+
+    private void OnValidate()
+    {
+        if (!IsStackable)
+        {
+            MaxStack = 1; // Force non-stackable items to have MaxStack = 1
+        }
+    }
 }

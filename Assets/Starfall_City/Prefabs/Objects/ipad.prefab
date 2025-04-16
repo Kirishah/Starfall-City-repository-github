@@ -267,7 +267,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8169904237620917800}
-  - component: {fileID: 6651796712627833611}
+  - component: {fileID: 1246566977715364865}
   m_Layer: 6
   m_Name: ipad
   m_TagString: Untagged
@@ -302,8 +302,8 @@ Transform:
   - {fileID: 6969778408423193974}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -25, y: -90, z: 0}
---- !u!65 &6651796712627833611
-BoxCollider:
+--- !u!135 &1246566977715364865
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -321,8 +321,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 196.13928, y: 125.10448, z: 16.758408}
-  m_Center: {x: -0.9994059, y: -0.8723885, z: -0.2966393}
+  m_Radius: 105.50567
+  m_Center: {x: -1.0954736, y: -0.0000006599087, z: -10.892643}
 --- !u!1 &3510554516314041895
 GameObject:
   m_ObjectHideFlags: 0

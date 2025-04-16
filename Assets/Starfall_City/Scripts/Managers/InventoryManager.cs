@@ -15,14 +15,21 @@ public class InventoryManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null) Destroy(gameObject);
-        else Instance = this;
-
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject); // Prevent duplicates
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Optional: Keep across scenes
+        }
         InitializeSlots();
     }
 
     private void InitializeSlots()
     {
+        Slots.Clear();
         for (int i = 0; i < _inventorySize; i++)
         {
             Slots.Add(new InventorySlot(null, 0));

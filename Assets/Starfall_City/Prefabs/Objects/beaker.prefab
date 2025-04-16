@@ -181,7 +181,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8661796203267610005}
-  - component: {fileID: 4954876694058446141}
+  - component: {fileID: -8131737362500038031}
   m_Layer: 6
   m_Name: beaker
   m_TagString: Untagged
@@ -206,8 +206,8 @@ Transform:
   - {fileID: 8739431290641163746}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &4954876694058446141
-BoxCollider:
+--- !u!135 &-8131737362500038031
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -225,5 +225,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 146.17346, y: 172.77005, z: 152.65392}
-  m_Center: {x: -1.1634789, y: -1.1839269, z: 1.4834478}
+  m_Radius: 106.248
+  m_Center: {x: 0, y: -6.2480116, z: 0}
