@@ -1,63 +1,82 @@
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
 public class InteractionManager : MonoBehaviour
 {
     [Header("Settings")]
-    private float interactionRadius = 1f; 
+    public float interactionRadius = 1f; 
     public LayerMask interactableLayer;
 
-    private Interactable currentInteractable;
+    private List<Interactable> _proximityInteractables = new();
+    private Interactable _closestInteractable;
+    private Interactable _hoveredInteractable;
 
     void Update()
     {
-        DetectInteractable();
+        DetectProximityInteractables();
+        DetectHoverInteractable();
+        HandleEKeyInteraction();
     }
 
-    void DetectInteractable()
+    void DetectProximityInteractables()
     {
-        // Detect all interactables in a sphere around the player
-        Collider[] interactables = Physics.OverlapSphere(
-            transform.position,
-            interactionRadius,
-            interactableLayer
-        );
+        // Clear previous proximity states
+        foreach (var i in _proximityInteractables) i.SetProximity(false);
 
-        Interactable closestInteractable = null;
-        float closestDistance = Mathf.Infinity;
+        // Find new proximity interactables
+        var colliders = Physics.OverlapSphere(transform.position, interactionRadius, interactableLayer);
+        _proximityInteractables = colliders
+            .Select(c => c.GetComponent<Interactable>())
+            .Where(i => i != null)
+            .ToList();
 
-        foreach (Collider col in interactables)
+        // Update proximity states and find closest
+        _closestInteractable = null;
+        var closestDistance = Mathf.Infinity;
+        foreach (var interactable in _proximityInteractables)
         {
-            Interactable interactable = col.GetComponent<Interactable>();
-            if (interactable != null)
+            interactable.SetProximity(true);
+
+            var distance = Vector3.Distance(transform.position, interactable.transform.position);
+            if (distance < closestDistance)
             {
-                // Calculate distance to player
-                float distance = Vector3.Distance(transform.position, col.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestInteractable = interactable;
-                }
-            }
-        }
-
-        // Update current interactable
-        if (currentInteractable != null && currentInteractable != closestInteractable)
-        {
-            currentInteractable.HidePrompt();
-        }
-        currentInteractable = closestInteractable;
-
-        if (currentInteractable != null)
-        {
-            // Show interaction prompt
-            currentInteractable.ShowPrompt();
-
-            // Handle interaction input
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                currentInteractable.Interact();
+                closestDistance = distance;
+                _closestInteractable = interactable;
             }
         }
     }
+
+    void DetectHoverInteractable()
+    {
+        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out var hit, Mathf.Infinity, interactableLayer))
+        {
+            if (_hoveredInteractable != null)
+            {
+                _hoveredInteractable.SetHovered(false);
+                _hoveredInteractable = null;
+            }
+            return;
+        }
+
+        var newHover = hit.collider.GetComponent<Interactable>();
+        if (newHover == _hoveredInteractable) return;
+
+        if (_hoveredInteractable != null)
+            _hoveredInteractable.SetHovered(false);
+
+        _hoveredInteractable = newHover;
+        _hoveredInteractable.SetHovered(true);
+    }
+
+    void HandleEKeyInteraction()
+    {
+        if (Input.GetKeyDown(KeyCode.E) && _closestInteractable != null)
+        {
+            _closestInteractable.Interact();
+        }
+    }
+
 }
