@@ -40,6 +40,9 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovementInput()
     {
+        // Clear previous interaction target immediately
+        _currentTargetInteractable = null;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
@@ -79,6 +82,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
+            destinationIndicator.SetActive(true);
             destinationIndicator.transform.position = position;
         }
     }
@@ -86,7 +90,7 @@ public class PlayerMovement : MonoBehaviour
     void CheckIfReachedDestination()
     {
 
-        if (!player.pathPending &&
+        if (player.hasPath && !player.pathPending &&
             player.remainingDistance <= player.stoppingDistance)
         {
             ClearDestinationIndicator();
@@ -107,9 +111,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (_currentTargetInteractable == null) return;
 
-        // Verify target is still valid and in range
-        if (_currentTargetInteractable.gameObject.activeInHierarchy &&
-            Vector3.Distance(transform.position, _currentTargetInteractable.transform.position) <= interactionRange)
+        if (_currentTargetInteractable.gameObject.activeInHierarchy)
         {
             _currentTargetInteractable.Interact();
         }
@@ -120,8 +122,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (destinationIndicator != null)
         {
-            Destroy(destinationIndicator);
-            destinationIndicator = null;
+            destinationIndicator.SetActive(false);
         }
     }
 

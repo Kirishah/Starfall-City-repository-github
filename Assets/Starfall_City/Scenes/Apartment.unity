@@ -2973,6 +2973,10 @@ PrefabInstance:
       propertyPath: m_ApplyRootMotion
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8060738646291299030, guid: c86919a1c406927408dd69c1611948d9, type: 3}
+      propertyPath: interactionRange
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
