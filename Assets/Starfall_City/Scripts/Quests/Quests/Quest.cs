@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 public class Quest
 {
     public QuestSO Data { get; private set; }
+
     // property to fix potential missing reference
     public bool IsCompleted { get; private set; }
     private List<Objective> _objectives = new List<Objective>();

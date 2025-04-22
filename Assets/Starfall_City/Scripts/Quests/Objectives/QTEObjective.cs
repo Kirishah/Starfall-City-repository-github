@@ -9,13 +9,13 @@ public class QTEObjective : Objective
 
     public override void CheckProgress(ObjectiveType type, string identifier)
     {
-        if (type != ObjectiveType.QTE) return;
-        if (identifier != _data.RequiredType.ToString()) return;
-
-        _successCount++;
-        if (_successCount >= _data.RequiredSuccessCount)
+        if (type == ObjectiveType.QTE && identifier == _data.RequiredType.ToString())
         {
-            Complete();
+            _successCount++;
+            if (_successCount >= _data.RequiredSuccessCount)
+            {
+                Complete();
+            }
         }
     }
 }

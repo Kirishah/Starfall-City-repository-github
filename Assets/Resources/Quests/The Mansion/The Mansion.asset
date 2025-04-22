@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aec78d67e17a7ef4eb6371b817012b48, type: 3}
+  m_Name: The Mansion
+  m_EditorClassIdentifier: 
+  QuestID: main_story_1
+  Title: Get into The Mansion
+  Description: 
+  Objectives:
+  - {fileID: 11400000, guid: 5513df80747cd5445b43fd97f1bfdd82, type: 2}
+  - {fileID: 11400000, guid: 83c8cb588e5659b43a621690bc093a11, type: 2}
+  - {fileID: 11400000, guid: 76e0d388c2e7645459d2a889458e33aa, type: 2}
+  AssociatedScenes:
+  - m_Handle: 0
+  - m_Handle: 0
