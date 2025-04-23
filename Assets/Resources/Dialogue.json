@@ -1,64 +1,64 @@
 [
   {
-    "id": 1,
+    "id": "d_bouncer_1",
     "speaker": "Вышибала: ",
     "text": "Покажите свое приглашение.",
     "choices": [
       {
         "text": "[Дать приглашение]",
-        "targetID": 2
+        "targetID": "d_bouncer_2"
       },
       {
         "text": "Уйти.",
-        "targetID": -1
+        "targetID": "-1"
       }
     ]
   },
   {
-    "id": 2,
+    "id": "d_bouncer_2",
     "speaker": "Вышибала: ",
     "text": "Хорошего вечера, господин Гетсби ждет вас.",
     "targetLocation": 2
   },
   {
-    "id": 3,
+    "id": "d_kirya",
     "speaker": "Кристина: ",
     "text": "Киря, тебе въебать?",
     "choices": [
       {
         "text": "Да, въеби мне.",
-        "targetID": 4
+        "targetID": "d_kirya_1"
       },
       {
         "text": "Дорогая, за что?",
-        "targetID": 7
+        "targetID": "d_kirya_2"
       },
       {
         "text": "Уйти.",
-        "targetID": -1
+        "targetID": "-1"
       }
     ]
   },
   {
-    "id": 4,
+    "id": "d_kirya_1",
     "speaker": "Кристина: ",
     "text": "[Звук треска по голове]",
-    "targetID": 5
+    "targetID": "d_kirya_1_1"
   },
   {
-    "id": 5,
+    "id": "d_kirya_1_1",
     "speaker": "Кристина: ",
     "text": "Иди найди мой айфон.",
-    "targetID": -1
+    "targetID": "-1"
   },
   {
-    "id": 7,
+    "id": "d_kirya_2",
     "speaker": "Кристина: ",
     "text": "Ты не знаешь, что такое любовь.",
     "choices": [
       {
         "text": "Я найду твой айфон!",
-        "targetID": -1
+        "targetID": "-1"
       }
     ]
   }

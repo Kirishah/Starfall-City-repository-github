@@ -963,8 +963,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2914874355865923387, guid: 412b92d4feeb9c548bfa98f62c4d1022, type: 3}
+      propertyPath: npcID
+      value: Kristina
+      objectReference: {fileID: 0}
+    - target: {fileID: 2914874355865923387, guid: 412b92d4feeb9c548bfa98f62c4d1022, type: 3}
       propertyPath: startDialogueID
-      value: 3
+      value: d_kirya
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1930,6 +1934,7 @@ GameObject:
   - component: {fileID: 1690059833}
   - component: {fileID: 1690059832}
   - component: {fileID: 1690059831}
+  - component: {fileID: 1690059835}
   m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
@@ -1952,7 +1957,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -2026,6 +2031,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1122216790}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1690059835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690059830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66482800cab357a4b954a59662c1f137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _questToStart: {fileID: 11400000, guid: 56f28c38b61739e459d7e535b56a219f, type: 2}
 --- !u!1 &1710400290
 GameObject:
   m_ObjectHideFlags: 0
@@ -3032,18 +3050,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4594381363505249578, guid: c86919a1c406927408dd69c1611948d9, type: 3}
-      propertyPath: m_Radius
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6716348859681214680, guid: c86919a1c406927408dd69c1611948d9, type: 3}
-      propertyPath: m_ApplyRootMotion
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8060738646291299030, guid: c86919a1c406927408dd69c1611948d9, type: 3}
-      propertyPath: interactionRange
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3584,6 +3590,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8645626075032093358, guid: 0c1735c70904e0949988c4352780447e, type: 3}
+      propertyPath: npcID
+      value: Bouncer_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8645626075032093358, guid: 0c1735c70904e0949988c4352780447e, type: 3}
       propertyPath: promptOffset.x
       value: 0.7
       objectReference: {fileID: 0}
@@ -3593,7 +3603,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8645626075032093358, guid: 0c1735c70904e0949988c4352780447e, type: 3}
       propertyPath: startDialogueID
-      value: 1
+      value: d_bouncer_1
       objectReference: {fileID: 0}
     - target: {fileID: 9202789343901132147, guid: 0c1735c70904e0949988c4352780447e, type: 3}
       propertyPath: m_Radius

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dcaaa703d2738314188fc27af7fc9955, type: 3}
-  m_Name: main_story_1_Dialogue_f2a33331
+  m_Name: Ipad_find_Dialogue_ec9bb597
   m_EditorClassIdentifier: 
-  ObjectiveID: obj_2a81
-  Description: New Objective
-  TargetNPCID: Bouncer_1
+  ObjectiveID: obj_4ffc
+  Description: Give Kristina iphone
+  TargetNPCID: Kristina

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Quest;
 
@@ -48,6 +49,11 @@ public class QuestManager : MonoBehaviour
 
     public void StartQuest(QuestSO questSO)
     {
+        if (_activeQuests.Any(q => q.Data == questSO))
+        {
+            Debug.LogWarning($"Quest {questSO.name} is already active.");
+            return;
+        }
         if (_questPoolQueue.Count == 0) InitializePool(3);
 
         Quest quest = _questPoolQueue.Dequeue();
@@ -59,6 +65,10 @@ public class QuestManager : MonoBehaviour
         OnQuestStarted?.Invoke(questSO);
     }
 
+    public bool IsQuestActive(QuestSO questSO)
+    {
+        return _activeQuests.Any(q => q.Data == questSO);
+    }
     public void CompleteQuest(Quest quest)
     {
         var questSO = quest.Data; 

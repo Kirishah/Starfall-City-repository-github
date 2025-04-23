@@ -10,6 +10,7 @@ public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
     public DialogueLoader dialogueLoader;
+    private string _currentNPCID;
 
     [Header("UI Components")]
     [SerializeField] private GameObject dialoguePanel;
@@ -40,8 +41,9 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void StartDialogue(int startID)
+    public void StartDialogue(string startID, string npcID)
     {
+        _currentNPCID = npcID;
         currentDialogue = FindDialogue(startID);
         if (currentDialogue == null)
         {
@@ -51,16 +53,16 @@ public class DialogueManager : MonoBehaviour
         ShowDialogue(currentDialogue);
     }
 
-    private Dialogue FindDialogue(int id)
+    private Dialogue FindDialogue(string id)
     {
 
         return dialogues?.Find(d => d.id == id);
 
     }
 
-    public void SelectChoice(int targetID)
+    public void SelectChoice(string targetID)
     {
-        if (targetID == -1)
+        if (targetID == "-1")
         {
             EndDialogue();
             return;
@@ -129,18 +131,18 @@ public class DialogueManager : MonoBehaviour
                     {
                         TransferToLocation(currentDialogue.targetLocation);
                     }
-                    else if (currentDialogue.targetID != 0)
+                    else if (currentDialogue.targetID != null)
                     {
                         SelectChoice(currentDialogue.targetID);
                     }
                     else
                     {
-                        SelectChoice(-1);
+                        SelectChoice("-1");
                     }
                 }
                 else
                 {
-                    SelectChoice(-1);
+                    SelectChoice("-1");
                 }
             });
         }

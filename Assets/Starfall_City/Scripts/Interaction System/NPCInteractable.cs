@@ -4,14 +4,16 @@ using TMPro;
 public class NPCInteractable : Interactable
 {
     [Header("Dialogue Settings")]
-    public int startDialogueID;
+    [SerializeField] private string startDialogueID;
+    [SerializeField] private string npcID;
+
 
     [Header("Prompt")]
     private GameObject currentPrompt;
 
     public override void Interact()
     {
-        DialogueManager.Instance.StartDialogue(startDialogueID);
+        DialogueManager.Instance.StartDialogue(startDialogueID, npcID);
         onInteract.Invoke();
     }
 

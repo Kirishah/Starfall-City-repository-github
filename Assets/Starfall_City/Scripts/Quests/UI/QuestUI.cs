@@ -48,6 +48,14 @@ public class QuestUI : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            QuestUI.Instance.ToggleQuestLog();
+        }
+    }
+
     void OnEnable()
     {
         QuestManager.OnQuestStarted += HandleQuestStarted;

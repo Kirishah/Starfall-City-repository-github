@@ -7,13 +7,13 @@ using System.Collections.Generic;
 public class Dialogue
 {
     [SerializeField]
-    public int id;
+    public string id;
     [SerializeField]
     public int targetLocation;
     [SerializeField]
     public string speaker;
     [SerializeField]
-    public int targetID;
+    public string targetID;
     [SerializeField]
     public string text;
     [SerializeField]
@@ -24,5 +24,5 @@ public class Dialogue
 public class Choice
 {
     public string text;
-    public int targetID;
+    public string targetID;
 }

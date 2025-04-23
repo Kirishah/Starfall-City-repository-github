@@ -480,7 +480,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 44683929737465880}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.1
   m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
@@ -507,6 +507,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 4594381363505249578}
   destinationIndicatorPrefab: {fileID: 1766793217509936268, guid: 3f180648f211cb74ab08ca093831ca13, type: 3}
+  interactionRange: 1
 --- !u!114 &8985186135630980990
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -570,6 +571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4f49cc05db05a8458ec76416485edcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactionRadius: 1
   interactableLayer:
     serializedVersion: 2
     m_Bits: 128
