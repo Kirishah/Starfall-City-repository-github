@@ -2,14 +2,17 @@ using UnityEngine;
 
 public class DialogueObjective : Objective
 {
-    private readonly DialogueSO _data;
-
-    public DialogueObjective(DialogueSO data) => _data = data;
+    public DialogueObjective(DialogueSO data)
+    {
+        _data = data;  // Store in base class field
+    }
 
     public override void CheckProgress(ObjectiveType type, string identifier)
     {
-        if (type == ObjectiveType.Dialogue && identifier == _data.TargetNPCID)
+        if (type == ObjectiveType.Dialogue && identifier == ((DialogueSO)_data).TargetNPCID)
         {
+            // Report completion progress
+            UpdateProgress(1, 1);  // 1/1 required
             Complete();
         }
     }

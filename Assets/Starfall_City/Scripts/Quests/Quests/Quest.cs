@@ -17,7 +17,9 @@ public class Quest
         Data = questSO;
         foreach (ObjectiveSO objectiveSO in questSO.Objectives)
         {
-            _objectives.Add(objectiveSO.CreateObjective());
+            var objective = objectiveSO.CreateObjective();
+            objective.OnProgressChanged += HandleObjectiveProgress;
+            _objectives.Add(objective);
         }
     }
 
@@ -55,5 +57,9 @@ public class Quest
         {
             objective.Cleanup();
         }
+    }
+    private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
+    {
+        QuestManager.Instance.ReportObjectiveProgress(objective, current, required);
     }
 }

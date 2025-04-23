@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObjectiveID: obj_2a81
   Description: New Objective
-  TargetNPCID: 
+  TargetNPCID: Bouncer_1

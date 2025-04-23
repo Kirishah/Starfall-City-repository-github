@@ -120,12 +120,23 @@ public class DialogueManager : MonoBehaviour
         {
             // Add a "Continue" button if no choices
             GameObject btn = Instantiate(choiceButtonPrefab, choiceContainer);
-            btn.GetComponentInChildren<TMP_Text>().text = "Continue";
+            btn.GetComponentInChildren<TMP_Text>().text = "Продолжить";
             btn.GetComponent<Button>().onClick.AddListener(() =>
             {
-                if (currentDialogue != null && currentDialogue.targetLocation != 0)
+                if (currentDialogue != null)
                 {
-                    TransferToLocation(currentDialogue.targetLocation);
+                    if (currentDialogue.targetLocation != 0)
+                    {
+                        TransferToLocation(currentDialogue.targetLocation);
+                    }
+                    else if (currentDialogue.targetID != 0)
+                    {
+                        SelectChoice(currentDialogue.targetID);
+                    }
+                    else
+                    {
+                        SelectChoice(-1);
+                    }
                 }
                 else
                 {
