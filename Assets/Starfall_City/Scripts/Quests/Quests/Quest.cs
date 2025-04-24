@@ -15,11 +15,13 @@ public class Quest
     public void Initialize(QuestSO questSO)
     {
         Data = questSO;
+        _objectives.Clear(); // Ensure the list starts empty
         foreach (ObjectiveSO objectiveSO in questSO.Objectives)
         {
             var objective = objectiveSO.CreateObjective();
             objective.OnProgressChanged += HandleObjectiveProgress;
             _objectives.Add(objective);
+            Debug.Log($"Initialized objective: {objectiveSO.GetType().Name} for quest {questSO.Title}");
         }
     }
 
@@ -55,8 +57,11 @@ public class Quest
     {
         foreach (Objective objective in _objectives)
         {
-            objective.Cleanup();
+            objective.OnProgressChanged -= HandleObjectiveProgress; // Unsubscribe from progress events
+            objective.OnCompleted -= CheckAllObjectivesCompleted;  // Unsubscribe from completion events
+            objective.Cleanup();                                   // Clean up objective internals
         }
+        _objectives.Clear();                                      // Reset the list
     }
     private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
     {

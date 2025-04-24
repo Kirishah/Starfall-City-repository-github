@@ -75,6 +75,16 @@ public class QuestSOEditor : Editor
             CreateObjective<InteractionSO>("Interaction");
         }
         EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Collection Objective"))
+        {
+            CreateObjective<CollectItemSO>("Collection");
+        }
+        if (GUILayout.Button("Performance Objective"))
+        {
+            CreateObjective<PerformanceSO>("Performance");
+        }
+        EditorGUILayout.EndHorizontal();
     }
 
     private void CreateObjective<T>(string typeName) where T : ObjectiveSO

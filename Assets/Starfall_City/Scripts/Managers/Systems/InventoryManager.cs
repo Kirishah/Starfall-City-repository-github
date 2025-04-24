@@ -38,6 +38,15 @@ public class InventoryManager : MonoBehaviour
 
     public bool AddItem(Item item, int quantity)
     {
+        if (item == null || quantity <= 0)
+        {
+            Debug.LogWarning("Attempted to add invalid item or quantity.");
+            return false;
+        }
+
+        int initialQuantity = GetTotalQuantity(item); // Track quantity before adding
+        bool added = false;
+
         if (item.IsStackable)
         {
             // Check for existing stack
@@ -48,6 +57,7 @@ public class InventoryManager : MonoBehaviour
                 int addAmount = Mathf.Min(spaceRemaining, quantity);
                 stack.Add(addAmount);
                 quantity -= addAmount;
+                added = true;
             }
         }
 
@@ -65,6 +75,14 @@ public class InventoryManager : MonoBehaviour
             emptySlot.Item = item;
             emptySlot.Quantity = addAmount;
             quantity -= addAmount;
+            added = true;
+        }
+        if (added)
+        {
+            int newQuantity = GetTotalQuantity(item);
+            int addedQuantity = newQuantity - initialQuantity;
+            // Notify QuestManager of the item collection
+            QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Collection, item.ItemID);
         }
 
         OnInventoryUpdated?.Invoke(); // Refresh UI

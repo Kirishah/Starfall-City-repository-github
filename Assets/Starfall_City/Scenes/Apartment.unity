@@ -1961,8 +1961,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1.7, z: 1}
+  m_Center: {x: 0, y: 0.14304787, z: 0}
 --- !u!23 &1690059832
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2741,6 +2741,7 @@ MonoBehaviour:
   promptOffset: {x: 1.1, y: 0.1, z: 0}
   _item: {fileID: 11400000, guid: c96e117d668f95447b53574a642e41dd, type: 2}
   _quantity: 1
+  itemID: i_ipad
 --- !u!1 &1295196396613410219
 GameObject:
   m_ObjectHideFlags: 0
@@ -2785,6 +2786,7 @@ MonoBehaviour:
   promptOffset: {x: 1.1, y: 0.1, z: 0}
   _item: {fileID: 11400000, guid: c96e117d668f95447b53574a642e41dd, type: 2}
   _quantity: 1
+  itemID: 
 --- !u!224 &1579350208695093655
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2950,6 +2952,7 @@ MonoBehaviour:
   promptOffset: {x: 1.1, y: 0.1, z: 0}
   _item: {fileID: 11400000, guid: c96e117d668f95447b53574a642e41dd, type: 2}
   _quantity: 1
+  itemID: 
 --- !u!224 &2712745822275141243
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3533,6 +3536,7 @@ MonoBehaviour:
   promptOffset: {x: 1.1, y: 0.1, z: 0}
   _item: {fileID: 11400000, guid: c96e117d668f95447b53574a642e41dd, type: 2}
   _quantity: 1
+  itemID: 
 --- !u!1001 &5765496415582330897
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -6,5 +6,6 @@ public enum ObjectiveType
     QTE,
     Exploration,
     Interaction,
-    Performance
+    Performance,
+    Collection
 }

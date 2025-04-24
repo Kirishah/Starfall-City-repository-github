@@ -27,4 +27,9 @@ public abstract class Interactable : MonoBehaviour
     public abstract void HidePrompt();
 
     public abstract void Interact();
+
+    public virtual string GetIdentifier()
+    {
+        return gameObject.name; // Default to GameObject name, override in subclasses
+    }
 }

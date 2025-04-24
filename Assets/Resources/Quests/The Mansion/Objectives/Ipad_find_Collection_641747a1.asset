@@ -9,9 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 546d2c15af5c729498fe783a4a85ac86, type: 3}
-  m_Name: Ipad_find_Interaction_e41215a9
+  m_Script: {fileID: 11500000, guid: fc456104e41e81e44ac969f6be10a3dd, type: 3}
+  m_Name: Ipad_find_Collection_641747a1
   m_EditorClassIdentifier: 
-  ObjectiveID: obj_4e57
-  Description: Pick up iphone
-  ObjectID: trophy_1
+  ObjectiveID: obj_abd1
+  Description: "\u0412\u043E\u0437\u044C\u043C\u0438 \u0430\u0439\u0444\u043E\u043D"
+  TargetItemID: i_ipad
+  RequiredAmount: 1

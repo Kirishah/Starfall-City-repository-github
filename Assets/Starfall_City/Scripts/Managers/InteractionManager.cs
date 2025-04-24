@@ -76,6 +76,12 @@ public class InteractionManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && _closestInteractable != null)
         {
             _closestInteractable.Interact();
+
+            string identifier = _closestInteractable.GetIdentifier(); 
+            if (!string.IsNullOrEmpty(identifier))
+            {
+                QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Interaction, identifier);
+            }
         }
     }
 

@@ -52,7 +52,11 @@ public class NPCInteractable : Interactable
         if (currentPrompt != null)
         {
             currentPrompt.SetActive(false);
-            // Optional: Destroy or pool the prompt if needed
         }
+    }
+
+    public override string GetIdentifier()
+    {
+        return npcID; 
     }
 }

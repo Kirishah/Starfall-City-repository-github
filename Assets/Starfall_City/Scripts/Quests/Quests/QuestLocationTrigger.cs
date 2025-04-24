@@ -6,6 +6,8 @@ public class QuestLocationTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Trigger entered by: " + other.gameObject.name);
+        if (QuestManager.Instance == null) { Debug.LogError("QuestManager instance is null!"); }
         if (other.CompareTag("Player") && !QuestManager.Instance.IsQuestActive(_questToStart))
         {
             QuestManager.Instance.StartQuest(_questToStart);

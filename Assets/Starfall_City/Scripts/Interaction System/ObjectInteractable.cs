@@ -6,6 +6,7 @@ public class ObjectInteractable : Interactable
     [Header("Item Settings")]
     [SerializeField] private Item _item; // Assign the ScriptableObject in the Inspector
     [SerializeField] private int _quantity = 1;
+    [SerializeField] private string itemID;
 
     [Header("Prompt")]
     private GameObject currentPrompt;
@@ -66,5 +67,9 @@ public class ObjectInteractable : Interactable
         {
             Debug.Log("Inventory full!");
         }
+    }
+    public override string GetIdentifier()
+    {
+        return itemID;
     }
 }

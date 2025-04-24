@@ -484,4 +484,4 @@ MonoBehaviour:
   _titleText: {fileID: 1438449836435510575}
   _descriptionText: {fileID: 2079402996261694493}
   _objectivesContainer: {fileID: 5056547899882034202}
-  _objectivePrefab: {fileID: 0}
+  _objectivePrefab: {fileID: 7830599138428579726, guid: fb066eeb5cd297540a2992a6efe938f6, type: 3}

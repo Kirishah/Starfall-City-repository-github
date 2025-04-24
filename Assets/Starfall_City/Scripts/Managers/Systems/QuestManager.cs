@@ -12,6 +12,7 @@ public class QuestManager : MonoBehaviour
     public static event Action<ObjectiveSO, int, int> OnObjectiveProgressed;
 
     private List<Quest> _activeQuests = new List<Quest>();
+    private HashSet<QuestSO> _activeQuestSet = new HashSet<QuestSO>();
     private Queue<Quest> _questPoolQueue = new Queue<Quest>();
 
     void Awake()
@@ -47,9 +48,15 @@ public class QuestManager : MonoBehaviour
         return activeQuestSOs;
     }
 
+    public bool IsQuestActive(QuestSO questSO)
+    {
+        return _activeQuestSet.Contains(questSO);
+    }
+
     public void StartQuest(QuestSO questSO)
     {
-        if (_activeQuests.Any(q => q.Data == questSO))
+        Debug.Log($"Starting quest: {questSO.name}");
+        if (IsQuestActive(questSO))
         {
             Debug.LogWarning($"Quest {questSO.name} is already active.");
             return;
@@ -59,21 +66,19 @@ public class QuestManager : MonoBehaviour
         Quest quest = _questPoolQueue.Dequeue();
         quest.Initialize(questSO);
         _activeQuests.Add(quest);
+        _activeQuestSet.Add(questSO);
         quest.StartQuest();
 
         // Trigger event
         OnQuestStarted?.Invoke(questSO);
     }
 
-    public bool IsQuestActive(QuestSO questSO)
-    {
-        return _activeQuests.Any(q => q.Data == questSO);
-    }
     public void CompleteQuest(Quest quest)
     {
         var questSO = quest.Data; 
         quest.Cleanup();
         _activeQuests.Remove(quest);
+        _activeQuestSet.Remove(questSO);
         _questPoolQueue.Enqueue(quest);
 
         // Trigger event

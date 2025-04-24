@@ -2,19 +2,21 @@ using UnityEngine;
 
 public class PerformanceObjective : Objective
 {
-    private readonly PerformanceSO _data;
+    private readonly string _challengeID;
 
-    public PerformanceObjective(PerformanceSO data) => _data = data;
+    public PerformanceObjective(PerformanceSO data)
+    {
+        _data = data;
+        _challengeID = data.ChallengeID;
+    }
 
     public override void CheckProgress(ObjectiveType type, string identifier)
     {
-        if (type == ObjectiveType.Performance && identifier == _data.PerformanceType.ToString())
+        if (type == ObjectiveType.Performance && identifier == _challengeID)
         {
-            // Assuming identifier includes score in format "PerformanceType:Score"
-            if (float.TryParse(identifier.Split(':')[1], out float score) && score >= _data.RequiredScore)
-            {
-                Complete();
-            }
+            // Assume identifier confirms success (e.g., "Challenge123:Success")
+            UpdateProgress(1, 1);
+            Complete();
         }
     }
 }

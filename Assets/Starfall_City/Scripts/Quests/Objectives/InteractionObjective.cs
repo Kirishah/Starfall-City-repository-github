@@ -2,15 +2,28 @@ using UnityEngine;
 
 public class InteractionObjective : Objective
 {
-    private readonly InteractionSO _data;
+    private int _interactionCount;
+    private readonly string _objectID;
+    private readonly int _requiredCount;
 
-    public InteractionObjective(InteractionSO data) => _data = data;
+    public InteractionObjective(InteractionSO data)
+    {
+        _data = data;
+        _objectID = data.ObjectID;
+        _requiredCount = data.RequiredInteractions;
+        _interactionCount = 0;
+    }
 
     public override void CheckProgress(ObjectiveType type, string identifier)
     {
-        if (type == ObjectiveType.Interaction && identifier == _data.ObjectID)
+        if (type == ObjectiveType.Interaction && identifier == _objectID)
         {
-            Complete();
+            _interactionCount++;
+            UpdateProgress(_interactionCount, _requiredCount);
+            if (_interactionCount >= _requiredCount)
+            {
+                Complete();
+            }
         }
     }
 }
