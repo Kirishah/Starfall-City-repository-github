@@ -14,6 +14,7 @@ public class QuestManager : MonoBehaviour
     private List<Quest> _activeQuests = new List<Quest>();
     private HashSet<QuestSO> _activeQuestSet = new HashSet<QuestSO>();
     private Queue<Quest> _questPoolQueue = new Queue<Quest>();
+    private Dictionary<string, (int current, int required)> _objectiveProgress = new Dictionary<string, (int, int)>(); // Tracks progress by ObjectiveID
 
     void Awake()
     {
@@ -81,6 +82,11 @@ public class QuestManager : MonoBehaviour
         _activeQuestSet.Remove(questSO);
         _questPoolQueue.Enqueue(quest);
 
+        // Remove progress tracking for this quest's objectives
+        foreach (var objective in questSO.Objectives)
+        {
+            _objectiveProgress.Remove(objective.ObjectiveID);
+        }
         // Trigger event
         OnQuestCompleted?.Invoke(questSO);
     }
@@ -88,6 +94,7 @@ public class QuestManager : MonoBehaviour
     // Called from other systems via events
     public void HandleObjectiveUpdate(ObjectiveType type, string identifier)
     {
+        Debug.Log($"QuestManager HandleObjectiveUpdate: type={type}, identifier={identifier}");
         foreach (Quest quest in _activeQuests)
         {
             quest.ProcessObjectiveEvent(type, identifier);
@@ -96,6 +103,17 @@ public class QuestManager : MonoBehaviour
 
     public void ReportObjectiveProgress(ObjectiveSO objective, int current, int required)
     {
+        // Store the progress
+        _objectiveProgress[objective.ObjectiveID] = (current, required);
+
         OnObjectiveProgressed?.Invoke(objective, current, required);
+    }
+    public (int current, int required) GetObjectiveProgress(string objectiveID)
+    {
+        if (_objectiveProgress.TryGetValue(objectiveID, out var progress))
+        {
+            return progress;
+        }
+        return (0, 1); // Default if no progress recorded
     }
 }

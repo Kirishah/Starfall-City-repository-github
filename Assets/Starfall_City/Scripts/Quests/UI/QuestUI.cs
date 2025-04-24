@@ -85,6 +85,11 @@ public class QuestUI : MonoBehaviour
     private void HandleQuestCompleted(QuestSO quest)
     {
         ShowNotification($"Quest Complete: {quest.Title}");
+        RemoveQuestFromUI(quest);
+        if (_questLogPanel.activeSelf)
+        {
+            RefreshQuestLog();
+        }
         // You could move the entry to a completed quests section here
     }
 
@@ -92,6 +97,10 @@ public class QuestUI : MonoBehaviour
     {
         PlaySound(_objectiveCompleteSound);
         ShowNotification($"{objective.Description} ({current}/{required})");
+        if (_questLogPanel.activeSelf)
+        {
+            RefreshQuestLog();
+        }
     }
 
     private void ShowNotification(string message)

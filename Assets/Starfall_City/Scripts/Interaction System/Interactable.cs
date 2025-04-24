@@ -5,6 +5,7 @@ public abstract class Interactable : MonoBehaviour
 {
     [SerializeField] public string interactionText;
     public UnityEvent onInteract;
+    protected string _objectID; 
     public GameObject promptPrefab; // Assign the UI prompt prefab
     [SerializeField] public Vector3 promptOffset; // Adjust height
 
@@ -26,7 +27,12 @@ public abstract class Interactable : MonoBehaviour
 
     public abstract void HidePrompt();
 
-    public abstract void Interact();
+    public virtual void Interact()
+    {
+        onInteract?.Invoke();
+        QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Interaction, _objectID);
+        Debug.Log($"Interactable interacted: ID={_objectID}");
+    }
 
     public virtual string GetIdentifier()
     {

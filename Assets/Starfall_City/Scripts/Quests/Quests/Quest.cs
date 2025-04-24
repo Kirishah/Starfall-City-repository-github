@@ -36,8 +36,10 @@ public class Quest
 
     public void ProcessObjectiveEvent(ObjectiveType type, string identifier)
     {
+        Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
         foreach (Objective objective in _objectives)
         {
+            Debug.Log($"Calling CheckProgress on objective: {objective.GetType().Name}");
             objective.CheckProgress(type, identifier);
         }
         CheckAllObjectivesCompleted();
@@ -50,6 +52,7 @@ public class Quest
             if (!objective.IsCompleted) return;
         }
         IsCompleted = true;
+        Debug.Log($"Quest {Data.Title} completed!");
         QuestManager.Instance.CompleteQuest(this);
     }
 

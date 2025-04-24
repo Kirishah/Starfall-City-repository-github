@@ -16,8 +16,12 @@ public class ObjectiveDisplay : MonoBehaviour
     public void Initialize(ObjectiveSO objectiveData)
     {
         _objectiveData = objectiveData;
-        _currentProgress = 0;
         _requiredProgress = GetRequiredProgress(objectiveData);
+
+        // Sync with current progress from QuestManager
+        var progress = QuestManager.Instance.GetObjectiveProgress(_objectiveData.ObjectiveID);
+        _currentProgress = progress.current;
+        _requiredProgress = progress.required;
 
         UpdateDisplay();
         QuestManager.OnObjectiveProgressed += HandleObjectiveProgress;
@@ -31,17 +35,26 @@ public class ObjectiveDisplay : MonoBehaviour
 
         if (objective is DialogueSO dialogueObjective)
             return 1; // Dialogue objectives typically require 1 completion
-
+        if (objective is InteractionSO interactionObjective)
+            return interactionObjective.RequiredInteractions;
+        if (objective is CollectItemSO collectionObjective)
+            return collectionObjective.RequiredAmount;
+        if (objective is ExplorationSO)
+            return 1;
+        if (objective is PerformanceSO)
+            return 1;
         return 1; // Default
     }
 
     private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
     {
+        Debug.Log($"ObjectiveDisplay HandleObjectiveProgress: objective={objective.ObjectiveID}, current={current}, required={required}");
         if (objective.ObjectiveID == _objectiveData.ObjectiveID)
         {
             _currentProgress = current;
             _requiredProgress = required;
             UpdateDisplay();
+            Debug.Log($"ObjectiveDisplay updated: {_objectiveText.text}");
         }
     }
 

@@ -18,6 +18,7 @@ public class InteractionObjective : Objective
     {
         if (type == ObjectiveType.Interaction && identifier == _objectID)
         {
+            Debug.Log($"InteractionObjective CheckProgress: type={type}, identifier={identifier}, target={_objectID}");
             _interactionCount++;
             UpdateProgress(_interactionCount, _requiredCount);
             if (_interactionCount >= _requiredCount)

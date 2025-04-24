@@ -83,6 +83,7 @@ public class InventoryManager : MonoBehaviour
             int addedQuantity = newQuantity - initialQuantity;
             // Notify QuestManager of the item collection
             QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Collection, item.ItemID);
+            Debug.Log($"Added to new slot: ItemID={item.ItemID}, Amount={addedQuantity}");
         }
 
         OnInventoryUpdated?.Invoke(); // Refresh UI

@@ -16,9 +16,10 @@ public class CollectItemObjective : Objective
 
     public override void CheckProgress(ObjectiveType type, string identifier)
     {
-        Debug.Log($"CollectionObjective CheckProgress: type={type}, identifier={identifier}, target={_targetItemID}");
+        
         if (type == ObjectiveType.Collection && identifier == _targetItemID)
         {
+            Debug.Log($"CollectionObjective CheckProgress: type={type}, identifier={identifier}, target={_targetItemID}");
             _currentCount++;
             UpdateProgress(_currentCount, _requiredCount);
             if (_currentCount >= _requiredCount)

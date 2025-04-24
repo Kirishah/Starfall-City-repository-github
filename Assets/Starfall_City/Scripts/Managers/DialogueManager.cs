@@ -88,6 +88,7 @@ public class DialogueManager : MonoBehaviour
         if (!string.IsNullOrEmpty(_currentNPCID))
         {
             QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Dialogue, _currentNPCID);
+            Debug.Log($"Dialogue ended: NPCID={_currentNPCID}");
         }
     }
 
