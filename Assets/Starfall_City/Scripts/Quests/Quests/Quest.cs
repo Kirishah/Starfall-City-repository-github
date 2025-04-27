@@ -6,20 +6,25 @@ using UnityEngine.Rendering;
 
 public class Quest
 {
-    public QuestSO Data { get; private set; }
-
-    // property to fix potential missing reference
-    public bool IsCompleted { get; private set; }
+    private QuestSO _data;
+    private bool _isCompleted;
     private List<Objective> _objectives = new List<Objective>();
+    private int _activeObjectiveIndex;
+
+    public QuestSO Data => _data;
+    public bool IsCompleted => _isCompleted;
+    public int ActiveObjectiveIndex => _activeObjectiveIndex;
 
     public void Initialize(QuestSO questSO)
     {
-        Data = questSO;
+        _data = questSO;
         _objectives.Clear(); // Ensure the list starts empty
+        _activeObjectiveIndex = 0;
         foreach (ObjectiveSO objectiveSO in questSO.Objectives)
         {
             var objective = objectiveSO.CreateObjective();
             objective.OnProgressChanged += HandleObjectiveProgress;
+            objective.OnCompleted += HandleObjectiveCompleted;
             _objectives.Add(objective);
             Debug.Log($"Initialized objective: {objectiveSO.GetType().Name} for quest {questSO.Title}");
         }
@@ -30,18 +35,47 @@ public class Quest
         foreach (Objective objective in _objectives)
         {
             objective.Initialize();
-            objective.OnCompleted += CheckAllObjectivesCompleted;
         }
     }
 
     public void ProcessObjectiveEvent(ObjectiveType type, string identifier)
     {
         Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
-        foreach (Objective objective in _objectives)
+
+        // Find the first incomplete objective
+        int firstIncompleteIndex = -1;
+        for (int i = 0; i < _objectives.Count; i++)
         {
-            Debug.Log($"Calling CheckProgress on objective: {objective.GetType().Name}");
-            objective.CheckProgress(type, identifier);
+            if (!_objectives[i].IsCompleted)
+            {
+                firstIncompleteIndex = i;
+                break;
+            }
         }
+
+        // If all objectives are complete, do nothing (CheckAllObjectivesCompleted will handle quest completion)
+        if (firstIncompleteIndex == -1)
+        {
+            Debug.Log("All objectives completed, skipping ProcessObjectiveEvent.");
+            return;
+        }
+
+        // Update the active objective index
+        _activeObjectiveIndex = firstIncompleteIndex;
+        Objective activeObjective = _objectives[_activeObjectiveIndex];
+        Debug.Log($"Calling CheckProgress on active objective: {activeObjective.GetType().Name} (Index: {_activeObjectiveIndex})");
+        activeObjective.CheckProgress(type, identifier);
+
+        CheckAllObjectivesCompleted();
+    }
+
+    private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
+    {
+        QuestManager.Instance.ReportObjectiveProgress(objective, current, required);
+    }
+
+    private void HandleObjectiveCompleted()
+    {
         CheckAllObjectivesCompleted();
     }
 
@@ -51,7 +85,7 @@ public class Quest
         {
             if (!objective.IsCompleted) return;
         }
-        IsCompleted = true;
+        _isCompleted = true;
         Debug.Log($"Quest {Data.Title} completed!");
         QuestManager.Instance.CompleteQuest(this);
     }
@@ -66,8 +100,48 @@ public class Quest
         }
         _objectives.Clear();                                      // Reset the list
     }
-    private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
+
+    // Get all completed objectives
+    public List<Objective> GetCompletedObjectives()
     {
-        QuestManager.Instance.ReportObjectiveProgress(objective, current, required);
+        List<Objective> completed = new List<Objective>();
+        for (int i = 0; i < _objectives.Count; i++)
+        {
+            if (_objectives[i].IsCompleted)
+            {
+                completed.Add(_objectives[i]);
+            }
+            else
+            {
+                break; // Stop at the first incomplete objective
+            }
+        }
+        return completed;
+    }
+
+    // Get the current active objective, or null if all are completed
+    public Objective GetCurrentObjective()
+    {
+        int firstIncompleteIndex = -1;
+        for (int i = 0; i < _objectives.Count; i++)
+        {
+            if (!_objectives[i].IsCompleted)
+            {
+                firstIncompleteIndex = i;
+                break;
+            }
+        }
+        return firstIncompleteIndex >= 0 ? _objectives[firstIncompleteIndex] : null;
+    }
+
+    // Map an Objective to its corresponding ObjectiveSO
+    public ObjectiveSO GetObjectiveSO(Objective objective)
+    {
+        int index = _objectives.IndexOf(objective);
+        if (index >= 0 && index < Data.Objectives.Length)
+        {
+            return Data.Objectives[index];
+        }
+        return null;
     }
 }

@@ -967,6 +967,10 @@ PrefabInstance:
       value: Kristina
       objectReference: {fileID: 0}
     - target: {fileID: 2914874355865923387, guid: 412b92d4feeb9c548bfa98f62c4d1022, type: 3}
+      propertyPath: questStarter
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2914874355865923387, guid: 412b92d4feeb9c548bfa98f62c4d1022, type: 3}
       propertyPath: startDialogueID
       value: d_kirya
       objectReference: {fileID: 0}
@@ -1857,7 +1861,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!224 &1677941891
 RectTransform:

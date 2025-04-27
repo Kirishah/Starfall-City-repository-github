@@ -4,12 +4,17 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
     public DialogueLoader dialogueLoader;
     private string _currentNPCID;
+
+    // Event to notify when a dialogue line is displayed
+    public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
+    public static event DialogueLineDisplayedHandler OnDialogueLineDisplayed;
 
     [Header("UI Components")]
     [SerializeField] private GameObject dialoguePanel;
@@ -109,6 +114,9 @@ public class DialogueManager : MonoBehaviour
 
         speakerText.text = !string.IsNullOrEmpty(dialogue.speaker) ? dialogue.speaker : "Unknown";
         dialogueText.text = dialogue.text;
+
+        // Notify listeners that a dialogue line is displayed
+        OnDialogueLineDisplayed?.Invoke(dialogue.id, _currentNPCID);
 
         // Clear existing choices
         foreach (Transform child in choiceContainer) Destroy(child.gameObject);

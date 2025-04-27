@@ -3,6 +3,9 @@ using TMPro;
 
 public class NPCInteractable : Interactable
 {
+    [Header("Quest NPC?")]
+    [SerializeField] private QuestStarter questStarter;
+
     [Header("Dialogue Settings")]
     [SerializeField] private string startDialogueID;
     [SerializeField] private string npcID;
@@ -13,7 +16,15 @@ public class NPCInteractable : Interactable
 
     public override void Interact()
     {
-        DialogueManager.Instance.StartDialogue(startDialogueID, npcID);
+        if (questStarter != null)
+        {
+            questStarter.StartDialogue();
+        }
+        else
+        {
+            Debug.LogWarning("No QuestStarter assigned to NPC: " + npcID);
+            DialogueManager.Instance.StartDialogue(startDialogueID, npcID);
+        }
         onInteract.Invoke();
     }
 

@@ -95,7 +95,7 @@ public class QuestManager : MonoBehaviour
     public void HandleObjectiveUpdate(ObjectiveType type, string identifier)
     {
         Debug.Log($"QuestManager HandleObjectiveUpdate: type={type}, identifier={identifier}");
-        foreach (Quest quest in _activeQuests)
+        foreach (Quest quest in _activeQuests.ToList())
         {
             quest.ProcessObjectiveEvent(type, identifier);
         }
@@ -115,5 +115,9 @@ public class QuestManager : MonoBehaviour
             return progress;
         }
         return (0, 1); // Default if no progress recorded
+    }
+    public Quest FindQuestByObjective(ObjectiveSO objective)
+    {
+        return _activeQuests.Find(quest => quest.Data.Objectives.Contains(objective));
     }
 }
