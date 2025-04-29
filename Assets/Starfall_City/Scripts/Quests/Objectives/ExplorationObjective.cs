@@ -4,13 +4,13 @@ public class ExplorationObjective : Objective
 {
     private readonly string _locationID;
 
-    public ExplorationObjective(ExplorationSO data)
+    public ExplorationObjective(ExplorationSO data) : base(data)
     {
         _data = data;
         _locationID = data.LocationID;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
     {
         if (type == ObjectiveType.Exploration && identifier == _locationID)
         {

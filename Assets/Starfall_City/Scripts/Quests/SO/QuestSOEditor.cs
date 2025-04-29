@@ -84,6 +84,10 @@ public class QuestSOEditor : Editor
         {
             CreateObjective<PerformanceSO>("Performance");
         }
+        if (GUILayout.Button("GiveItem Objective"))
+        {
+            CreateObjective<GiveItemSO>("GiveItem");
+        }
         EditorGUILayout.EndHorizontal();
     }
 

@@ -4,13 +4,13 @@ public class PerformanceObjective : Objective
 {
     private readonly string _challengeID;
 
-    public PerformanceObjective(PerformanceSO data)
+    public PerformanceObjective(PerformanceSO data) : base(data)
     {
         _data = data;
         _challengeID = data.ChallengeID;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
     {
         if (type == ObjectiveType.Performance && identifier == _challengeID)
         {

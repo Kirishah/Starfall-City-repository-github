@@ -6,7 +6,7 @@ public class InteractionObjective : Objective
     private readonly string _objectID;
     private readonly int _requiredCount;
 
-    public InteractionObjective(InteractionSO data)
+    public InteractionObjective(InteractionSO data) : base(data) // Call the base constructor with data
     {
         _data = data;
         _objectID = data.ObjectID;
@@ -14,7 +14,7 @@ public class InteractionObjective : Objective
         _interactionCount = 0;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
     {
         if (type == ObjectiveType.Interaction && identifier == _objectID)
         {

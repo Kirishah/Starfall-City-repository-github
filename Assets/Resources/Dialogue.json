@@ -58,7 +58,7 @@
     "choices": [
       {
         "text": "Я нашел твой айфон! [Отдать айфон]",
-        "targetID": "-1"
+        "targetID": "action:GiveItem:i_ipad:-1"
       }
     ]
   }

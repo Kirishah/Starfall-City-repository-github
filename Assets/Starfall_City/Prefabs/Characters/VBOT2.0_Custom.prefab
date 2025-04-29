@@ -1511,8 +1511,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 0, y: 2, z: 0}
-  startDialogueID: 0
+  promptOffset: {x: 0.7, y: 1.7, z: 0}
+  questStarter: {fileID: 0}
+  startDialogueID: d_bouncer_1
+  npcID: Bouncer_1
 --- !u!135 &9202789343901132147
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1532,8 +1534,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.88310814
-  m_Center: {x: -0.04357618, y: 0.9680114, z: -0.035311576}
+  m_Radius: 0.73286265
+  m_Center: {x: -0.003849566, y: 1.0453941, z: 0.009533703}
 --- !u!1 &3595646151783515215
 GameObject:
   m_ObjectHideFlags: 0

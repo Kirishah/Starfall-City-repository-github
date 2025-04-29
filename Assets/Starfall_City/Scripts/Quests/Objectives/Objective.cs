@@ -5,15 +5,22 @@ using System;
 // Base class for all objectives in the quest system
 public abstract class Objective
 {
-    public event Action<ObjectiveSO, int, int> OnProgressChanged;
-    public ObjectiveSO _data { get; protected set; }
-
-    public event Action OnCompleted;
+    protected ObjectiveSO _data;
     public bool IsCompleted { get; protected set; }
+    public Objective(ObjectiveSO data)
+    {
+        _data = data;
+    }
+
+
+    public delegate void ProgressHandler(ObjectiveSO objective, int current, int required);
+    public event ProgressHandler OnProgressChanged;
+    public event Action OnCompleted;
+    
 
     public virtual void Initialize() => IsCompleted = false;
     public virtual void Cleanup() { }
-    public virtual void CheckProgress(ObjectiveType type, string identifier) { }
+    public abstract void CheckProgress(ObjectiveType type, string identifier, string itemID);
 
     protected void Complete()
     {

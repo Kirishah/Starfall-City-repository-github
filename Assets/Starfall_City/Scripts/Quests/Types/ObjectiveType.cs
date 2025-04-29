@@ -7,5 +7,6 @@ public enum ObjectiveType
     Exploration,
     Interaction,
     Performance,
-    Collection
+    Collection,
+    GiveItem
 }

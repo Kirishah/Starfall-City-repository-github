@@ -66,23 +66,46 @@ public class DialogueManager : MonoBehaviour
 
     public void SelectChoice(string targetID)
     {
-        if (targetID == "-1")
+        if (targetID.StartsWith("action:"))
         {
-            EndDialogue();
-            return;
-        }
-        if (dialogues != null)
-        {
-            currentDialogue = FindDialogue(targetID);
-
-            if (currentDialogue != null && UIManager.Instance != null)
+            var parts = targetID.Split(':');
+            if (parts.Length >= 4 && parts[1] == "GiveItem")
             {
-                ShowDialogue(currentDialogue);
+                string itemID = parts[2];
+                string nextDialogueID = parts[3];
+
+                Item item = ItemDataBase.Instance.GetItemByID(itemID); // Assume ItemDataBase exists
+                if (item != null && InventoryManager.Instance.RemoveItem(item, 1))
+                {
+                    QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.GiveItem, _currentNPCID, itemID);
+                    Debug.Log($"Gave {item.Name} to {_currentNPCID}");
+                }
+                else
+                {
+                    Debug.Log("Failed to give item: not in inventory or invalid item.");
+                    // Optionally, redirect to a "failure" dialogue
+                    nextDialogueID = "no_item_dialogue";
+                }
+
+                currentDialogue = FindDialogue(nextDialogueID);
+                if (currentDialogue != null) ShowDialogue(currentDialogue);
+                else EndDialogue();
             }
             else
             {
-                Debug.LogError("Failed to find dialogue or UIManager instance.");
+                Debug.LogError("Invalid action format: " + targetID);
+                EndDialogue();
             }
+        }
+        else if (targetID == "-1")
+        {
+            EndDialogue();
+        }
+        else
+        {
+            currentDialogue = FindDialogue(targetID);
+            if (currentDialogue != null) ShowDialogue(currentDialogue);
+            else EndDialogue();
         }
     }
 

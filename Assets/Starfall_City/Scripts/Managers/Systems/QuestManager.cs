@@ -92,18 +92,22 @@ public class QuestManager : MonoBehaviour
     }
 
     // Called from other systems via events
-    public void HandleObjectiveUpdate(ObjectiveType type, string identifier)
+    public void HandleObjectiveUpdate(ObjectiveType type, string identifier, string itemID = null)
     {
         Debug.Log($"QuestManager HandleObjectiveUpdate: type={type}, identifier={identifier}");
         foreach (Quest quest in _activeQuests.ToList())
         {
-            quest.ProcessObjectiveEvent(type, identifier);
+            quest.ProcessObjectiveEvent(type, identifier, itemID);
         }
     }
 
     public void ReportObjectiveProgress(ObjectiveSO objective, int current, int required)
     {
-        // Store the progress
+        if (objective == null || string.IsNullOrEmpty(objective.ObjectiveID))
+        {
+            Debug.LogError("Cannot report progress: Objective or ObjectiveID is null.");
+            return;
+        }
         _objectiveProgress[objective.ObjectiveID] = (current, required);
 
         OnObjectiveProgressed?.Invoke(objective, current, required);

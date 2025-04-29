@@ -11,7 +11,9 @@ public class QuestUI : MonoBehaviour
     [SerializeField] private GameObject _questLogPanel;
     [SerializeField] private Transform _activeQuestsContainer;
     [SerializeField] private QuestEntryUI _questEntryPrefab;
+    [SerializeField] private GameObject _notificationBar;
     [SerializeField] private TextMeshProUGUI _objectiveNotificationText;
+
 
     [Header("Settings")]
     [SerializeField] private float _notificationDuration = 3f;
@@ -41,6 +43,11 @@ public class QuestUI : MonoBehaviour
         // Get required components with null checks
         _notificationAnimator = _objectiveNotificationText.GetComponent<Animator>();
         _notificationCanvasGroup = _objectiveNotificationText.GetComponent<CanvasGroup>();
+
+        if (_notificationBar != null)
+        {
+            _notificationBar.SetActive(false);
+        }
 
         if (!_notificationCanvasGroup)
         {
@@ -107,6 +114,10 @@ public class QuestUI : MonoBehaviour
     {
         if (_objectiveNotificationText == null) return;
 
+        if (_notificationBar != null)
+        {
+            _notificationBar.SetActive(true);
+        }
         _notificationQueue.Enqueue(message);
         if (!_isShowingNotification)
         {
@@ -139,6 +150,10 @@ public class QuestUI : MonoBehaviour
             }
         }
 
+        if (_notificationBar != null)
+        {
+            _notificationBar.SetActive(false);
+        }
         _isShowingNotification = false;
     }
 

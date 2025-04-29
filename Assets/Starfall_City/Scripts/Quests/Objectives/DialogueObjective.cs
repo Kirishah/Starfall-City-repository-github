@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class DialogueObjective : Objective
 {
-    public DialogueObjective(DialogueSO data)
+    public DialogueObjective(DialogueSO data) : base(data)
     {
-        _data = data;  // Store in base class field
+        _data = data;  
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
     {
         
         if (type == ObjectiveType.Dialogue && identifier == ((DialogueSO)_data).TargetNPCID)

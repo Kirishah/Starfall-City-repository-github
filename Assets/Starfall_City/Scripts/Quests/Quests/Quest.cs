@@ -38,7 +38,7 @@ public class Quest
         }
     }
 
-    public void ProcessObjectiveEvent(ObjectiveType type, string identifier)
+    public void ProcessObjectiveEvent(ObjectiveType type, string identifier, string itemID)
     {
         Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
 
@@ -64,7 +64,7 @@ public class Quest
         _activeObjectiveIndex = firstIncompleteIndex;
         Objective activeObjective = _objectives[_activeObjectiveIndex];
         Debug.Log($"Calling CheckProgress on active objective: {activeObjective.GetType().Name} (Index: {_activeObjectiveIndex})");
-        activeObjective.CheckProgress(type, identifier);
+        activeObjective.CheckProgress(type, identifier, itemID);
 
         CheckAllObjectivesCompleted();
     }

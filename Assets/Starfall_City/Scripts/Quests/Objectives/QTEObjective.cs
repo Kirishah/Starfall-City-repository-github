@@ -6,7 +6,7 @@ public class QTEObjective : Objective
     private int _successCount;
     private readonly int _requiredCount;
 
-    public QTEObjective(QTEObjectiveSO data)
+    public QTEObjective(QTEObjectiveSO data) : base(data) // Call the base constructor with data
     {
         _data = data;  // Base class storage
         _qteID = data.QTEID;
@@ -14,7 +14,7 @@ public class QTEObjective : Objective
         _successCount = 0;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
     {
         if (type == ObjectiveType.QTE && identifier == _qteID)
         {

@@ -1779,6 +1779,7 @@ MonoBehaviour:
   _questLogPanel: {fileID: 2089735653942276205}
   _activeQuestsContainer: {fileID: 6839681139958532916}
   _questEntryPrefab: {fileID: 7280203892725816975, guid: ff3819e5e897a794cb5593c6ed8f0e3b, type: 3}
+  _notificationBar: {fileID: 7987842864447793768}
   _objectiveNotificationText: {fileID: 5630978902691272271}
   _notificationDuration: 3
   _newQuestSound: {fileID: 0}
@@ -2182,7 +2183,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6951452336621548764
 RectTransform:
   m_ObjectHideFlags: 0

@@ -6,7 +6,7 @@ public class CollectItemObjective : Objective
     private readonly string _targetItemID;
     private readonly int _requiredCount;
 
-    public CollectItemObjective(CollectItemSO data)
+    public CollectItemObjective(CollectItemSO data) : base(data) // Call the base constructor with data
     {
         _data = data;
         _targetItemID = data.TargetItemID;
@@ -14,7 +14,7 @@ public class CollectItemObjective : Objective
         _currentCount = 0;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
     {
         
         if (type == ObjectiveType.Collection && identifier == _targetItemID)
