@@ -5,7 +5,7 @@ using System;
 // Base class for all objectives in the quest system
 public abstract class Objective
 {
-    protected ObjectiveSO _data;
+    public ObjectiveSO _data { get; protected set; }
     public bool IsCompleted { get; protected set; }
     public Objective(ObjectiveSO data)
     {
@@ -22,7 +22,7 @@ public abstract class Objective
     public virtual void Cleanup() { }
     public abstract void CheckProgress(ObjectiveType type, string identifier, string itemID);
 
-    protected void Complete()
+    public void Complete()
     {
         IsCompleted = true;
         OnCompleted?.Invoke();

@@ -142,6 +142,17 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
+    public bool HasItem(Item item, int quantity)
+    {
+        if (item == null || quantity <= 0)
+        {
+            Debug.LogWarning("Attempted to check invalid item or quantity.");
+            return false;
+        }
+        int totalAvailable = GetTotalQuantity(item);
+        return totalAvailable >= quantity;
+    }
+
     private int GetTotalQuantity(Item item)
     {
         int total = 0;

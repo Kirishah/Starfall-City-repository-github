@@ -18,7 +18,7 @@ public class Quest
     public void Initialize(QuestSO questSO)
     {
         _data = questSO;
-        _objectives.Clear(); // Ensure the list starts empty
+        _objectives.Clear(); // список пустой
         _activeObjectiveIndex = 0;
         foreach (ObjectiveSO objectiveSO in questSO.Objectives)
         {
@@ -36,13 +36,14 @@ public class Quest
         {
             objective.Initialize();
         }
+        CheckActiveObjective();
     }
 
     public void ProcessObjectiveEvent(ObjectiveType type, string identifier, string itemID)
     {
         Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
 
-        // Find the first incomplete objective
+        // Находишь первую невыполненную цель
         int firstIncompleteIndex = -1;
         for (int i = 0; i < _objectives.Count; i++)
         {
@@ -53,19 +54,38 @@ public class Quest
             }
         }
 
-        // If all objectives are complete, do nothing (CheckAllObjectivesCompleted will handle quest completion)
+        // Если все цели выполнены, ничего не делай (CheckAllObjectivesCompleted обработает завершение квеста).
         if (firstIncompleteIndex == -1)
         {
             Debug.Log("All objectives completed, skipping ProcessObjectiveEvent.");
             return;
         }
 
-        // Update the active objective index
+        // Обновление индекса активной цели
         _activeObjectiveIndex = firstIncompleteIndex;
         Objective activeObjective = _objectives[_activeObjectiveIndex];
         Debug.Log($"Calling CheckProgress on active objective: {activeObjective.GetType().Name} (Index: {_activeObjectiveIndex})");
+        // Проверь автозавершение, когда цель становится активной
+        CheckActiveObjective();
+
         activeObjective.CheckProgress(type, identifier, itemID);
 
+        // Повторная проверка после обработки события 
+        firstIncompleteIndex = -1;
+        for (int i = 0; i < _objectives.Count; i++)
+        {
+            if (!_objectives[i].IsCompleted)
+            {
+                firstIncompleteIndex = i;
+                break;
+            }
+        }
+        if (firstIncompleteIndex != -1 && firstIncompleteIndex != _activeObjectiveIndex)
+        {
+            _activeObjectiveIndex = firstIncompleteIndex;
+            Debug.Log($"Objective completed, updated active index to {firstIncompleteIndex}");
+            CheckActiveObjective();
+        }
         CheckAllObjectivesCompleted();
     }
 
@@ -77,6 +97,39 @@ public class Quest
     private void HandleObjectiveCompleted()
     {
         CheckAllObjectivesCompleted();
+    }
+
+    private void CheckActiveObjective()
+    {
+        if (_activeObjectiveIndex < 0 || _activeObjectiveIndex >= _objectives.Count)
+        {
+            Debug.LogWarning($"Invalid activeObjectiveIndex: {_activeObjectiveIndex}");
+            return;
+        }
+
+        Objective activeObjective = _objectives[_activeObjectiveIndex];
+        Debug.Log($"Checking active objective: {activeObjective.GetType().Name}");
+
+        if (activeObjective is CollectItemObjective collectionObj)
+        {
+            Debug.Log($"CollectionObjective detected: TargetItemID={collectionObj.TargetItemID}, RequiredAmount={((CollectItemSO)collectionObj._data).RequiredAmount}");
+            Item item = ItemDataBase.Instance.GetItemByID(collectionObj.TargetItemID);
+            if (item != null)
+            {
+                Debug.Log($"Item found in database: {item.name}, ID={item.ItemID}");
+                bool hasItem = InventoryManager.Instance.HasItem(item, ((CollectItemSO)collectionObj._data).RequiredAmount);
+                Debug.Log($"Inventory has item? {hasItem}");
+                if (hasItem)
+                {
+                    Debug.Log("Auto-completing CollectionObjective.");
+                    collectionObj.Complete();
+                }
+            }
+            else
+            {
+                Debug.LogError($"Item not found in ItemDataBase for ID: {collectionObj.TargetItemID}");
+            }
+        }
     }
 
     private void CheckAllObjectivesCompleted()
