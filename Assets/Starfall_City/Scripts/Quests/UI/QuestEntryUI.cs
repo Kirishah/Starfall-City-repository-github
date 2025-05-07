@@ -1,4 +1,5 @@
 using NUnit.Framework.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class QuestEntryUI : MonoBehaviour
     [SerializeField] private ObjectiveDisplay _objectivePrefab;
 
     private Quest _quest;
+    private List<ObjectiveDisplay> _objectiveDisplays = new List<ObjectiveDisplay>();
 
     public void Initialize(QuestSO questData)
     {
@@ -27,11 +29,52 @@ public class QuestEntryUI : MonoBehaviour
             return;
         }
 
-        // Clear existing objectives
-        foreach (Transform child in _objectivesContainer)
+        RefreshObjectives();
+    }
+
+    private void OnEnable()
+    {
+        if (QuestManager.Instance != null)
         {
-            Destroy(child.gameObject);
+            QuestManager.OnObjectiveProgressed += HandleObjectiveProgressed;
+            QuestManager.OnQuestCompleted += HandleQuestCompleted;
         }
+    }
+
+    private void OnDisable()
+    {
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.OnObjectiveProgressed -= HandleObjectiveProgressed;
+            QuestManager.OnQuestCompleted -= HandleQuestCompleted;
+        }
+    }
+
+    private void HandleObjectiveProgressed(ObjectiveSO objective, int current, int required)
+    {
+        // Check if this objective belongs to the current quest
+        if (_quest.Data.Objectives.Contains(objective))
+        {
+            RefreshObjectives();
+        }
+    }
+
+    private void HandleQuestCompleted(QuestSO completedQuest)
+    {
+        if (completedQuest == QuestData)
+        {
+            RefreshObjectives();
+        }
+    }
+
+    private void RefreshObjectives()
+    {
+        // Clear existing objective displays
+        foreach (var display in _objectiveDisplays)
+        {
+            Destroy(display.gameObject);
+        }
+        _objectiveDisplays.Clear();
 
         // Display completed objectives
         var completedObjectives = _quest.GetCompletedObjectives();
@@ -41,7 +84,8 @@ public class QuestEntryUI : MonoBehaviour
             if (objectiveSO != null)
             {
                 var display = Instantiate(_objectivePrefab, _objectivesContainer);
-                display.Initialize(objectiveSO);
+                display.Initialize(objectiveSO, objective);
+                _objectiveDisplays.Add(display);
             }
         }
 
@@ -53,7 +97,8 @@ public class QuestEntryUI : MonoBehaviour
             if (currentObjectiveSO != null)
             {
                 var display = Instantiate(_objectivePrefab, _objectivesContainer);
-                display.Initialize(currentObjectiveSO);
+                display.Initialize(currentObjectiveSO, currentObjective);
+                _objectiveDisplays.Add(display);
             }
         }
     }

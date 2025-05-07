@@ -10,12 +10,14 @@ public class ObjectiveDisplay : MonoBehaviour
     [SerializeField] private Sprite _incompleteIcon;
 
     private ObjectiveSO _objectiveData;
+    private Objective _objectiveInstance;
     private int _currentProgress;
     private int _requiredProgress;
 
-    public void Initialize(ObjectiveSO objectiveData)
+    public void Initialize(ObjectiveSO objectiveData, Objective objectiveInstance)
     {
         _objectiveData = objectiveData;
+        _objectiveInstance = objectiveInstance;
         _requiredProgress = GetRequiredProgress(objectiveData);
 
         // Sync with current progress from QuestManager
@@ -60,7 +62,7 @@ public class ObjectiveDisplay : MonoBehaviour
 
     private void UpdateDisplay()
     {
-        bool isComplete = _currentProgress >= _requiredProgress;
+        bool isComplete = _objectiveInstance != null ? _objectiveInstance.IsCompleted : _currentProgress >= _requiredProgress;
 
         _statusIcon.sprite = isComplete ? _completeIcon : _incompleteIcon;
         _objectiveText.text = $"{_objectiveData.Description} ({_currentProgress}/{_requiredProgress})";

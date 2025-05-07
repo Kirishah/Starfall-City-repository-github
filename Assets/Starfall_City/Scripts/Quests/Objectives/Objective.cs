@@ -24,11 +24,16 @@ public abstract class Objective
 
     public void Complete()
     {
-        IsCompleted = true;
-        OnCompleted?.Invoke();
+        if (!IsCompleted)
+        {
+            IsCompleted = true;
+            OnCompleted?.Invoke();
+            Debug.Log($"Objective {_data.ObjectiveID} completed.");
+        }
     }
     protected void UpdateProgress(int current, int required)
     {
         OnProgressChanged?.Invoke(_data, current, required);
+        if (current >= required) Complete();
     }
 }

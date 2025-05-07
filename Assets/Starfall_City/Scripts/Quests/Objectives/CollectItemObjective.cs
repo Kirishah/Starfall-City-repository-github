@@ -25,10 +25,6 @@ public class CollectItemObjective : Objective
             Debug.Log($"CollectionObjective CheckProgress: type={type}, identifier={identifier}, target={_targetItemID}");
             _currentCount++;
             UpdateProgress(_currentCount, _requiredCount);
-            if (_currentCount >= _requiredCount)
-            {
-                Complete();
-            }
         }
     }
 }

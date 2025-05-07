@@ -96,6 +96,21 @@ public class Quest
 
     private void HandleObjectiveCompleted()
     {
+        int firstIncompleteIndex = -1;
+        for (int i = 0; i < _objectives.Count; i++)
+        {
+            if (!_objectives[i].IsCompleted)
+            {
+                firstIncompleteIndex = i;
+                break;
+            }
+        }
+        if (firstIncompleteIndex != -1 && firstIncompleteIndex != _activeObjectiveIndex)
+        {
+            _activeObjectiveIndex = firstIncompleteIndex;
+            Debug.Log($"Objective completed, updated active index to {firstIncompleteIndex} from HandleObjectiveCompleted");
+            CheckActiveObjective();
+        }
         CheckAllObjectivesCompleted();
     }
 
@@ -117,11 +132,13 @@ public class Quest
             if (item != null)
             {
                 Debug.Log($"Item found in database: {item.name}, ID={item.ItemID}");
-                bool hasItem = InventoryManager.Instance.HasItem(item, ((CollectItemSO)collectionObj._data).RequiredAmount);
+                int requiredAmount = ((CollectItemSO)collectionObj._data).RequiredAmount;
+                bool hasItem = InventoryManager.Instance.HasItem(item, requiredAmount);
                 Debug.Log($"Inventory has item? {hasItem}");
                 if (hasItem)
                 {
                     Debug.Log("Auto-completing CollectionObjective.");
+                    QuestManager.Instance.ReportObjectiveProgress((CollectItemSO)collectionObj._data, requiredAmount, requiredAmount);
                     collectionObj.Complete();
                 }
             }
