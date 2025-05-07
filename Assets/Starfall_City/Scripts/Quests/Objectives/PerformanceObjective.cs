@@ -10,7 +10,7 @@ public class PerformanceObjective : Objective
         _challengeID = data.ChallengeID;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
     {
         if (type == ObjectiveType.Performance && identifier == _challengeID)
         {

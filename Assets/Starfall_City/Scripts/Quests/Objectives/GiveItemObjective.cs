@@ -18,7 +18,7 @@ public class GiveItemObjective : Objective
         _currentAmount = 0;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
     {
         if (type == ObjectiveType.GiveItem && identifier == _targetNPCID && itemID == _targetItemID)
         {

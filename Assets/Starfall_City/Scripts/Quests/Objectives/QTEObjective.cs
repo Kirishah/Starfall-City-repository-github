@@ -14,7 +14,7 @@ public class QTEObjective : Objective
         _successCount = 0;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
     {
         if (type == ObjectiveType.QTE && identifier == _qteID)
         {

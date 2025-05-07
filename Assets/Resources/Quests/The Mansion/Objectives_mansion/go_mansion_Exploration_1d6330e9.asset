@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObjectiveID: obj_ded5
   Description: "\u041F\u043E\u043F\u0430\u0441\u0442\u044C \u0432 \u043E\u0441\u043E\u0431\u043D\u044F\u043A"
-  LocationID: mansion
+  LocationID: _mansion

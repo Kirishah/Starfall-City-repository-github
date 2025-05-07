@@ -89,6 +89,7 @@ public class QuestManager : MonoBehaviour
         }
         // Trigger event
         OnQuestCompleted?.Invoke(questSO);
+        QuestMemory.Instance.MarkQuestCompleted(quest.Data);
     }
 
     // Called from other systems via events

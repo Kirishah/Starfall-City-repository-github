@@ -10,7 +10,7 @@ public class ExplorationObjective : Objective
         _locationID = data.LocationID;
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
     {
         if (type == ObjectiveType.Exploration && identifier == _locationID)
         {

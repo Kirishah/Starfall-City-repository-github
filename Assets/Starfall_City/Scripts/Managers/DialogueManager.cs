@@ -28,7 +28,15 @@ public class DialogueManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         string jsonPath = "Dialogue";
         LoadDialogues(jsonPath);
     }
@@ -166,6 +174,7 @@ public class DialogueManager : MonoBehaviour
                     if (currentDialogue.targetLocation != 0)
                     {
                         TransferToLocation(currentDialogue.targetLocation);
+                        EndDialogue();
                     }
                     else if (currentDialogue.targetID != null)
                     {

@@ -162,16 +162,17 @@ public class Quest
 
     public void Cleanup()
     {
+        // Отписываемся от событий
         foreach (Objective objective in _objectives)
         {
-            objective.OnProgressChanged -= HandleObjectiveProgress; // Unsubscribe from progress events
-            objective.OnCompleted -= CheckAllObjectivesCompleted;  // Unsubscribe from completion events
-            objective.Cleanup();                                   // Clean up objective internals
+            objective.OnProgressChanged -= HandleObjectiveProgress;
+            objective.OnCompleted -= CheckAllObjectivesCompleted;  
+            objective.Cleanup();                                   
         }
-        _objectives.Clear();                                      // Reset the list
+        _objectives.Clear();                                      
     }
 
-    // Get all completed objectives
+    
     public List<Objective> GetCompletedObjectives()
     {
         List<Objective> completed = new List<Objective>();
@@ -183,13 +184,13 @@ public class Quest
             }
             else
             {
-                break; // Stop at the first incomplete objective
+                break; // Остановливаемся у первой незавершенной цели
             }
         }
         return completed;
     }
 
-    // Get the current active objective, or null if all are completed
+    
     public Objective GetCurrentObjective()
     {
         int firstIncompleteIndex = -1;
@@ -204,7 +205,7 @@ public class Quest
         return firstIncompleteIndex >= 0 ? _objectives[firstIncompleteIndex] : null;
     }
 
-    // Map an Objective to its corresponding ObjectiveSO
+    // Сопоставляем цель с соответствующим ей SO
     public ObjectiveSO GetObjectiveSO(Objective objective)
     {
         int index = _objectives.IndexOf(objective);

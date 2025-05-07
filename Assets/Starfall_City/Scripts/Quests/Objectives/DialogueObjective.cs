@@ -7,7 +7,7 @@ public class DialogueObjective : Objective
         _data = data;  
     }
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID)
+    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
     {
         
         if (type == ObjectiveType.Dialogue && identifier == ((DialogueSO)_data).TargetNPCID)
