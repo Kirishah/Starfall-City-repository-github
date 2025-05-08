@@ -30,6 +30,12 @@ public class QuestSOEditor : Editor
         DrawProperty("Objectives");
         DrawObjectiveCreationButtons();
 
+        // Draw follow-up quests section
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Follow-Up Quests", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Define quests that unlock after this quest is completed, with conditions.", MessageType.Info);
+        DrawFollowUpQuests();
+
         // Draw scene references
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Scene Requirements", EditorStyles.boldLabel);
@@ -129,6 +135,59 @@ public class QuestSOEditor : Editor
         // Focus in project window
         EditorUtility.FocusProjectWindow();
         Selection.activeObject = objective;
+    }
+
+    private void DrawFollowUpQuests()
+    {
+        var followUpQuestsProp = serializedObject.FindProperty("followUpQuests");
+        if (followUpQuestsProp == null)
+        {
+            EditorGUILayout.HelpBox("FollowUpQuests property not found.", MessageType.Error);
+            return;
+        }
+
+        EditorGUI.indentLevel++;
+        int newSize = EditorGUILayout.IntField("Size", followUpQuestsProp.arraySize);
+        if (newSize != followUpQuestsProp.arraySize)
+        {
+            followUpQuestsProp.arraySize = newSize;
+        }
+
+        for (int i = 0; i < followUpQuestsProp.arraySize; i++)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            var followUpQuest = followUpQuestsProp.GetArrayElementAtIndex(i);
+            if (followUpQuest == null) continue;
+
+            // Quest field
+            EditorGUILayout.PropertyField(followUpQuest.FindPropertyRelative("quest"), new GUIContent("Quest"));
+
+            // Dialogue Start ID
+            EditorGUILayout.PropertyField(followUpQuest.FindPropertyRelative("dialogueStartID"), new GUIContent("Dialogue Start ID"));
+
+            // Unlock Conditions
+            var unlockConditionsProp = followUpQuest.FindPropertyRelative("unlockConditions");
+            if (unlockConditionsProp != null)
+            {
+                EditorGUILayout.PropertyField(unlockConditionsProp, new GUIContent("Unlock Conditions"), true);
+
+                // Allow adding/removing unlock conditions
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Add Condition"))
+                {
+                    unlockConditionsProp.arraySize++;
+                }
+                if (unlockConditionsProp.arraySize > 0 && GUILayout.Button("Remove Condition"))
+                {
+                    unlockConditionsProp.arraySize--;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+        EditorGUI.indentLevel--;
     }
 }
 #endif

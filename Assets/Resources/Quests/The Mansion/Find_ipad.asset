@@ -22,3 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1e09b9c6856a428458c5e67cd7bdfe56, type: 2}
   - {fileID: 11400000, guid: 621ae434b692a5a4d9392c4541fa25e7, type: 2}
   AssociatedScenes: []
+  followUpQuests:
+  - quest: {fileID: 11400000, guid: 0461d242f5372f24ab3fcbed857eaaf7, type: 2}
+    dialogueStartID: 
+    unlockConditions: []

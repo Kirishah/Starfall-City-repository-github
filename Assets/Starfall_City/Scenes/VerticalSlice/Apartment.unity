@@ -12288,10 +12288,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a54837ab3304784bb42b59c6aee8703, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _questToStart: {fileID: 11400000, guid: 0461d242f5372f24ab3fcbed857eaaf7, type: 2}
-  _targetDialogueID: 
-  _npcID: 
-  _dialogueStartID: 
+  _initialQuest: {fileID: 11400000, guid: 56f28c38b61739e459d7e535b56a219f, type: 2}
+  _targetDialogueID: d_kirya_1_1
+  _npcID: Kristina
+  _defaultDialogueStartID: d_kirya
 --- !u!4 &2923166006338014496
 Transform:
   m_ObjectHideFlags: 0
