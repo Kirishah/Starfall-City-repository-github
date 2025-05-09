@@ -4,29 +4,25 @@ using UnityEngine;
 public class QuestStarter : MonoBehaviour
 {
     [SerializeField] private QuestSO _initialQuest; // The starting quest in the chain
-    [SerializeField] private string _targetDialogueID; // The dialogue line ID that triggers the quest
     [SerializeField] private string _npcID;
     [SerializeField] private string _defaultDialogueStartID; // Default dialogue if no quest is available
+    [SerializeField] private string _postQuestDialogueStartID; // Dialogue after quest completion
 
     private bool _hasStartedQuest;
     private QuestSO _currentQuest; // The quest currently being offered
     private string _currentDialogueStartID; // The dialogue associated with the current quest
-
-    void OnEnable()
-    {
-        DialogueManager.OnDialogueLineDisplayed += HandleDialogueLineDisplayed;
-    }
-
-    void OnDisable()
-    {
-        DialogueManager.OnDialogueLineDisplayed -= HandleDialogueLineDisplayed;
-    }
 
     public void StartDialogue()
     {
         DetermineCurrentQuestAndDialogue();
         if (DialogueManager.Instance != null)
         {
+            if (string.IsNullOrEmpty(_currentDialogueStartID))
+            {
+                Debug.LogError($"Cannot start dialogue: _currentDialogueStartID is empty on GameObject {gameObject.name}. Check QuestSO or DefaultDialogueStartID.");
+                return;
+            }
+            Debug.Log($"Attempting to start dialogue with _currentDialogueStartID={_currentDialogueStartID}, _npcID={_npcID}");
             DialogueManager.Instance.StartDialogue(_currentDialogueStartID, _npcID);
         }
         else
@@ -41,6 +37,17 @@ public class QuestStarter : MonoBehaviour
         _currentQuest = null;
         _currentDialogueStartID = _defaultDialogueStartID;
 
+        if (QuestMemory.Instance == null)
+        {
+            Debug.LogError("QuestMemory.Instance is null. Ensure a QuestMemory GameObject exists.");
+            return;
+        }
+        if (_initialQuest == null)
+        {
+            Debug.LogError($"_initialQuest is not assigned in QuestStarter on GameObject {gameObject.name}. Please assign a QuestSO in the Inspector.");
+            return;
+        }
+
         // Start with the initial quest
         QuestSO questToCheck = _initialQuest;
         bool initialQuestCompleted = QuestMemory.Instance.IsQuestCompleted(_initialQuest);
@@ -48,10 +55,13 @@ public class QuestStarter : MonoBehaviour
         if (!initialQuestCompleted)
         {
             _currentQuest = _initialQuest;
-            _currentDialogueStartID = _initialQuest.FollowUpQuests != null && _initialQuest.FollowUpQuests.Any()
-                ? _initialQuest.FollowUpQuests[0].DialogueStartID // Use the dialogue from the first follow-up
-                : _defaultDialogueStartID;
-            Debug.Log($"Offering initial quest: {_currentQuest.Title}");
+            _currentDialogueStartID = _initialQuest.StartingDialogueID;
+            if (string.IsNullOrEmpty(_currentDialogueStartID))
+            {
+                Debug.LogWarning($"StartingDialogueID is empty for quest {_initialQuest.Title}. Using DefaultDialogueStartID: {_defaultDialogueStartID}");
+                _currentDialogueStartID = _defaultDialogueStartID;
+            }
+            Debug.Log($"Offering initial quest: {_currentQuest.Title} with dialogue: {_currentDialogueStartID}");
             return;
         }
 
@@ -61,10 +71,13 @@ public class QuestStarter : MonoBehaviour
             if (!QuestMemory.Instance.IsQuestCompleted(questToCheck))
             {
                 _currentQuest = questToCheck;
-                _currentDialogueStartID = questToCheck.FollowUpQuests != null && questToCheck.FollowUpQuests.Any()
-                    ? questToCheck.FollowUpQuests[0].DialogueStartID
-                    : _defaultDialogueStartID;
-                Debug.Log($"Offering quest: {_currentQuest.Title}");
+                _currentDialogueStartID = questToCheck.StartingDialogueID;
+                if (string.IsNullOrEmpty(_currentDialogueStartID))
+                {
+                    Debug.LogWarning($"StartingDialogueID is empty for quest {_currentQuest.Title}. Using DefaultDialogueStartID: {_defaultDialogueStartID}");
+                    _currentDialogueStartID = _defaultDialogueStartID;
+                }
+                Debug.Log($"Offering quest: {_currentQuest.Title} with dialogue: {_currentDialogueStartID}");
                 return;
             }
 
@@ -76,6 +89,7 @@ public class QuestStarter : MonoBehaviour
                 {
                     nextQuest = followUp.Quest;
                     _currentDialogueStartID = followUp.DialogueStartID;
+                    Debug.Log($"Selected follow-up quest: {nextQuest.Title}, DialogueStartID: {_currentDialogueStartID}");
                     break;
                 }
             }
@@ -83,34 +97,13 @@ public class QuestStarter : MonoBehaviour
             questToCheck = nextQuest;
         }
 
-        Debug.Log("No new quests available in the chain.");
-    }
-
-    private void HandleDialogueLineDisplayed(string dialogueID, string npcID)
-    {
-        if (_hasStartedQuest) return; // Prevent starting the quest multiple times
-
-        // Check if this is the target dialogue line and (optionally) the correct NPC
-        bool isTargetDialogue = dialogueID == _targetDialogueID;
-        bool isTargetNPC = string.IsNullOrEmpty(_npcID) || npcID == _npcID;
-
-        if (isTargetDialogue && isTargetNPC)
+        // If no new quests are available, use the post-quest dialogue
+        _currentDialogueStartID = _postQuestDialogueStartID;
+        if (string.IsNullOrEmpty(_currentDialogueStartID))
         {
-            StartQuest();
+            Debug.LogWarning($"PostQuestDialogueStartID is empty on GameObject {gameObject.name}. Falling back to DefaultDialogueStartID: {_defaultDialogueStartID}");
+            _currentDialogueStartID = _defaultDialogueStartID;
         }
-    }
-
-    private void StartQuest()
-    {
-        if (_currentQuest != null && QuestManager.Instance != null)
-        {
-            QuestManager.Instance.StartQuest(_currentQuest);
-            _hasStartedQuest = true;
-            Debug.Log($"Quest {_currentQuest.Title} started after dialogue line {_targetDialogueID}");
-        }
-        else
-        {
-            Debug.LogWarning("No quest to start or QuestManager is not assigned.");
-        }
+        Debug.Log($"No new quests available in the chain. Using PostQuestDialogueStartID: {_currentDialogueStartID}");
     }
 }

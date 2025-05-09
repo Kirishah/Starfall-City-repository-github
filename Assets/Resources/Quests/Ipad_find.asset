@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aec78d67e17a7ef4eb6371b817012b48, type: 3}
-  m_Name: Find_ipad
+  m_Name: Ipad_find
   m_EditorClassIdentifier: 
   QuestID: Ipad_find
   Title: "\u0410\u0439\u0444\u043E\u043D \u041A\u0440\u0438\u0441\u0442\u0438\u043D\u044B"
@@ -22,7 +22,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1e09b9c6856a428458c5e67cd7bdfe56, type: 2}
   - {fileID: 11400000, guid: 621ae434b692a5a4d9392c4541fa25e7, type: 2}
   AssociatedScenes: []
+  startingDialogueID: ChristinaInitialDialogue
   followUpQuests:
   - quest: {fileID: 11400000, guid: 0461d242f5372f24ab3fcbed857eaaf7, type: 2}
-    dialogueStartID: 
-    unlockConditions: []
+    dialogueStartID: ChristinaNeutralDialogue
+    unlockConditions:
+    - type: 0
+      targetID: Ipad_find
+      requiredAmount: 0

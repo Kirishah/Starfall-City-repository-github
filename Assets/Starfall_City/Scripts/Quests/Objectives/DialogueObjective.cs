@@ -18,4 +18,9 @@ public class DialogueObjective : Objective
             Complete();
         }
     }
+
+    protected override ObjectiveType GetObjectiveType()
+    {
+        return ObjectiveType.Dialogue;
+    }
 }

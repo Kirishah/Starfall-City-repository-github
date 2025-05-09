@@ -26,4 +26,9 @@ public class QTEObjective : Objective
             }
         }
     }
+
+    protected override ObjectiveType GetObjectiveType()
+    {
+        return ObjectiveType.QTE;
+    }
 }

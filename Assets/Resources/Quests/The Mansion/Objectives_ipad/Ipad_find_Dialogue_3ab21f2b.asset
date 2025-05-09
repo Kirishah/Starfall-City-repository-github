@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObjectiveID: obj_79f4
   Description: Talk to Kristina
-  TargetNPCID: Kristina
+  TargetNPCID: Christina

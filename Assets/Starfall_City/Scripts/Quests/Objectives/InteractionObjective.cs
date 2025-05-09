@@ -27,4 +27,9 @@ public class InteractionObjective : Objective
             }
         }
     }
+
+    protected override ObjectiveType GetObjectiveType()
+    {
+        return ObjectiveType.Interaction;
+    }
 }

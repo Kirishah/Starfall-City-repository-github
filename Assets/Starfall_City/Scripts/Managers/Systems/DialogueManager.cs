@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System;
+using System.Text.RegularExpressions;
+using System.Linq;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -104,6 +104,20 @@ public class DialogueManager : MonoBehaviour
         {
             ProcessGiveItemAction(parts[2], parts[3]);
         }
+        else if (parts.Length >= 4 && parts[1] == "StartQuest")
+        {
+            QuestSO questSO = Resources.Load<QuestSO>("Quests/" + parts[2]);
+            if (questSO != null)
+            {
+                QuestManager.Instance.StartQuest(questSO);
+                AdvanceToDialogue(parts[3]);
+            }
+            else
+            {
+                Debug.LogError($"QuestSO not found for StartQuest action: {parts[2]}");
+                EndDialogue();
+            }
+        }
         else
         {
             Debug.LogError($"Invalid action format: {targetID}");
@@ -151,6 +165,113 @@ public class DialogueManager : MonoBehaviour
     }
     #endregion
 
+    #region Condition Evaluation
+    private bool EvaluateCondition(string condition)
+    {
+        if (string.IsNullOrEmpty(condition))
+            return true;
+
+        Debug.Log($"Evaluating condition for dialogue {currentDialogue?.id}: {condition}");
+        // Split the condition string into parts based on logical operators (&&, ||)
+        var conditionParts = Regex.Split(condition, @"\s*(&&|\|\|)\s*")
+            .Select(part => part.Trim())
+            .Where(part => !string.IsNullOrWhiteSpace(part) && part != "&&" && part != "||")
+            .ToArray();
+        var operators = Regex.Matches(condition, @"\s*(&&|\|\|)\s*")
+            .Cast<Match>()
+            .Select(match => match.Groups[1].Value)
+            .ToList();
+
+        if (conditionParts.Length == 0)
+        {
+            Debug.LogError($"No valid conditions found in: {condition}");
+            return false;
+        }
+
+        bool result = EvaluateSingleCondition(conditionParts[0], condition);
+        for (int i = 0; i < operators.Count && i + 1 < conditionParts.Length; i++)
+        {
+            bool nextCondition = EvaluateSingleCondition(conditionParts[i + 1], condition);
+            if (operators[i] == "&&")
+                result = result && nextCondition;
+            else if (operators[i] == "||")
+                result = result || nextCondition;
+        }
+
+        return result;
+    }
+
+    private bool EvaluateSingleCondition(string condition, string fullCondition)
+    {
+        if (string.IsNullOrWhiteSpace(condition))
+        {
+            Debug.LogError($"Empty condition part in dialogue {currentDialogue?.id}: {fullCondition}");
+            return false;
+        }
+
+        var parts = condition.Split(':');
+        if (parts.Length < 2)
+        {
+            Debug.LogError($"Invalid condition format in dialogue {currentDialogue?.id}, condition '{fullCondition}': {condition}");
+            return false;
+        }
+
+        string conditionType = parts[0];
+        switch (conditionType)
+        {
+            case "QuestCompleted":
+                if (parts.Length != 2)
+                {
+                    Debug.LogError($"QuestCompleted requires 1 parameter in dialogue {currentDialogue?.id}, condition '{fullCondition}': {condition}");
+                    return false;
+                }
+                var questSO = Resources.Load<QuestSO>("Quests/" + parts[1]);
+                if (questSO == null)
+                {
+                    Debug.LogError($"QuestSO not found for QuestCompleted condition in dialogue {currentDialogue?.id}: {parts[1]}");
+                    return false;
+                }
+                return QuestMemory.Instance.IsQuestCompleted(questSO);
+
+            case "HasItem":
+                if (parts.Length != 3)
+                {
+                    Debug.LogError($"HasItem requires 2 parameters in dialogue {currentDialogue?.id}, condition '{fullCondition}': {condition}");
+                    return false;
+                }
+                Item item = ItemDataBase.Instance.GetItemByID(parts[1]);
+                if (item == null) return false;
+                int requiredAmount;
+                if (!int.TryParse(parts[2], out requiredAmount))
+                {
+                    Debug.LogError($"Invalid amount in HasItem condition in dialogue {currentDialogue?.id}, condition '{fullCondition}': {parts[2]}");
+                    return false;
+                }
+                return InventoryManager.Instance.HasItem(item, requiredAmount);
+
+            case "IsQuestObjectiveActive":
+                if (parts.Length != 3)
+                {
+                    Debug.LogError($"IsQuestObjectiveActive requires 2 parameters in dialogue {currentDialogue?.id}, condition '{fullCondition}': {condition}");
+                    return false;
+                }
+                return IsQuestObjectiveActive(parts[1], parts[2]);
+
+            case "GameEventTriggered":
+                if (parts.Length != 2)
+                {
+                    Debug.LogError($"GameEventTriggered requires 1 parameter in dialogue {currentDialogue?.id}, condition '{fullCondition}': {condition}");
+                    return false;
+                }
+                return GameEventManager.Instance.IsEventTriggered(parts[1]);
+
+            default:
+                Debug.LogError($"Unknown condition type in dialogue {currentDialogue?.id}, condition '{fullCondition}': {conditionType}");
+                return false;
+        }
+    }
+    #endregion
+
     #region UI Management
     public void ShowDialogue(Dialogue dialogue)
     {
@@ -188,7 +309,15 @@ public class DialogueManager : MonoBehaviour
         ClearChoices();
         if (dialogue.choices != null && dialogue.choices.Count > 0)
         {
-            CreateChoiceButtons(dialogue.choices);
+            foreach (var choice in dialogue.choices)
+            {
+                if (ShouldShowChoice(choice))
+                {
+                    GameObject button = Instantiate(choiceButtonPrefab, choiceContainer);
+                    button.GetComponentInChildren<TMP_Text>().text = choice.text;
+                    button.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID));
+                }
+            }
         }
         else
         {
@@ -196,21 +325,22 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    private bool ShouldShowChoice(Choice choice)
+    {
+        // Check if the choice has a condition field and evaluate it
+        if (choice.condition != null)
+        {
+            Debug.Log($"Evaluating condition for choice '{choice.text}' in dialogue {currentDialogue?.id}: {choice.condition}");
+            return EvaluateCondition(choice.condition);
+        }
+        return true;
+    }
+
     private void ClearChoices()
     {
         foreach (Transform child in choiceContainer)
         {
             Destroy(child.gameObject);
-        }
-    }
-
-    private void CreateChoiceButtons(List<Choice> choices)
-    {
-        foreach (Choice choice in choices)
-        {
-            GameObject button = Instantiate(choiceButtonPrefab, choiceContainer);
-            button.GetComponentInChildren<TMP_Text>().text = choice.text;
-            button.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID));
         }
     }
 
@@ -261,6 +391,25 @@ public class DialogueManager : MonoBehaviour
     public void TransferToLocation(int targetLocation)
     {
         GameManager.Instance.LoadSceneWithTransition(targetLocation);
+    }
+
+    public bool IsQuestObjectiveActive(string npcID, string itemID)
+    {
+        var activeQuests = QuestManager.Instance.GetActiveQuests();
+        foreach (var quest in activeQuests)
+        {
+            foreach (var objective in quest.GetCurrentObjective() != null ? new[] { quest.GetCurrentObjective() } : new Objective[0])
+            {
+                if (objective.Type == ObjectiveType.GiveItem && objective is GiveItemObjective giveItemObjective)
+                {
+                    if (giveItemObjective.TargetNPCID == npcID && giveItemObjective.TargetItemID == itemID && !objective.IsCompleted)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
     #endregion
 }

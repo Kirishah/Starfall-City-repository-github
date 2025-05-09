@@ -12,6 +12,9 @@ public class QuestSO : ScriptableObject
     public ObjectiveSO[] Objectives;
     public Scene[] AssociatedScenes;
 
+    [SerializeField] private string startingDialogueID; // Dialogue to start this quest
+    public string StartingDialogueID => startingDialogueID;
+
     [System.Serializable]
     public class FollowUpQuest
     {
@@ -64,12 +67,16 @@ public class QuestSO : ScriptableObject
 
     public List<FollowUpQuest> FollowUpQuests => followUpQuests;
 
-    public Objective CreateObjective(int index)
+    public List<Objective> GetRuntimeObjectives()
     {
-        if (index >= 0 && index < Objectives.Length)
+        List<Objective> runtimeObjectives = new List<Objective>();
+        foreach (var objectiveSO in Objectives)
         {
-            return Objectives[index].CreateObjective();
+            if (objectiveSO != null)
+            {
+                runtimeObjectives.Add(objectiveSO.CreateObjective());
+            }
         }
-        return null;
+        return runtimeObjectives;
     }
 }

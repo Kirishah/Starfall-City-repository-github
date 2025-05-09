@@ -6,10 +6,17 @@ using System;
 public abstract class Objective
 {
     public ObjectiveSO _data { get; protected set; }
+    public string ObjectiveID { get; private set; }
+    public string Description { get; private set; }
+    public ObjectiveType Type { get; protected set; }
     public bool IsCompleted { get; protected set; }
     public Objective(ObjectiveSO data)
     {
         _data = data;
+        ObjectiveID = data.ObjectiveID;
+        Description = data.Description;
+        Type = GetObjectiveType();
+        IsCompleted = false;
     }
 
 
@@ -36,4 +43,5 @@ public abstract class Objective
         OnProgressChanged?.Invoke(_data, current, required);
         if (current >= required) Complete();
     }
+    protected abstract ObjectiveType GetObjectiveType();
 }

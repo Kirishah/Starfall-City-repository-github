@@ -19,4 +19,9 @@ public class PerformanceObjective : Objective
             Complete();
         }
     }
+
+    protected override ObjectiveType GetObjectiveType()
+    {
+        return ObjectiveType.Performance;
+    }
 }

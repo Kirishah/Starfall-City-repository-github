@@ -18,4 +18,9 @@ public class ExplorationObjective : Objective
             Complete();
         }
     }
+
+    protected override ObjectiveType GetObjectiveType()
+    {
+        return ObjectiveType.Exploration;
+    }
 }

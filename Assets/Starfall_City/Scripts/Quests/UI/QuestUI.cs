@@ -188,7 +188,7 @@ public class QuestUI : MonoBehaviour
             if (quest == null) continue;
 
             var entry = Instantiate(_questEntryPrefab, _activeQuestsContainer);
-            entry.Initialize(quest);
+            entry.Initialize(quest.Data);
         }
     }
 

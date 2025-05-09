@@ -27,4 +27,9 @@ public class CollectItemObjective : Objective
             UpdateProgress(_currentCount, _requiredCount);
         }
     }
+
+    protected override ObjectiveType GetObjectiveType()
+    {
+        return ObjectiveType.Collection;
+    }
 }

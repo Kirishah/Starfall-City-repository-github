@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class QuestSOEditor : Editor
 {
     // Cache property names to avoid string lookups
-    private readonly string[] _mainProperties = { "QuestID", "Title", "Description" };
+    private readonly string[] _mainProperties = { "QuestID", "Title", "Description", "startingDialogueID" };
     private readonly string[] _sceneProperties = { "AssociatedScenes" };
     public override void OnInspectorGUI()
     {

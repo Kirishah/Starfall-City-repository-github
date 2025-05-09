@@ -27,4 +27,9 @@ public class GiveItemObjective : Objective
             if (_currentAmount >= _requiredAmount) Complete();
         }
     }
+
+    protected override ObjectiveType GetObjectiveType()
+    {
+        return ObjectiveType.GiveItem;
+    }
 }

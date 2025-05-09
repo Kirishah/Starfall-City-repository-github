@@ -39,14 +39,9 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-    public List<QuestSO> GetActiveQuests()
+    public List<Quest> GetActiveQuests()
     {
-        List<QuestSO> activeQuestSOs = new List<QuestSO>();
-        foreach (Quest quest in _activeQuests)
-        {
-            activeQuestSOs.Add(quest.Data);
-        }
-        return activeQuestSOs;
+        return _activeQuests;
     }
 
     public bool IsQuestActive(QuestSO questSO)
