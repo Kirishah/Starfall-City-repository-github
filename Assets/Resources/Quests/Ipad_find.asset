@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aec78d67e17a7ef4eb6371b817012b48, type: 3}
+  m_Name: Ipad_find
+  m_EditorClassIdentifier: 
+  QuestID: Ipad_find
+  Title: "\u0410\u0439\u0444\u043E\u043D \u041A\u0440\u0438\u0441\u0442\u0438\u043D\u044B"
+  Description: "\u041A\u0440\u0438\u0441\u0442\u0438\u043D\u0430 \u0445\u043E\u0447\u0435\u0442,
+    \u0447\u0442\u043E\u0431\u044B \u0442\u044B \u043D\u0430\u0448\u0435\u043B \u0435\u0435
+    \u0430\u0439\u0444\u043E\u043D"
+  Objectives:
+  - {fileID: 11400000, guid: 393a3bcb9845f504aac361908e4f87c0, type: 2}
+  - {fileID: 11400000, guid: 1e09b9c6856a428458c5e67cd7bdfe56, type: 2}
+  - {fileID: 11400000, guid: 621ae434b692a5a4d9392c4541fa25e7, type: 2}
+  AssociatedScenes: []
+  startingDialogueID: ChristinaInitialDialogue
+  followUpQuests:
+  - quest: {fileID: 11400000, guid: 0461d242f5372f24ab3fcbed857eaaf7, type: 2}
+    dialogueStartID: ChristinaNeutralDialogue
+    unlockConditions:
+    - type: 0
+      targetID: Ipad_find
+      requiredAmount: 0

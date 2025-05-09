@@ -3,15 +3,28 @@ using TMPro;
 
 public class NPCInteractable : Interactable
 {
+    [Header("Quest NPC?")]
+    [SerializeField] private QuestStarter questStarter;
+
     [Header("Dialogue Settings")]
-    public int startDialogueID;
+    [SerializeField] private string startDialogueID;
+    [SerializeField] private string npcID;
+
 
     [Header("Prompt")]
     private GameObject currentPrompt;
 
     public override void Interact()
     {
-        DialogueManager.Instance.StartDialogue(startDialogueID);
+        if (questStarter != null)
+        {
+            questStarter.StartDialogue();
+        }
+        else
+        {
+            Debug.LogWarning("No QuestStarter assigned to NPC: " + npcID);
+            DialogueManager.Instance.StartDialogue(startDialogueID, npcID);
+        }
         onInteract.Invoke();
     }
 
@@ -50,7 +63,11 @@ public class NPCInteractable : Interactable
         if (currentPrompt != null)
         {
             currentPrompt.SetActive(false);
-            // Optional: Destroy or pool the prompt if needed
         }
+    }
+
+    public override string GetIdentifier()
+    {
+        return npcID; 
     }
 }

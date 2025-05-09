@@ -1,23 +1,98 @@
+/*
+  QuestCompleted:<QuestID>: Check if a quest is completed.
+  HasItem:<ItemID>:<Amount>: Check if the player has a certain amount of an item.
+  IsQuestObjectiveActive:<NPCID>:<ItemID>: Check if a GiveItem objective is active for an NPC.
+  GameEventTriggered:<EventID>: Check if a game event has been triggered.
+*/
 [
   {
-    "id": 1,
+    "id": "d_bouncer_1",
     "speaker": "Вышибала: ",
     "text": "Покажите свое приглашение.",
     "choices": [
       {
         "text": "[Дать приглашение]",
-        "targetID": 2
+        "targetID": "d_bouncer_2"
       },
       {
         "text": "Уйти.",
-        "targetID": -1
+        "targetID": "-1"
       }
     ]
   },
   {
-    "id": 2,
+    "id": "d_bouncer_2",
     "speaker": "Вышибала: ",
     "text": "Хорошего вечера, господин Гетсби ждет вас.",
     "targetLocation": 2
+  },
+  {
+    "id": "ChristinaInitialDialogue",
+    "speaker": "Кристина: ",
+    "text": "Эй, ты не видел здесь мой iPhone??",
+    "choices": [
+      {
+        "text": "Нет, но я могу помочь найти его.",
+        "targetID": "action:StartQuest:Ipad_find:ChristinaPhoneQuestStart_1"
+      },
+      {
+        "text": "Прости, я не видел.",
+        "targetID": "-1"
+      },
+      {
+        "text": "Я нашел твой iPhone! Вот он.",
+        "targetID": "action:GiveItem:i_ipad:ChristinaPhoneGiven",
+        "condition": "IsQuestObjectiveActive:Christina:i_ipad && HasItem:i_ipad:1"
+      }
+    ]
+  },
+  {
+    "id": "ChristinaPhoneQuestStart_1",
+    "speaker": "Кристина: ",
+    "text": "Отлично, сначала проверь около входа в особняк.",
+    "targetID": "-1"
+  },
+  {
+    "id": "ChristinaPhoneGiven",
+    "speaker": "Кристина: ",
+    "text": "Спасибо тебе большое! Ты просто спаситель!",
+    "targetID": "-1"
+  },
+  {
+    "id": "ChristinaFollowUpQuestOffer",
+    "speaker": "Кристина: ",
+    "text": "Да, у меня есть еще одно задание для тебя. Ты готов?",
+    "choices": [
+      {
+        "text": "Конечно, что нужно сделать?",
+        "targetID": "action:StartQuest:go_mansion:ChristinaFollowUpQuestStarted"
+      },
+      {
+        "text": "Приду позже.",
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "ChristinaFollowUpQuestStarted",
+    "speaker": "Кристина: ",
+    "text": "Мне нужно, чтобы ты передал сообщение моему другу.",
+    "targetID": "-1"
+  },
+  {
+    "id": "ChristinaNeutralDialogue",
+    "speaker": "Кристина: ",
+    "text": "Любимый, увижу тебя в особняке. Чмоки-чмоки.",
+    "choices": [
+      {
+        "text": "Я могу еще чем-то помочь?",
+        "targetID": "ChristinaFollowUpQuestOffer",
+        "condition": "QuestCompleted:Ipad_find"
+      },
+      {
+        "text": "Уйти.",
+        "targetID": "-1"
+      }
+    ]
   }
 ]

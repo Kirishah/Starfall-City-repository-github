@@ -7,80 +7,122 @@ using UnityEngine.EventSystems;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
-    private Camera cam;
     public NavMeshAgent player;
+    private Interactable _currentTargetInteractable;
 
     [Header("Movement Settings")]
     private Vector3 lastPosition;
     private Vector3 velocity;
-    // private const bool V = false;
+    private const float DefaultStoppingDistance = 0.1f;
 
     [Header("Destination Indicator")]
     public GameObject destinationIndicatorPrefab; 
     private GameObject destinationIndicator;
 
-    private void Awake()
-    {
-        cam = GetComponent<Camera>();
-    }
+    [Header("Interaction")]
+    [SerializeField] private float interactionRange = 1.5f;
+
     private void Start()
     {
-       // player.updateRotation = V;
-
-        lastPosition = transform.position;
+       lastPosition = transform.position;
+       player.stoppingDistance = DefaultStoppingDistance; 
     }
 
     void Update()
     {
-        if (Input.GetMouseButton(1)) // Right mouse button
+        if (Input.GetMouseButtonDown(1)) 
         {
-            MovePlayer();
+            HandleMovementInput();
         }
-        CalculateVelocity();
         CheckIfReachedDestination();
+        CalculateVelocity();
     }
 
-    void MovePlayer()
+    void HandleMovementInput()
     {
-        // Get the mouse position in the world
+        // Clear previous interaction target immediately
+        _currentTargetInteractable = null;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hitPoint;
+        if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
-        if (Physics.Raycast(ray, out hitPoint))
+        // Check if we clicked an interactable
+        Interactable interactable = hit.collider.GetComponent<Interactable>();
+        if (interactable != null)
         {
-            // Set the destination for the NavMeshAgent
-            player.SetDestination(hitPoint.point);
-
-            // Calculate the movement direction
-            Vector3 targetPosition = hitPoint.point;
-            targetPosition.y = transform.position.y; // Keep the y position the same to avoid vertical 
-
-            if (destinationIndicator == null)
-            {
-                destinationIndicator = Instantiate(destinationIndicatorPrefab, hitPoint.point, Quaternion.identity);
-            }
-            else
-            {
-                destinationIndicator.transform.position = hitPoint.point;
-            }
+            SetInteractableTarget(interactable, hit.point);
         }
         else
         {
-            Debug.Log("Raycast did not hit any collider."); // Log if nothing was hit
+            SetRegularMovement(hit.point);
+        }
+
+        UpdateDestinationIndicator(hit.point);
+    }
+
+    void SetInteractableTarget(Interactable interactable, Vector3 targetPosition)
+    {
+        _currentTargetInteractable = interactable;
+        player.stoppingDistance = interactionRange;
+        player.SetDestination(targetPosition);
+    }
+
+    void SetRegularMovement(Vector3 targetPosition)
+    {
+        _currentTargetInteractable = null;
+        player.stoppingDistance = DefaultStoppingDistance;
+        player.SetDestination(targetPosition);
+    }
+
+    void UpdateDestinationIndicator(Vector3 position)
+    {
+        if (destinationIndicator == null)
+        {
+            destinationIndicator = Instantiate(destinationIndicatorPrefab, position, Quaternion.identity);
+        }
+        else
+        {
+            destinationIndicator.SetActive(true);
+            destinationIndicator.transform.position = position;
         }
     }
 
     void CheckIfReachedDestination()
     {
-        
-        if (player.remainingDistance <= player.stoppingDistance)
+
+        if (player.hasPath && !player.pathPending &&
+            player.remainingDistance <= player.stoppingDistance)
         {
-            
-            if (destinationIndicator != null)
-            {
-                Destroy(destinationIndicator);
-                destinationIndicator = null;
-            }
+            ClearDestinationIndicator();
+            TryInteractWithTarget();
+        }
+
+        // Clear target if it becomes invalid
+        if (_currentTargetInteractable != null &&
+            !_currentTargetInteractable.gameObject.activeInHierarchy)
+        {
+            _currentTargetInteractable = null;
+            player.ResetPath();
+            ClearDestinationIndicator();
+        }
+    }
+
+    void TryInteractWithTarget()
+    {
+        if (_currentTargetInteractable == null) return;
+
+        if (_currentTargetInteractable.gameObject.activeInHierarchy)
+        {
+            _currentTargetInteractable.Interact();
+        }
+        _currentTargetInteractable = null;
+    }
+
+    void ClearDestinationIndicator()
+    {
+        if (destinationIndicator != null)
+        {
+            destinationIndicator.SetActive(false);
         }
     }
 
@@ -93,11 +135,7 @@ public class PlayerMovement : MonoBehaviour
         lastPosition = transform.position;
     }
 
-    public Vector3 GetVelocity()
-    {
-        
-        return velocity;
-    }
+    public Vector3 GetVelocity() => velocity;
 }
 
     
