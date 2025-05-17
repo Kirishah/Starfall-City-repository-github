@@ -21,7 +21,7 @@ public class QuestEntryUI : MonoBehaviour
         _titleText.text = questData.Title;
         _descriptionText.text = questData.Description;
 
-        // Find the Quest instance
+        
         _quest = QuestManager.Instance.FindQuestByObjective(questData.Objectives[0]);
         if (_quest == null)
         {
@@ -52,7 +52,7 @@ public class QuestEntryUI : MonoBehaviour
 
     private void HandleObjectiveProgressed(ObjectiveSO objective, int current, int required)
     {
-        // Check if this objective belongs to the current quest
+        // Чек относится ли эта цель к текущему квесту
         if (_quest.Data.Objectives.Contains(objective))
         {
             RefreshObjectives();
@@ -69,14 +69,14 @@ public class QuestEntryUI : MonoBehaviour
 
     private void RefreshObjectives()
     {
-        // Clear existing objective displays
+        // Убираем старые отображения целей
         foreach (var display in _objectiveDisplays)
         {
             Destroy(display.gameObject);
         }
         _objectiveDisplays.Clear();
 
-        // Display completed objectives
+        // Показываем выполненные цели
         var completedObjectives = _quest.GetCompletedObjectives();
         foreach (var objective in completedObjectives)
         {
@@ -89,7 +89,7 @@ public class QuestEntryUI : MonoBehaviour
             }
         }
 
-        // Display the current active objective, if any
+        // Показываем следующую цель, если такая есть
         var currentObjective = _quest.GetCurrentObjective();
         if (currentObjective != null)
         {

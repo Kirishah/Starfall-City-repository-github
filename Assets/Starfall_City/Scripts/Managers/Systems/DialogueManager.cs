@@ -8,13 +8,10 @@ using System.Linq;
 
 public class DialogueManager : MonoBehaviour
 {
-    // Singleton instance
     public static DialogueManager Instance { get; private set; }
 
-    // Dependencies
     [SerializeField] private DialogueLoader dialogueLoader;
 
-    // UI Components
     [Header("UI Components")]
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TMP_Text speakerText;
@@ -22,12 +19,11 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private Transform choiceContainer;
     [SerializeField] private GameObject choiceButtonPrefab;
 
-    // Dialogue state
     private List<Dialogue> dialogues;
     private Dialogue currentDialogue;
     private string currentNPCID;
 
-    // Event for dialogue line display
+    // Событие для отображения диалоговой строки
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
     public static event DialogueLineDisplayedHandler OnDialogueLineDisplayed;
 
@@ -172,7 +168,7 @@ public class DialogueManager : MonoBehaviour
             return true;
 
         Debug.Log($"Evaluating condition for dialogue {currentDialogue?.id}: {condition}");
-        // Split the condition string into parts based on logical operators (&&, ||)
+        // Разделение строки условия на части на основе логических операторов (&&, ||)
         var conditionParts = Regex.Split(condition, @"\s*(&&|\|\|)\s*")
             .Select(part => part.Trim())
             .Where(part => !string.IsNullOrWhiteSpace(part) && part != "&&" && part != "||")
@@ -327,7 +323,7 @@ public class DialogueManager : MonoBehaviour
 
     private bool ShouldShowChoice(Choice choice)
     {
-        // Check if the choice has a condition field and evaluate it
+        // Чек если у выбора есть условие, и оно не выполнено
         if (choice.condition != null)
         {
             Debug.Log($"Evaluating condition for choice '{choice.text}' in dialogue {currentDialogue?.id}: {choice.condition}");

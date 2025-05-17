@@ -8,35 +8,35 @@ using System.Collections.Generic;
 [CustomEditor(typeof(QuestSO))]
 public class QuestSOEditor : Editor
 {
-    // Cache property names to avoid string lookups
+    // Кэширование имен свойств, чтобы избежать поиска строк
     private readonly string[] _mainProperties = { "QuestID", "Title", "Description", "startingDialogueID" };
     private readonly string[] _sceneProperties = { "AssociatedScenes" };
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-        // Draw main header
+        // Главный заголовок
         EditorGUILayout.LabelField("Quest Configuration", EditorStyles.boldLabel);
 
-        // Draw core properties
+        // Основные свойства квеста
         foreach (var property in _mainProperties)
         {
             DrawProperty(property);
         }
 
-        // Draw objectives section with a help box
+        // Раздел для целей квеста
         EditorGUILayout.Space();
         EditorGUILayout.HelpBox("Objectives define what the player needs to complete this quest.", MessageType.Info);
         DrawProperty("Objectives");
         DrawObjectiveCreationButtons();
 
-        // Draw follow-up quests section
+        // Раздел для последующих квестов
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Follow-Up Quests", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("Define quests that unlock after this quest is completed, with conditions.", MessageType.Info);
         DrawFollowUpQuests();
 
-        // Draw scene references
+        // Рефы сцен
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Scene Requirements", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox("Scenes needed for this quest (optional)", MessageType.None);
@@ -45,7 +45,7 @@ public class QuestSOEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
-    // Helper method to draw properties safely
+    // Метод для отрисовки свойств
     private void DrawProperty(string propertyName)
     {
         var prop = serializedObject.FindProperty(propertyName);
@@ -99,19 +99,19 @@ public class QuestSOEditor : Editor
 
     private void CreateObjective<T>(string typeName) where T : ObjectiveSO
     {
-        // Register undo before making changes
+        // Регаем отмену перед внесением изменений
         Undo.RecordObject(target, "Create Objective");
-        // Get current quest
+        // Текущий квест
         var quest = target as QuestSO;
         if (quest == null) return;
 
-        // Create new objective
+        // Создание нового объекта цели
         var objective = ScriptableObject.CreateInstance<T>();
         objective.name = $"{quest.QuestID}_{typeName}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
         objective.ObjectiveID = $"obj_{Guid.NewGuid().ToString("N").Substring(0, 4)}";
         objective.Description = "New Objective";
 
-        // Create folder if needed
+        // Создание папки для целей, если она не существует
         string path = Path.GetDirectoryName(AssetDatabase.GetAssetPath(quest));
         string objectiveFolder = Path.Combine(path, "Objectives");
         if (!Directory.Exists(objectiveFolder))
@@ -119,20 +119,20 @@ public class QuestSOEditor : Editor
             Directory.CreateDirectory(objectiveFolder);
         }
 
-        // Save asset
+        // Сохраняем цель в папку
         string assetPath = Path.Combine(objectiveFolder, $"{objective.name}.asset");
         AssetDatabase.CreateAsset(objective, assetPath);
 
-        // Add to quest
+        // Добавляем цель в массив целей квеста
         SerializedProperty objectivesProp = serializedObject.FindProperty("Objectives");
         objectivesProp.arraySize++;
         objectivesProp.GetArrayElementAtIndex(objectivesProp.arraySize - 1).objectReferenceValue = objective;
 
         serializedObject.ApplyModifiedProperties();
-        EditorUtility.SetDirty(quest); // MARK AS DIRTY
+        EditorUtility.SetDirty(quest); // Маркер квеста как измененный
         AssetDatabase.Refresh();
 
-        // Focus in project window
+        // Фокус на созданном объекте
         EditorUtility.FocusProjectWindow();
         Selection.activeObject = objective;
     }
@@ -160,7 +160,7 @@ public class QuestSOEditor : Editor
             var followUpQuest = followUpQuestsProp.GetArrayElementAtIndex(i);
             if (followUpQuest == null) continue;
 
-            // Quest field
+            // Поле квеста
             EditorGUILayout.PropertyField(followUpQuest.FindPropertyRelative("quest"), new GUIContent("Quest"));
 
             // Dialogue Start ID
@@ -172,7 +172,7 @@ public class QuestSOEditor : Editor
             {
                 EditorGUILayout.PropertyField(unlockConditionsProp, new GUIContent("Unlock Conditions"), true);
 
-                // Allow adding/removing unlock conditions
+                // добавление/удаление unlock conditions
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Add Condition"))
                 {

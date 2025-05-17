@@ -24,7 +24,7 @@ public class MoneyHUD : MonoBehaviour
 
     void Awake()
     {
-        // Cache original colors and scale for animations
+        // Кэширование исходных цветов и масштабов для анимации
         originalPanelColor = panelBackground.color;
         originalIconColor = currencyIcon.color;
         originalScale = transform.localScale;

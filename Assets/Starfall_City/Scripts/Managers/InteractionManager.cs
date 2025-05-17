@@ -22,17 +22,17 @@ public class InteractionManager : MonoBehaviour
 
     void DetectProximityInteractables()
     {
-        // Clear previous proximity states
+        // Чистка старых взаимодействий
         foreach (var i in _proximityInteractables) i.SetProximity(false);
 
-        // Find new proximity interactables
+        // Чек на наличие взаимодействий в радиусе
         var colliders = Physics.OverlapSphere(transform.position, interactionRadius, interactableLayer);
         _proximityInteractables = colliders
             .Select(c => c.GetComponent<Interactable>())
             .Where(i => i != null)
             .ToList();
 
-        // Update proximity states and find closest
+        // Обновление ближайшего взаимодействия
         _closestInteractable = null;
         var closestDistance = Mathf.Infinity;
         foreach (var interactable in _proximityInteractables)

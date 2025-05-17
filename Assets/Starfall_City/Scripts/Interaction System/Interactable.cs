@@ -6,8 +6,8 @@ public abstract class Interactable : MonoBehaviour
     [SerializeField] public string interactionText;
     public UnityEvent onInteract;
     protected string _objectID; 
-    public GameObject promptPrefab; // Assign the UI prompt prefab
-    [SerializeField] public Vector3 promptOffset; // Adjust height
+    public GameObject promptPrefab; // the UI prompt prefab
+    [SerializeField] public Vector3 promptOffset; // Высота промпта над объектом
 
     // state tracking fields
     protected bool _isInProximity;
@@ -18,7 +18,6 @@ public abstract class Interactable : MonoBehaviour
 
     protected virtual void Update()
     {
-        // Update prompt visibility based on states
         if (_isInProximity || _isHovered) ShowPrompt();
         else HidePrompt();
     }
@@ -36,6 +35,6 @@ public abstract class Interactable : MonoBehaviour
 
     public virtual string GetIdentifier()
     {
-        return gameObject.name; // Default to GameObject name, override in subclasses
+        return gameObject.name; // По умолчанию имя GameObject, переопределяется в подклассах
     }
 }

@@ -22,7 +22,7 @@ public class QuestManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializePool(10); // Initial pool size
+            InitializePool(10); 
         }
         else
         {
@@ -65,7 +65,6 @@ public class QuestManager : MonoBehaviour
         _activeQuestSet.Add(questSO);
         quest.StartQuest();
 
-        // Trigger event
         OnQuestStarted?.Invoke(questSO);
     }
 
@@ -77,7 +76,7 @@ public class QuestManager : MonoBehaviour
         _activeQuestSet.Remove(questSO);
         _questPoolQueue.Enqueue(quest);
 
-        // Remove progress tracking for this quest's objectives
+        // Удаление отслеживания прогресса для целей этого квеста
         foreach (var objective in questSO.Objectives)
         {
             _objectiveProgress.Remove(objective.ObjectiveID);
@@ -87,7 +86,7 @@ public class QuestManager : MonoBehaviour
         QuestMemory.Instance.MarkQuestCompleted(quest.Data);
     }
 
-    // Called from other systems via events
+    // Другие системы зовут этот метод
     public void HandleObjectiveUpdate(ObjectiveType type, string identifier, string itemID = null)
     {
         Debug.Log($"QuestManager HandleObjectiveUpdate: type={type}, identifier={identifier}");
@@ -114,7 +113,7 @@ public class QuestManager : MonoBehaviour
         {
             return progress;
         }
-        return (0, 1); // Default if no progress recorded
+        return (0, 1); // Default 
     }
     public Quest FindQuestByObjective(ObjectiveSO objective)
     {

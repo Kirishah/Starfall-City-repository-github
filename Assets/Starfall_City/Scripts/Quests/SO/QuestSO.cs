@@ -12,7 +12,7 @@ public class QuestSO : ScriptableObject
     public ObjectiveSO[] Objectives;
     public Scene[] AssociatedScenes;
 
-    [SerializeField] private string startingDialogueID; // Dialogue to start this quest
+    [SerializeField] private string startingDialogueID; 
     public string StartingDialogueID => startingDialogueID;
 
     [System.Serializable]

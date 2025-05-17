@@ -37,13 +37,13 @@ public class NPCInteractable : Interactable
         }
         if (currentPrompt != null)
         {
-            // Convert NPC's position to viewport space (0-1 range)
+            // Конвертирование позиции NPC в viewport space (диапазон 0-1)
             Vector3 viewportPos = Camera.main.WorldToViewportPoint(transform.position + promptOffset);
 
-            // Check if the NPC is visible on screen
+            // Чек если NPC в пределах камеры
             if (viewportPos.z > 0 && viewportPos.x >= 0 && viewportPos.x <= 1 && viewportPos.y >= 0 && viewportPos.y <= 1)
             {
-                // Convert viewport to screen space
+                // Конвертирование viewport to screen space
                 Vector3 screenPos = new Vector3(
                     viewportPos.x * Screen.width,
                     viewportPos.y * Screen.height,

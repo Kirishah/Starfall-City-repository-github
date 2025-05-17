@@ -14,7 +14,7 @@ public class Item : ScriptableObject
     {
         if (!IsStackable)
         {
-            MaxStack = 1; // Force non-stackable items to have MaxStack = 1
+            MaxStack = 1; 
         }
     }
 }

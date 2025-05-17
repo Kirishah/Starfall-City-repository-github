@@ -17,12 +17,12 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Persist across scenes
+            DontDestroyOnLoad(gameObject); 
             InitializeData();
         }
         else
         {
-            Destroy(gameObject); // Prevent duplicates
+            Destroy(gameObject); 
         }
     }
     void InitializeData()
@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        // Scene is fully loaded here
+        
         LoadAfterSceneTransition();
     }
 

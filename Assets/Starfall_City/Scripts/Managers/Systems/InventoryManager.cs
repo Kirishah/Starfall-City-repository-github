@@ -10,19 +10,19 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private int _inventorySize = 20;
     public List<InventorySlot> Slots = new List<InventorySlot>();
 
-    // Event to notify UI when inventory changes
+    // Уведомление UI об изменении инвентаря
     public UnityAction OnInventoryUpdated;
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); // Prevent duplicates
+            Destroy(gameObject); 
         }
         else
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Optional: Keep across scenes
+            DontDestroyOnLoad(gameObject); 
         }
         InitializeSlots();
     }
@@ -44,12 +44,12 @@ public class InventoryManager : MonoBehaviour
             return false;
         }
 
-        int initialQuantity = GetTotalQuantity(item); // Track quantity before adding
+        int initialQuantity = GetTotalQuantity(item); // Отслеживание количества перед добавлением
         bool added = false;
 
         if (item.IsStackable)
         {
-            // Check for existing stack
+            // Чек сколько уже есть в инвентаре
             InventorySlot stack = Slots.Find(slot => slot.Item == item && slot.Quantity < item.MaxStack);
             if (stack != null)
             {
@@ -61,7 +61,7 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        // Add remaining quantity to empty slots
+        // Добавление в новые слоты
         while (quantity > 0)
         {
             InventorySlot emptySlot = Slots.Find(slot => slot.Item == null);
@@ -81,12 +81,12 @@ public class InventoryManager : MonoBehaviour
         {
             int newQuantity = GetTotalQuantity(item);
             int addedQuantity = newQuantity - initialQuantity;
-            // Notify QuestManager of the item collection
+            // Уведомление QuestManager об обновлении инвентаря
             QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Collection, item.ItemID);
             Debug.Log($"Added to new slot: ItemID={item.ItemID}, Amount={addedQuantity}");
         }
 
-        OnInventoryUpdated?.Invoke(); // Refresh UI
+        OnInventoryUpdated?.Invoke(); // Обновление UI
         return true;
     }
 
@@ -107,7 +107,7 @@ public class InventoryManager : MonoBehaviour
 
         if (item.IsStackable)
         {
-            // Remove from newest stacks first (iterate backwards)
+            // Чек сколько удалить из слотов, которые могут стакаться
             int remainingToRemove = quantity;
             for (int i = Slots.Count - 1; i >= 0; i--)
             {
@@ -124,13 +124,13 @@ public class InventoryManager : MonoBehaviour
         }
         else
         {
-            // Remove individual non-stackable items
+            // Удаление из слотов, которые не могут стакаться
             int removedCount = 0;
             foreach (InventorySlot slot in Slots)
             {
                 if (slot.Item == item)
                 {
-                    slot.Remove(1); // Will clear the slot (Quantity becomes 0)
+                    slot.Remove(1); 
                     removedCount++;
 
                     if (removedCount >= quantity) break;

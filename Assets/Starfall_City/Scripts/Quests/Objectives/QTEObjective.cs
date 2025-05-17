@@ -6,9 +6,9 @@ public class QTEObjective : Objective
     private int _successCount;
     private readonly int _requiredCount;
 
-    public QTEObjective(QTEObjectiveSO data) : base(data) // Call the base constructor with data
+    public QTEObjective(QTEObjectiveSO data) : base(data) 
     {
-        _data = data;  // Base class storage
+        _data = data;  
         _qteID = data.QTEID;
         _requiredCount = data.RequiredSuccessCount;
         _successCount = 0;

@@ -6,7 +6,7 @@ public class InteractionObjective : Objective
     private readonly string _objectID;
     private readonly int _requiredCount;
 
-    public InteractionObjective(InteractionSO data) : base(data) // Call the base constructor with data
+    public InteractionObjective(InteractionSO data) : base(data) 
     {
         _data = data;
         _objectID = data.ObjectID;
