@@ -12,25 +12,25 @@ public class CameraMovement : MonoBehaviour
     private Vector3 velocity = Vector3.zero;
     private bool isFollowing = true;
     private Vector3 originalOffset;
-    private float fixedYPosition;  // Store initial Y position
+    private float fixedYPosition;  // начальное положение по оси Y
 
     void Start()
     {
         originalOffset = offset;
-        fixedYPosition = transform.position.y;  // Lock initial height
+        fixedYPosition = transform.position.y;  
         StartCoroutine(FindPlayer());
     }
 
     void Update()
     {
-        // Toggle follow mode with F key
+        // Переключение режима камеры с помощью клавиши F
         if (Input.GetKeyDown(KeyCode.F))
         {
             isFollowing = !isFollowing;
-            if (isFollowing) offset = originalOffset;  // Reset to original offset
+            if (isFollowing) offset = originalOffset;  
         }
 
-        // Edge-based movement when not following
+        // Перемещение камеры мышкой по краям экрана
         if (!isFollowing)
         {
             HandleEdgeMovement();
@@ -41,9 +41,9 @@ public class CameraMovement : MonoBehaviour
     {
         if (isFollowing && target != null)
         {
-            // Smooth follow with original offset
+            // Плавное следование с исходным смещением
             Vector3 targetPosition = target.position + offset;
-            targetPosition.y = fixedYPosition;  // Maintain camera height
+            targetPosition.y = fixedYPosition;  
             transform.position = Vector3.SmoothDamp(
                 transform.position,
                 targetPosition,
@@ -58,7 +58,7 @@ public class CameraMovement : MonoBehaviour
         Vector3 mousePos = Input.mousePosition;
         Vector3 movement = Vector3.zero;
 
-        // Get camera-relative directions (XZ plane only)
+        // Получение относительных направлений камеры (только в плоскости XZ)
         Vector3 forward = transform.forward;
         forward.y = 0;
         forward.Normalize();
@@ -67,7 +67,7 @@ public class CameraMovement : MonoBehaviour
         right.y = 0;
         right.Normalize();
 
-        // Screen edge checks
+        // Чек краев экрана
         if (mousePos.y >= Screen.height - borderThickness)
             movement += forward;
         if (mousePos.y <= borderThickness)
@@ -77,7 +77,7 @@ public class CameraMovement : MonoBehaviour
         if (mousePos.x <= borderThickness)
             movement -= right;
 
-        // Apply movement while maintaining Y position
+        // Движение без изменения вектора Y
         Vector3 newPosition = transform.position + movement.normalized * edgeMoveSpeed * Time.deltaTime;
         newPosition.y = fixedYPosition;  // Keep original height
         transform.position = newPosition;

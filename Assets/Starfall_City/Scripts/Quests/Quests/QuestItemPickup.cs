@@ -3,9 +3,9 @@ using UnityEngine;
 public class QuestItemPickup : MonoBehaviour
 {
     [SerializeField] private QuestSO _questToStart;
-    [SerializeField] private string _itemID; // Unique identifier for the item
+    [SerializeField] private string _itemID; 
 
-    // Called by your inventory system when an item is picked up
+    // Вызывается системой инвентаря при взаимодействии с предметом
     public void OnItemPickedUp(string pickedUpItemID)
     {
         if (pickedUpItemID == _itemID && !QuestManager.Instance.IsQuestActive(_questToStart))

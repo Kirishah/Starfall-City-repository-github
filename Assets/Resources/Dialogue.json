@@ -1,8 +1,8 @@
 /*
-  QuestCompleted:<QuestID>: Check if a quest is completed.
-  HasItem:<ItemID>:<Amount>: Check if the player has a certain amount of an item.
-  IsQuestObjectiveActive:<NPCID>:<ItemID>: Check if a GiveItem objective is active for an NPC.
-  GameEventTriggered:<EventID>: Check if a game event has been triggered.
+  QuestCompleted:<QuestID>
+  HasItem:<ItemID>:<Amount>
+  IsQuestObjectiveActive:<NPCID>:<ItemID>
+  GameEventTriggered:<EventID>
 */
 [
   {

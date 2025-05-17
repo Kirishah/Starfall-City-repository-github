@@ -7,13 +7,11 @@ public static class PlayModeReset
 {
     static PlayModeReset()
     {
-        // Subscribe to the play mode state change event
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
     }
 
     private static void OnPlayModeStateChanged(PlayModeStateChange state)
     {
-        // Clear PlayerPrefs when exiting Play Mode
         if (state == PlayModeStateChange.ExitingPlayMode)
         {
             Debug.Log("Exiting Play Mode: Clearing PlayerPrefs for quest and event progress.");

@@ -14,7 +14,7 @@ public class PerformanceObjective : Objective
     {
         if (type == ObjectiveType.Performance && identifier == _challengeID)
         {
-            // Assume identifier confirms success (e.g., "Challenge123:Success")
+            // Предположим, что идентификатор подтверждает успех (например, «Challenge123:Success»)
             UpdateProgress(1, 1);
             Complete();
         }

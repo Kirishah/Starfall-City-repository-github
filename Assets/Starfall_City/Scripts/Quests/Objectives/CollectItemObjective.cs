@@ -8,7 +8,7 @@ public class CollectItemObjective : Objective
 
     public string TargetItemID => _targetItemID;
 
-    public CollectItemObjective(CollectItemSO data) : base(data) // Call the base constructor with data
+    public CollectItemObjective(CollectItemSO data) : base(data) 
     {
         _data = data;
         _targetItemID = data.TargetItemID;

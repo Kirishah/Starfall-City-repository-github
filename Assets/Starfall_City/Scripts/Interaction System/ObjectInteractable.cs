@@ -4,7 +4,7 @@ using UnityEngine;
 public class ObjectInteractable : Interactable
 {
     [Header("Item Settings")]
-    [SerializeField] private Item _item; // Assign the ScriptableObject in the Inspector
+    [SerializeField] private Item _item; // SO в инспекторе
     [SerializeField] private int _quantity = 1;
     [SerializeField] private string itemID;
 
@@ -21,13 +21,13 @@ public class ObjectInteractable : Interactable
         }
         if (currentPrompt != null)
         {
-            // Convert NPC's position to viewport space (0-1 range)
+            // Конвертирование позиции объекта в viewport space (диапазон 0-1)
             Vector3 viewportPos = Camera.main.WorldToViewportPoint(transform.position + promptOffset);
 
-            // Check if the NPC is visible on screen
+            // Чек если объект в пределах камеры
             if (viewportPos.z > 0 && viewportPos.x >= 0 && viewportPos.x <= 1 && viewportPos.y >= 0 && viewportPos.y <= 1)
             {
-                // Convert viewport to screen space
+                // Конвертирование viewport to screen space
                 Vector3 screenPos = new Vector3(
                     viewportPos.x * Screen.width,
                     viewportPos.y * Screen.height,
@@ -47,7 +47,6 @@ public class ObjectInteractable : Interactable
         if (currentPrompt != null)
         {
             currentPrompt.SetActive(false);
-            // Optional: Destroy or pool the prompt if needed
         }
     }
 
@@ -55,7 +54,7 @@ public class ObjectInteractable : Interactable
     {
         if (_isPickedUp) return;
 
-        // Add the item to the inventory
+        // Добавление предмета в инвентарь
         bool success = InventoryManager.Instance.AddItem(_item, _quantity);
         if (success)
         {

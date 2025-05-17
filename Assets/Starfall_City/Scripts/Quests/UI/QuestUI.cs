@@ -40,7 +40,6 @@ public class QuestUI : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _questLogPanel.SetActive(false);
 
-        // Get required components with null checks
         _notificationAnimator = _objectiveNotificationText.GetComponent<Animator>();
         _notificationCanvasGroup = _objectiveNotificationText.GetComponent<CanvasGroup>();
 
@@ -79,7 +78,7 @@ public class QuestUI : MonoBehaviour
 
     private void HandleQuestStarted(QuestSO quest)
     {
-        // Instantiate new quest entry
+        // Создание новой записи квеста
         if (_activeQuestsContainer == null || _questEntryPrefab == null) return;
 
         var entry = Instantiate(_questEntryPrefab, _activeQuestsContainer);
@@ -97,7 +96,7 @@ public class QuestUI : MonoBehaviour
         {
             RefreshQuestLog();
         }
-        // You could move the entry to a completed quests section here
+        // В этом методе можно добавить функционал добавления выполненных квестов
     }
 
     private void HandleObjectiveProgressed(ObjectiveSO objective, int current, int required)
@@ -139,11 +138,10 @@ public class QuestUI : MonoBehaviour
                 yield return new WaitForSeconds(_notificationDuration);
 
                 _notificationAnimator.SetBool("Show", false);
-                yield return new WaitForSeconds(0.2f); // Wait for fade-out animation
+                yield return new WaitForSeconds(0.2f); 
             }
             else
             {
-                // Fallback if animator fails
                 _objectiveNotificationText.text = _notificationQueue.Dequeue();
                 yield return new WaitForSeconds(_notificationDuration);
                 _objectiveNotificationText.text = string.Empty;
@@ -172,17 +170,17 @@ public class QuestUI : MonoBehaviour
     private void RefreshQuestLog()
     {
         if (_activeQuestsContainer == null) return;
-        // Clear existing entries
+        // Чистка существующих записей
         foreach (Transform child in _activeQuestsContainer)
         {
             Destroy(child.gameObject);
         }
 
-        // Get updated quest list
+        // Получение активных квестов
         var activeQuests = QuestManager.Instance.GetActiveQuests();
         if (activeQuests == null) return;
 
-        // Repopulate entries
+        // Перезаполнение списка квестов
         foreach (var quest in activeQuests)
         {
             if (quest == null) continue;

@@ -3,14 +3,14 @@ using UnityEngine;
 
 public class QuestStarter : MonoBehaviour
 {
-    [SerializeField] private QuestSO _initialQuest; // The starting quest in the chain
+    [SerializeField] private QuestSO _initialQuest; // Начальный квест в цепочке
     [SerializeField] private string _npcID;
-    [SerializeField] private string _defaultDialogueStartID; // Default dialogue if no quest is available
-    [SerializeField] private string _postQuestDialogueStartID; // Dialogue after quest completion
+    [SerializeField] private string _defaultDialogueStartID; // Диалог по умолчанию, если квест недоступен
+    [SerializeField] private string _postQuestDialogueStartID; // Диалог после завершения квеста
 
     private bool _hasStartedQuest;
-    private QuestSO _currentQuest; // The quest currently being offered
-    private string _currentDialogueStartID; // The dialogue associated with the current quest
+    private QuestSO _currentQuest; // Текущий квест, который предлагается 
+    private string _currentDialogueStartID; // Диалог, связанный с текущим квестом
 
     public void StartDialogue()
     {
@@ -33,7 +33,7 @@ public class QuestStarter : MonoBehaviour
 
     private void DetermineCurrentQuestAndDialogue()
     {
-        // Reset current quest and dialogue
+        // Сброс текущего квеста и диалога
         _currentQuest = null;
         _currentDialogueStartID = _defaultDialogueStartID;
 
@@ -65,7 +65,7 @@ public class QuestStarter : MonoBehaviour
             return;
         }
 
-        // Traverse the quest chain to find the next available quest
+        // Пробежка по цепочке квестов, чтобы найти следующий доступный квест
         while (questToCheck != null)
         {
             if (!QuestMemory.Instance.IsQuestCompleted(questToCheck))
@@ -81,7 +81,7 @@ public class QuestStarter : MonoBehaviour
                 return;
             }
 
-            // Check follow-up quests
+            // Чек последующих квестов
             QuestSO nextQuest = null;
             foreach (var followUp in questToCheck.FollowUpQuests)
             {
@@ -97,7 +97,7 @@ public class QuestStarter : MonoBehaviour
             questToCheck = nextQuest;
         }
 
-        // If no new quests are available, use the post-quest dialogue
+        // Если все квесты завершены, используем PostQuestDialogueStartID
         _currentDialogueStartID = _postQuestDialogueStartID;
         if (string.IsNullOrEmpty(_currentDialogueStartID))
         {

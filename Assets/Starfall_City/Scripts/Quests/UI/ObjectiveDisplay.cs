@@ -20,7 +20,7 @@ public class ObjectiveDisplay : MonoBehaviour
         _objectiveInstance = objectiveInstance;
         _requiredProgress = GetRequiredProgress(objectiveData);
 
-        // Sync with current progress from QuestManager
+        // Синхронизация с текущим прогрессом из QuestManager
         var progress = QuestManager.Instance.GetObjectiveProgress(_objectiveData.ObjectiveID);
         _currentProgress = progress.current;
         _requiredProgress = progress.required;
@@ -31,12 +31,12 @@ public class ObjectiveDisplay : MonoBehaviour
 
     private int GetRequiredProgress(ObjectiveSO objective)
     {
-        // Add type-specific progress requirements
+        // Добавление требований к прогрессу для конкретного типа
         if (objective is QTEObjectiveSO qteObjective)
             return qteObjective.RequiredSuccessCount;
 
         if (objective is DialogueSO dialogueObjective)
-            return 1; // Dialogue objectives typically require 1 completion
+            return 1; 
         if (objective is InteractionSO interactionObjective)
             return interactionObjective.RequiredInteractions;
         if (objective is CollectItemSO collectionObjective)

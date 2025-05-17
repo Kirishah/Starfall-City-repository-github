@@ -43,7 +43,7 @@ public class Quest
     {
         Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
 
-        // Находишь первую невыполненную цель
+        // Поиск первой невыполненной цели
         int firstIncompleteIndex = -1;
         for (int i = 0; i < _objectives.Count; i++)
         {
@@ -54,7 +54,7 @@ public class Quest
             }
         }
 
-        // Если все цели выполнены, ничего не делай (CheckAllObjectivesCompleted обработает завершение квеста).
+        // Если все цели выполнены, ничего не происходит (CheckAllObjectivesCompleted обработает завершение квеста).
         if (firstIncompleteIndex == -1)
         {
             Debug.Log("All objectives completed, skipping ProcessObjectiveEvent.");
@@ -65,7 +65,7 @@ public class Quest
         _activeObjectiveIndex = firstIncompleteIndex;
         Objective activeObjective = _objectives[_activeObjectiveIndex];
         Debug.Log($"Calling CheckProgress on active objective: {activeObjective.GetType().Name} (Index: {_activeObjectiveIndex})");
-        // Проверь автозавершение, когда цель становится активной
+        // Проверка автозавершения, когда цель становится активной
         CheckActiveObjective();
 
         activeObjective.CheckProgress(type, identifier, itemID);
