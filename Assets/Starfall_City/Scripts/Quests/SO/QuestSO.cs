@@ -11,6 +11,11 @@ public class QuestSO : ScriptableObject
     public string Description;
     public ObjectiveSO[] Objectives;
     public Scene[] AssociatedScenes;
+    [SerializeField] private int experienceReward;
+    [SerializeField] private int moneyReward; 
+
+    public int ExperienceReward => experienceReward;
+    public int MoneyReward => moneyReward;
 
     [SerializeField] private string startingDialogueID; 
     public string StartingDialogueID => startingDialogueID;

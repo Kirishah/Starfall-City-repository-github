@@ -38,12 +38,7 @@ public class QuestManager : MonoBehaviour
             _questPoolQueue.Enqueue(quest);
         }
     }
-
-    public List<Quest> GetActiveQuests()
-    {
-        return _activeQuests;
-    }
-
+    
     public bool IsQuestActive(QuestSO questSO)
     {
         return _activeQuestSet.Contains(questSO);
@@ -70,28 +65,59 @@ public class QuestManager : MonoBehaviour
 
     public void CompleteQuest(Quest quest)
     {
-        var questSO = quest.Data; 
-        quest.Cleanup();
+        Debug.Log($"QuestManager: Attempting to complete quest {quest?.Data?.Title ?? "null"}");
+        if (quest == null)
+        {
+            Debug.LogWarning("QuestManager: Attempted to complete a null quest.");
+            return;
+        }
+        if (!_activeQuests.Contains(quest))
+        {
+            Debug.LogWarning($"QuestManager: Quest {quest.Data.Title} is not in active quests.");
+            return;
+        }
+
+        var questSO = quest.Data;
+
         _activeQuests.Remove(quest);
         _activeQuestSet.Remove(questSO);
-        _questPoolQueue.Enqueue(quest);
 
         // ”даление отслеживани€ прогресса дл€ целей этого квеста
         foreach (var objective in questSO.Objectives)
         {
             _objectiveProgress.Remove(objective.ObjectiveID);
         }
-        // Trigger event
-        OnQuestCompleted?.Invoke(questSO);
+        // ѕометить как завершенное и задействовать UI
         QuestMemory.Instance.MarkQuestCompleted(quest.Data);
+        OnQuestCompleted?.Invoke(questSO);
+        Debug.Log($"QuestManager: Fired OnQuestCompleted for {questSO.Title}");
+
+        if (CurrencyManager.Instance != null && XPManager.Instance != null)
+        {
+            XPManager.Instance.AddExperience(quest.Data.ExperienceReward);
+            CurrencyManager.Instance.AddMoney(quest.Data.MoneyReward);
+            Debug.Log($"Awarded {quest.Data.ExperienceReward} XP and {quest.Data.MoneyReward} Money for completing {quest.Data.Title}");
+        }
+        else
+        {
+            Debug.LogError("Instances are null. Cannot award rewards.");
+        }
+
+        // „истка и возвращение в пул
+        quest.Cleanup();
+        _questPoolQueue.Enqueue(quest);
+        Debug.Log($"QuestManager: Quest {questSO.Title} cleaned up and returned to pool");
     }
 
     // ƒругие системы зовут этот метод
     public void HandleObjectiveUpdate(ObjectiveType type, string identifier, string itemID = null)
     {
-        Debug.Log($"QuestManager HandleObjectiveUpdate: type={type}, identifier={identifier}");
-        foreach (Quest quest in _activeQuests.ToList())
+        Debug.Log($"QuestManager HandleObjectiveUpdate: type={type}, identifier={identifier}," +
+        $" itemID={itemID}, active quests: {string.Join(", ", _activeQuests.Select(q => q.Data.Title))}");
+        var questsToProcess = new List<Quest>(_activeQuests);
+        foreach (var quest in questsToProcess)
         {
+            if (quest.IsCompleted) continue;
             quest.ProcessObjectiveEvent(type, identifier, itemID);
         }
     }
@@ -104,9 +130,10 @@ public class QuestManager : MonoBehaviour
             return;
         }
         _objectiveProgress[objective.ObjectiveID] = (current, required);
-
         OnObjectiveProgressed?.Invoke(objective, current, required);
+        Debug.Log($"QuestManager: Reported progress for {objective.ObjectiveID}: {current}/{required}");
     }
+
     public (int current, int required) GetObjectiveProgress(string objectiveID)
     {
         if (_objectiveProgress.TryGetValue(objectiveID, out var progress))
@@ -115,8 +142,11 @@ public class QuestManager : MonoBehaviour
         }
         return (0, 1); // Default 
     }
+
     public Quest FindQuestByObjective(ObjectiveSO objective)
     {
         return _activeQuests.Find(quest => quest.Data.Objectives.Contains(objective));
     }
+
+    public List<Quest> GetActiveQuests() => _activeQuests;
 }

@@ -10,6 +10,7 @@ public class QuestSOEditor : Editor
 {
     // Кэширование имен свойств, чтобы избежать поиска строк
     private readonly string[] _mainProperties = { "QuestID", "Title", "Description", "startingDialogueID" };
+    private readonly string[] _rewardProperties = { "experienceReward", "moneyReward" };
     private readonly string[] _sceneProperties = { "AssociatedScenes" };
     public override void OnInspectorGUI()
     {
@@ -20,6 +21,15 @@ public class QuestSOEditor : Editor
 
         // Основные свойства квеста
         foreach (var property in _mainProperties)
+        {
+            DrawProperty(property);
+        }
+
+        // Раздел наград
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Rewards", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Experience and money awarded upon quest completion.", MessageType.Info);
+        foreach (var property in _rewardProperties)
         {
             DrawProperty(property);
         }

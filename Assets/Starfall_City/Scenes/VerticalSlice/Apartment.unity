@@ -12020,6 +12020,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5469517593980885008, guid: c86919a1c406927408dd69c1611948d9, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5469517593980885008, guid: c86919a1c406927408dd69c1611948d9, type: 3}
+      propertyPath: moveSpeed
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5469517593980885008, guid: c86919a1c406927408dd69c1611948d9, type: 3}
+      propertyPath: turnSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8060738646291299030, guid: c86919a1c406927408dd69c1611948d9, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -12289,7 +12305,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _initialQuest: {fileID: 11400000, guid: 56f28c38b61739e459d7e535b56a219f, type: 2}
-  _targetDialogueID: ChristinaPhoneQuestStart_1
   _npcID: Christina
   _defaultDialogueStartID: ChristinaInitialDialogue
   _postQuestDialogueStartID: ChristinaNeutralDialogue

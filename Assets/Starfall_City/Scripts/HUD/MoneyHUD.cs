@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class MoneyHUD : MonoBehaviour
 {
@@ -24,10 +25,17 @@ public class MoneyHUD : MonoBehaviour
 
     void Awake()
     {
+        if (moneyText == null) Debug.LogError("MoneyHUD: moneyText is not assigned in Inspector");
+        if (currencyIcon == null) Debug.LogError("MoneyHUD: currencyIcon is not assigned in Inspector");
+        if (panelBackground == null) Debug.LogError("MoneyHUD: panelBackground is not assigned in Inspector");
+        if (audioSource == null) Debug.LogError("MoneyHUD: audioSource is not assigned in Inspector");
+
         // Кэширование исходных цветов и масштабов для анимации
-        originalPanelColor = panelBackground.color;
-        originalIconColor = currencyIcon.color;
+        originalPanelColor = panelBackground != null ? panelBackground.color : Color.white;
+        originalIconColor = currencyIcon != null ? currencyIcon.color : Color.white;
         originalScale = transform.localScale;
+        DontDestroyOnLoad(gameObject); 
+        Debug.Log($"MoneyHUD: Awake on {gameObject.name}, active: {gameObject.activeInHierarchy}");
     }
     private void Start()
     {
@@ -40,6 +48,12 @@ public class MoneyHUD : MonoBehaviour
             CurrencyManager.Instance.OnMoneyChanged += UpdateMoneyDisplay;
             previousMoney = CurrencyManager.Instance.CurrentMoney;
             UpdateMoneyDisplay();
+            Debug.Log($"MoneyHUD: Subscribed to OnMoneyChanged, CurrentMoney: {previousMoney}");
+        }
+        else
+        {
+            Debug.LogError("MoneyHUD: CurrencyManager.Instance is null in OnEnable");
+            StartCoroutine(WaitForCurrencyManager());
         }
     }
 
@@ -48,15 +62,39 @@ public class MoneyHUD : MonoBehaviour
         if (CurrencyManager.Instance != null)
         {
             CurrencyManager.Instance.OnMoneyChanged -= UpdateMoneyDisplay;
+            Debug.Log("MoneyHUD: Unsubscribed from OnMoneyChanged");
         }
+    }
+
+    private IEnumerator WaitForCurrencyManager()
+    {
+        while (CurrencyManager.Instance == null)
+        {
+            Debug.Log("MoneyHUD: Waiting for CurrencyManager.Instance...");
+            yield return new WaitForSeconds(0.1f);
+        }
+        CurrencyManager.Instance.OnMoneyChanged += UpdateMoneyDisplay;
+        previousMoney = CurrencyManager.Instance.CurrentMoney;
+        UpdateMoneyDisplay();
+        Debug.Log($"MoneyHUD: Subscribed to OnMoneyChanged after wait, CurrentMoney: {previousMoney}");
     }
 
     void UpdateMoneyDisplay()
     {
-        if (CurrencyManager.Instance == null) return;
+        if (CurrencyManager.Instance == null)
+        {
+            Debug.LogError("MoneyHUD: CurrencyManager.Instance is null in UpdateMoneyDisplay");
+            return;
+        }
+        if (moneyText == null)
+        {
+            Debug.LogError("MoneyHUD: moneyText is null in UpdateMoneyDisplay");
+            return;
+        }
 
         int currentMoney = CurrencyManager.Instance.CurrentMoney;
         moneyText.text = $"{currencySymbol}{currentMoney:N0}";
+        Debug.Log($"MoneyHUD: Updated money display to {currentMoney} on {moneyText.gameObject.name}, active: {moneyText.gameObject.activeInHierarchy}");
 
         // Animate based on money change
         if (currentMoney > previousMoney)
@@ -73,12 +111,16 @@ public class MoneyHUD : MonoBehaviour
         previousMoney = currentMoney;
     }
 
-    private System.Collections.IEnumerator AnimateChange(Color glowColor, AudioClip sound)
+    private IEnumerator AnimateChange(Color glowColor, AudioClip sound)
     {
         // Play sound
         if (audioSource != null && sound != null)
         {
             audioSource.PlayOneShot(sound);
+        }
+        else
+        {
+            Debug.LogWarning($"MoneyHUD: AudioSource or sound clip missing for {sound?.name}");
         }
 
         float duration = 0.5f;
@@ -103,8 +145,10 @@ public class MoneyHUD : MonoBehaviour
         }
 
         // Reset to original state
-        panelBackground.color = originalPanelColor;
-        currencyIcon.color = originalIconColor;
+        if (panelBackground != null)
+            panelBackground.color = originalPanelColor;
+        if (currencyIcon != null)
+            currencyIcon.color = originalIconColor;
         transform.localScale = originalScale;
     }
 }

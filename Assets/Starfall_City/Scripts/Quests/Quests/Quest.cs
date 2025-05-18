@@ -8,6 +8,7 @@ public class Quest
 {
     private QuestSO _data;
     private bool _isCompleted;
+    private bool _isCompleting; // „тобы не выполн€лось несколько раз
     private List<Objective> _objectives = new List<Objective>();
     private int _activeObjectiveIndex;
 
@@ -20,6 +21,8 @@ public class Quest
         _data = questSO;
         _objectives.Clear(); // список пустой
         _activeObjectiveIndex = 0;
+        _isCompleted = false;
+        _isCompleting = false;
         foreach (ObjectiveSO objectiveSO in questSO.Objectives)
         {
             var objective = objectiveSO.CreateObjective();
@@ -41,6 +44,11 @@ public class Quest
 
     public void ProcessObjectiveEvent(ObjectiveType type, string identifier, string itemID)
     {
+        if (_isCompleted || _isCompleting)
+        {
+            Debug.Log($"Quest {Data.Title} is already completed or completing, skipping event.");
+            return;
+        }
         Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
 
         // ѕоиск первой невыполненной цели
@@ -65,9 +73,9 @@ public class Quest
         _activeObjectiveIndex = firstIncompleteIndex;
         Objective activeObjective = _objectives[_activeObjectiveIndex];
         Debug.Log($"Calling CheckProgress on active objective: {activeObjective.GetType().Name} (Index: {_activeObjectiveIndex})");
+        
         // ѕроверка автозавершени€, когда цель становитс€ активной
         CheckActiveObjective();
-
         activeObjective.CheckProgress(type, identifier, itemID);
 
         // ѕовторна€ проверка после обработки событи€ 
@@ -86,7 +94,6 @@ public class Quest
             Debug.Log($"Objective completed, updated active index to {firstIncompleteIndex}");
             CheckActiveObjective();
         }
-        CheckAllObjectivesCompleted();
     }
 
     private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
@@ -96,6 +103,12 @@ public class Quest
 
     private void HandleObjectiveCompleted()
     {
+        if (_isCompleted || _isCompleting)
+        {
+            Debug.Log($"Quest {Data.Title} is already completed or completing, skipping HandleObjectiveCompleted.");
+            return;
+        }
+
         int firstIncompleteIndex = -1;
         for (int i = 0; i < _objectives.Count; i++)
         {
@@ -151,13 +164,23 @@ public class Quest
 
     private void CheckAllObjectivesCompleted()
     {
-        foreach (var objective in _objectives)
+        if (_isCompleted || _isCompleting)
         {
-            if (!objective.IsCompleted) return;
+            Debug.Log($"Quest {Data.Title} is already completed or completing, skipping CheckAllObjectivesCompleted.");
+            return;
         }
-        _isCompleted = true;
-        Debug.Log($"Quest {Data.Title} completed!");
-        QuestManager.Instance.CompleteQuest(this);
+
+        if (_objectives.All(o => o.IsCompleted))
+        {
+            _isCompleting = true;
+            Debug.Log($"Quest: {Data.Title} completed, calling QuestManager.CompleteQuest");
+            QuestManager.Instance.CompleteQuest(this);
+            _isCompleted = true;
+        }
+        else
+        {
+            Debug.Log($"Quest: {Data.Title} not completed, pending objectives: {_objectives.Count(o => !o.IsCompleted)}");
+        }
     }
 
     public void Cleanup()
@@ -169,25 +192,16 @@ public class Quest
             objective.OnCompleted -= CheckAllObjectivesCompleted;  
             objective.Cleanup();                                   
         }
-        _objectives.Clear();                                      
+        _objectives.Clear();
+        _isCompleted = false;
+        _isCompleting = false;
+        Debug.Log($"Quest: Cleaned up quest {Data.Title}");
     }
 
     
     public List<Objective> GetCompletedObjectives()
     {
-        List<Objective> completed = new List<Objective>();
-        for (int i = 0; i < _objectives.Count; i++)
-        {
-            if (_objectives[i].IsCompleted)
-            {
-                completed.Add(_objectives[i]);
-            }
-            else
-            {
-                break; // ќстановливаемс€ у первой незавершенной цели
-            }
-        }
-        return completed;
+        return _objectives.Where(o => o.IsCompleted).ToList();
     }
 
     

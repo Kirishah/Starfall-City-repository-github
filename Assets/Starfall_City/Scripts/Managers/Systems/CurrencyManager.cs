@@ -25,6 +25,7 @@ public class CurrencyManager : MonoBehaviour
     public void AddMoney(int amount)
     {
         CurrentMoney += amount;
+        Debug.Log($"CurrencyManager: Added {amount} money. Total: {CurrentMoney}");
         OnMoneyChanged?.Invoke();
     }
 
@@ -33,9 +34,11 @@ public class CurrencyManager : MonoBehaviour
         if (CurrentMoney >= amount)
         {
             CurrentMoney -= amount;
+            Debug.Log($"CurrencyManager: Spent {amount} money. Total: {CurrentMoney}");
             OnMoneyChanged?.Invoke();
             return true;
         }
+        Debug.LogWarning($"CurrencyManager: Cannot spend {amount} money. Current: {CurrentMoney}");
         return false;
     }
 }
