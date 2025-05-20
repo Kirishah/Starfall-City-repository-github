@@ -38,7 +38,6 @@ public class MoneyHUD : MonoBehaviour
     private Vector3 originalScale;
     private ParticleSystem.EmissionModule particleEmission;
     private ParticleSystem.MainModule particleMain;
-    private Canvas parentCanvas;
 
     void Awake()
     {
@@ -54,12 +53,6 @@ public class MoneyHUD : MonoBehaviour
         originalIconColor = currencyIcon != null ? currencyIcon.color : Color.white;
         originalScale = transform.localScale;
 
-        // Проверка наличия канваса
-        parentCanvas = GetComponentInParent<Canvas>();
-        if (parentCanvas == null)
-        {
-            Debug.LogError("MoneyHUD: No Canvas found in parent hierarchy");
-        }
 
         // Кэширование модулей ParticleSystem
         if (moneyChangeParticles != null)
@@ -71,26 +64,6 @@ public class MoneyHUD : MonoBehaviour
             particleMain.duration = particleDuration;
             particleMain.simulationSpace = ParticleSystemSimulationSpace.Local;
             particleEmission.enabled = true;
-
-            // Set renderer to match canvas sorting
-            var renderer = moneyChangeParticles.GetComponent<ParticleSystemRenderer>();
-            string canvasSortingLayer = parentCanvas != null && parentCanvas.sortingLayerName != "Default" ? parentCanvas.sortingLayerName : "UI";
-            renderer.sortingLayerName = canvasSortingLayer;
-            renderer.sortingOrder = parentCanvas != null ? parentCanvas.sortingOrder + 1 : 1;
-            if (renderer.material == null)
-            {
-                renderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
-                Debug.LogWarning("MoneyHUD: ParticleSystem material was null, assigned default Particles/Standard Unlit");
-            }
-
-            Debug.Log($"MoneyHUD: ParticleSystem initialized, duration: " +
-                $"{particleMain.duration}, " +
-                $"emission enabled: {particleEmission.enabled}, " +
-                $"position: {moneyChangeParticles.transform.localPosition}, " +
-                $"scale: {moneyChangeParticles.transform.localScale}, " +
-                $"sortingLayer: {renderer.sortingLayerName}, " +
-                $"sortingOrder: {renderer.sortingOrder}, " +
-                $"canvas renderMode: {parentCanvas?.renderMode}");
         }
         DontDestroyOnLoad(gameObject);
     }
@@ -128,16 +101,6 @@ public class MoneyHUD : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space)) // Press Space to test
         {
             CurrencyManager.Instance.AddMoney(10);
-        }
-
-        if (Input.GetKeyDown(KeyCode.P)) // Press P to test particles
-        {
-            if (moneyChangeParticles != null)
-            {
-                moneyChangeParticles.Clear();
-                moneyChangeParticles.Play();
-                Debug.Log("MoneyHUD: Manual particle test triggered with KeyCode.P");
-            }
         }
 
         // Neon glow effect

@@ -2,7 +2,7 @@
 - Project name: Neighbours-call-repository-github
 - Unity version: Unity 6000.1.0f1
 - Active game object:
-  - Name: GoldCoin
+  - Name: MoneyChangeParicles
   - Tag: Untagged
-  - Layer: Floor 2
+  - Layer: UI
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
