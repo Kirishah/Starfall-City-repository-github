@@ -21,5 +21,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 81a49e3088d83aa4790d1d9f5394ab36, type: 2}
   - {fileID: 11400000, guid: baaf7f579fcf970449592748988a9b8b, type: 2}
   AssociatedScenes: []
+  experienceReward: 100
+  moneyReward: 0
   startingDialogueID: ChristinaNeutralDialogue
   followUpQuests: []

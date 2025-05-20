@@ -2,7 +2,7 @@
 - Project name: Neighbours-call-repository-github
 - Unity version: Unity 6000.1.0f1
 - Active game object:
-  - Name: Quest Manager
+  - Name: GoldCoin
   - Tag: Untagged
-  - Layer: Default
+  - Layer: Floor 2
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
