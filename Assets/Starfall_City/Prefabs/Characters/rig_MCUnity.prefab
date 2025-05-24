@@ -462,9 +462,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5958d20394757cd4092feaf67ab80b97, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3172285000563172967}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5958d20394757cd4092feaf67ab80b97, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2346295422404147514}
   m_SourcePrefab: {fileID: 100100000, guid: 5958d20394757cd4092feaf67ab80b97, type: 3}
 --- !u!1 &44683929737465880 stripped
 GameObject:
@@ -557,8 +554,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faa7667ea031b344b9862a3ecff20978, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2.25
-  turnSpeed: 90
+  moveSpeed: 1.8
+  turnSpeed: 5
 --- !u!114 &3172285000563172967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -575,22 +572,3 @@ MonoBehaviour:
   interactableLayer:
     serializedVersion: 2
     m_Bits: 128
---- !u!114 &2346295422404147514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 44683929737465880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6aa0fd7e61046b24f82f556a42369a80, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BodyRenderer: {fileID: 6880889746189043789}
-  Outfits: []
---- !u!137 &6880889746189043789 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -3233018449334672124, guid: 5958d20394757cd4092feaf67ab80b97, type: 3}
-  m_PrefabInstance: {fileID: 891666675498659145}
-  m_PrefabAsset: {fileID: 0}

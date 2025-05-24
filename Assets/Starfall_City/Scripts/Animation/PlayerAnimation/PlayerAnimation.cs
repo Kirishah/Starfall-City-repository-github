@@ -39,14 +39,12 @@ public class PlayerAnimation : MonoBehaviour
         if (isMoving)
         {
             // If the player is moving, set the running animation
-            animator.SetBool("is_Running", true);
-            animator.SetBool("is_Standing", false);
+            animator.SetBool("is_Walking", true);
         }
         else
         {
             // If the player is not moving, set the standing animation
-            animator.SetBool("is_Running", false);
-            animator.SetTrigger("Stopping");
+            animator.SetBool("is_Walking", false);
         }
     }
 }
