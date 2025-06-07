@@ -27,6 +27,10 @@ public class DialogueManager : MonoBehaviour
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
     public static event DialogueLineDisplayedHandler OnDialogueLineDisplayed;
 
+    // Событие для запуска QTE
+    public delegate void QTETriggerAction();
+    public static event QTETriggerAction OnQTETrigger;
+
     #region Initialization
     private void Awake()
     {
@@ -71,8 +75,13 @@ public class DialogueManager : MonoBehaviour
         ShowDialogue(currentDialogue);
     }
 
-    public void SelectChoice(string targetID)
+    public void SelectChoice(string targetID, bool triggersQTE = false)
     {
+        if (triggersQTE)
+        {
+            OnQTETrigger?.Invoke();
+        }
+
         if (string.IsNullOrEmpty(targetID))
         {
             EndDialogue();
@@ -311,7 +320,7 @@ public class DialogueManager : MonoBehaviour
                 {
                     GameObject button = Instantiate(choiceButtonPrefab, choiceContainer);
                     button.GetComponentInChildren<TMP_Text>().text = choice.text;
-                    button.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID));
+                    button.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID, choice.triggersQTE));
                 }
             }
         }

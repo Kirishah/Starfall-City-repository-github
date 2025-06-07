@@ -32,11 +32,12 @@ public class NPCInteractable : Interactable
     {
         if (currentPrompt == null && promptPrefab != null)
         {
-            currentPrompt = Instantiate(promptPrefab, WorldCanvasManager.Instance.transform);
+            currentPrompt = Instantiate(promptPrefab, WorldCanvasManager.Instance.worldCanvas.transform);
             currentPrompt.GetComponent<TMP_Text>().text = interactionText;
         }
         if (currentPrompt != null)
         {
+            Camera uiCamera = WorldCanvasManager.Instance.worldCanvas.worldCamera;
             // Конвертирование позиции NPC в viewport space (диапазон 0-1)
             Vector3 viewportPos = Camera.main.WorldToViewportPoint(transform.position + promptOffset);
 

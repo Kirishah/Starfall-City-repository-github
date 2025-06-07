@@ -20,4 +20,5 @@ public class Choice
     public string text;
     public string targetID;
     public string condition;
+    public bool triggersQTE;
 }

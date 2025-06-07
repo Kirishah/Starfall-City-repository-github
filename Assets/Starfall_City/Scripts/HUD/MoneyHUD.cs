@@ -98,6 +98,8 @@ public class MoneyHUD : MonoBehaviour
 
     private void Update()
     {
+        if (QTEGameManager.IsQTEActive) return;
+
         if (Input.GetKeyDown(KeyCode.Space)) // Press Space to test
         {
             CurrencyManager.Instance.AddMoney(10);

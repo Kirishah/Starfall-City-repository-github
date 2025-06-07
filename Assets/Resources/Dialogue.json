@@ -12,10 +12,12 @@
     "choices": [
       {
         "text": "[Дать приглашение]",
+        "triggersQTE": false,
         "targetID": "d_bouncer_2"
       },
       {
         "text": "Уйти.",
+        "triggersQTE": false,
         "targetID": "-1"
       }
     ]
@@ -94,5 +96,28 @@
         "targetID": "-1"
       }
     ]
+  },
+  {
+    "id": "lola_start",
+    "speaker": "Лола: ",
+    "text": "Потанцуем?",
+    "choices": [
+      {
+        "text": "Погнали.",
+        "triggersQTE": true,
+        "targetID": "lola_dance"
+      },
+      {
+        "text": "Уйти.",
+        "triggersQTE": false,
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "lola_dance",
+    "speaker": "Лола: ",
+    "text": "Окееей, лееетс гоооу.",
+    "targetID": "-1"
   }
 ]

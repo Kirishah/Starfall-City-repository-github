@@ -23,6 +23,7 @@ public class PlayerAnimation : MonoBehaviour
 
     void Update()
     {
+        if (QTEGameManager.IsQTEActive) return;
         CheckMovement();
     }
 

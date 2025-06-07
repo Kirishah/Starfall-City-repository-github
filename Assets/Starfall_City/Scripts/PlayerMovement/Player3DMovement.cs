@@ -22,6 +22,8 @@ public class Player3DMovement : MonoBehaviour
 
     void Update()
     {
+        if (QTEGameManager.IsQTEActive) return;
+
         GatherInput();
         if (moveDirection.magnitude >= 0.1f)
         {

@@ -31,6 +31,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (QTEGameManager.IsQTEActive) return;
+
         if (player.enabled)
         {
             if (Input.GetMouseButtonDown(1))
