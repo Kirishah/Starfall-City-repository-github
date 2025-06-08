@@ -11,6 +11,7 @@ public class Dialogue
     [SerializeField] public string speaker;
     [SerializeField] public string targetID;
     [SerializeField] public string text;
+    [SerializeField] public string audio;
     [SerializeField] public List<Choice> choices;
 }
 

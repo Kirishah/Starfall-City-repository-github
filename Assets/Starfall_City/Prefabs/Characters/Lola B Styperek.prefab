@@ -365,7 +365,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 0, y: 0, z: 0}
+  promptOffset: {x: 1.5, y: 1, z: 0}
   questStarter: {fileID: 0}
   startDialogueID: lola_start
   npcID: Lola
