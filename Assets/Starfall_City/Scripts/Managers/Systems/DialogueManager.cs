@@ -19,6 +19,9 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private Transform choiceContainer;
     [SerializeField] private GameObject choiceButtonPrefab;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+
     private List<Dialogue> dialogues;
     private Dialogue currentDialogue;
     private string currentNPCID;
@@ -162,6 +165,10 @@ public class DialogueManager : MonoBehaviour
     private void EndDialogue()
     {
         HideDialogue();
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop(); 
+        }
         if (!string.IsNullOrEmpty(currentNPCID))
         {
             QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Dialogue, currentNPCID);
@@ -286,6 +293,22 @@ public class DialogueManager : MonoBehaviour
         UpdateDialogueUI(dialogue);
         OnDialogueLineDisplayed?.Invoke(dialogue.id, currentNPCID);
         DisplayChoices(dialogue);
+
+        // Play audio if specified
+        if (!string.IsNullOrEmpty(dialogue.audio))
+        {
+            AudioClip clip = Resources.Load<AudioClip>(dialogue.audio);
+            if (clip != null)
+            {
+                audioSource.Stop(); // Stop any currently playing audio
+                audioSource.clip = clip;
+                audioSource.Play();
+            }
+            else
+            {
+                Debug.LogError($"Audio clip not found: {dialogue.audio}");
+            }
+        }
     }
 
     private bool ValidateDialogue(Dialogue dialogue)

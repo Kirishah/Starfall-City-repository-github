@@ -9,6 +9,7 @@
     "id": "d_bouncer_1",
     "speaker": "Вышибала: ",
     "text": "Покажите свое приглашение.",
+    "audio": "Audio/DialogueLines/d_bouncer_1",
     "choices": [
       {
         "text": "[Дать приглашение]",
@@ -26,12 +27,14 @@
     "id": "d_bouncer_2",
     "speaker": "Вышибала: ",
     "text": "Хорошего вечера, господин Гетсби ждет вас.",
+    "audio": "Audio/DialogueLines/d_bouncer_2",
     "targetLocation": 2
   },
   {
     "id": "ChristinaInitialDialogue",
     "speaker": "Кристина: ",
     "text": "Эй, ты не видел здесь мой iPhone??",
+    "audio": "Audio/DialogueLines/Cr_Init_D",
     "choices": [
       {
         "text": "Нет, но я могу помочь найти его.",
@@ -52,18 +55,21 @@
     "id": "ChristinaPhoneQuestStart_1",
     "speaker": "Кристина: ",
     "text": "Отлично, сначала проверь около входа в особняк.",
+    "audio": "Audio/DialogueLines/ChristinaPhoneQuestStart_1",
     "targetID": "-1"
   },
   {
     "id": "ChristinaPhoneGiven",
     "speaker": "Кристина: ",
     "text": "Спасибо тебе большое! Ты просто спаситель!",
+    "audio": "Audio/DialogueLines/ChristinaPhoneGiven",
     "targetID": "-1"
   },
   {
     "id": "ChristinaFollowUpQuestOffer",
     "speaker": "Кристина: ",
     "text": "Да, у меня есть еще одно задание для тебя. Ты готов?",
+    "audio": "Audio/DialogueLines/ChristinaFollowUpQuestOffer",
     "choices": [
       {
         "text": "Конечно, что нужно сделать?",
@@ -79,12 +85,14 @@
     "id": "ChristinaFollowUpQuestStarted",
     "speaker": "Кристина: ",
     "text": "Мне нужно, чтобы ты передал сообщение моему другу.",
+    "audio": "Audio/DialogueLines/ChristinaFollowUpQuestStarted",
     "targetID": "-1"
   },
   {
     "id": "ChristinaNeutralDialogue",
     "speaker": "Кристина: ",
     "text": "Любимый, увижу тебя в особняке. Чмоки-чмоки.",
+    "audio": "Audio/DialogueLines/ChristinaNeutralDialogue",
     "choices": [
       {
         "text": "Я могу еще чем-то помочь?",
@@ -101,6 +109,7 @@
     "id": "lola_start",
     "speaker": "Лола: ",
     "text": "Потанцуем?",
+    "audio": "Audio/DialogueLines/lola_start",
     "choices": [
       {
         "text": "Погнали.",
