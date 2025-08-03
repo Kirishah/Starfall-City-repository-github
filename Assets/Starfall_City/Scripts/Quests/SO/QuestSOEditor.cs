@@ -168,7 +168,11 @@ public class QuestSOEditor : Editor
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             var followUpQuest = followUpQuestsProp.GetArrayElementAtIndex(i);
-            if (followUpQuest == null) continue;
+            if (followUpQuest == null)
+            {
+                EditorGUILayout.EndVertical(); // Закрываем вертикальную группу, если null
+                continue;
+            }
 
             // Поле квеста
             EditorGUILayout.PropertyField(followUpQuest.FindPropertyRelative("quest"), new GUIContent("Quest"));

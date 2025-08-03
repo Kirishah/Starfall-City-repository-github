@@ -43,26 +43,31 @@ public class ArrowSpawner : MonoBehaviour
         yield return new WaitForSecondsRealtime(1f);
         while (true)
         {
-            string[] directions = { "Up", "Down", "Left", "Right" };
-            string randomDir = directions[Random.Range(0, directions.Length)];
-
-            GameObject arrowObj = arrowPool.GetArrow(randomDir);
-            Debug.Log($"Spawned arrow: {randomDir}");
-            if (arrowObj != null)
+            if (!DanceInput.IsHolding) // Pause spawning during hold
             {
-                DanceArrow arrow = arrowObj.GetComponent<DanceArrow>();
-                if (arrow != null && DanceInput.Instance != null)
+                string[] directions = { "Up", "Down", "Left", "Right" };
+                string randomDir = directions[Random.Range(0, directions.Length)];
+                DanceArrow.ArrowType arrowType = (DanceArrow.ArrowType)Random.Range(0, 3);
+
+                GameObject arrowObj = arrowPool.GetArrow(randomDir);
+                Debug.Log($"Spawned arrow: {randomDir}, Type: {arrowType}");
+                if (arrowObj != null)
                 {
-                    arrow.ResetArrow();
+                    DanceArrow arrow = arrowObj.GetComponent<DanceArrow>();
+                    if (arrow != null && DanceInput.Instance != null)
+                    {
+                        arrow.type = arrowType;
+                        arrow.ResetArrow();
+                    }
+                    else
+                    {
+                        Debug.LogError($"Failed to reset arrow. DanceArrow component or DanceInput.Instance is null for direction: {randomDir}");
+                    }
                 }
                 else
                 {
-                    Debug.LogError($"Failed to reset arrow. DanceArrow component or DanceInput.Instance is null for direction: {randomDir}");
+                    Debug.LogError($"No arrow available in pool for direction: {randomDir}");
                 }
-            }
-            else
-            {
-                Debug.LogError($"No arrow available in pool for direction: {randomDir}");
             }
 
             yield return new WaitForSecondsRealtime(DanceGameManager.Instance.beatInterval);
