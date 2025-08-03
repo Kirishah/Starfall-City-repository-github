@@ -32,32 +32,65 @@ public class NPCInteractable : Interactable
     {
         if (currentPrompt == null && promptPrefab != null)
         {
-            currentPrompt = Instantiate(promptPrefab, WorldCanvasManager.Instance.transform);
+            currentPrompt = Instantiate(promptPrefab, WorldCanvasManager.Instance.worldCanvas.transform);
             currentPrompt.GetComponent<TMP_Text>().text = interactionText;
+            // Reset position and set proper anchoring
+            RectTransform rt = currentPrompt.GetComponent<RectTransform>();
+            rt.anchoredPosition = Vector2.zero;
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
         }
         if (currentPrompt != null)
         {
-            // Конвертирование позиции NPC в viewport space (диапазон 0-1)
-            Vector3 viewportPos = Camera.main.WorldToViewportPoint(transform.position + promptOffset);
+            Camera mainCamera = Camera.main;  // Camera rendering the game world
+            Camera uiCamera = WorldCanvasManager.Instance.worldCanvas.worldCamera;  // UI rendering 
 
-            // Чек если NPC в пределах камеры
-            if (viewportPos.z > 0 && viewportPos.x >= 0 && viewportPos.x <= 1 && viewportPos.y >= 0 && viewportPos.y <= 1)
-            {
-                // Конвертирование viewport to screen space
-                Vector3 screenPos = new Vector3(
-                    viewportPos.x * Screen.width,
-                    viewportPos.y * Screen.height,
-                    0
-                );
-                currentPrompt.transform.position = screenPos;
-                currentPrompt.SetActive(true);
-            }
-            else
-            {
-                currentPrompt.SetActive(false);
-            }
+            // Get world position with offset
+            Vector3 worldPos = transform.position + promptOffset;
+            Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
+
+            // Convert to canvas space
+            RectTransform canvasRect = WorldCanvasManager.Instance.worldCanvas.GetComponent<RectTransform>();
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                screenPos,
+                uiCamera,
+                out localPoint
+            );
+
+            // Set position
+            currentPrompt.GetComponent<RectTransform>().anchoredPosition = localPoint;
+
+            // Visibility check
+            bool isVisible = (screenPos.z > 0 &&
+                              screenPos.x >= 0 && screenPos.x <= Screen.width &&
+                              screenPos.y >= 0 && screenPos.y <= Screen.height);
+
+            currentPrompt.SetActive(isVisible);
         }
     }
+
+    private void OnDisable()
+    {
+        DestroyPrompt();
+    }
+
+    private void OnDestroy()
+    {
+        DestroyPrompt();
+    }
+
+    private void DestroyPrompt()
+    {
+        if (currentPrompt != null)
+        {
+            Destroy(currentPrompt);
+            currentPrompt = null;
+        }
+    }
+
     public override void HidePrompt()
     {
         if (currentPrompt != null)

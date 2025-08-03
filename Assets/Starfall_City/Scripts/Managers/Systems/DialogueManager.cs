@@ -19,6 +19,9 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private Transform choiceContainer;
     [SerializeField] private GameObject choiceButtonPrefab;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+
     private List<Dialogue> dialogues;
     private Dialogue currentDialogue;
     private string currentNPCID;
@@ -26,6 +29,10 @@ public class DialogueManager : MonoBehaviour
     // Событие для отображения диалоговой строки
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
     public static event DialogueLineDisplayedHandler OnDialogueLineDisplayed;
+
+    // Событие для запуска QTE
+    public delegate void QTETriggerAction();
+    public static event QTETriggerAction OnQTETrigger;
 
     #region Initialization
     private void Awake()
@@ -71,8 +78,13 @@ public class DialogueManager : MonoBehaviour
         ShowDialogue(currentDialogue);
     }
 
-    public void SelectChoice(string targetID)
+    public void SelectChoice(string targetID, bool triggersQTE = false)
     {
+        if (triggersQTE)
+        {
+            OnQTETrigger?.Invoke();
+        }
+
         if (string.IsNullOrEmpty(targetID))
         {
             EndDialogue();
@@ -153,6 +165,10 @@ public class DialogueManager : MonoBehaviour
     private void EndDialogue()
     {
         HideDialogue();
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop(); 
+        }
         if (!string.IsNullOrEmpty(currentNPCID))
         {
             QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Dialogue, currentNPCID);
@@ -277,6 +293,22 @@ public class DialogueManager : MonoBehaviour
         UpdateDialogueUI(dialogue);
         OnDialogueLineDisplayed?.Invoke(dialogue.id, currentNPCID);
         DisplayChoices(dialogue);
+
+        // Play audio if specified
+        if (!string.IsNullOrEmpty(dialogue.audio))
+        {
+            AudioClip clip = Resources.Load<AudioClip>(dialogue.audio);
+            if (clip != null)
+            {
+                audioSource.Stop(); // Stop any currently playing audio
+                audioSource.clip = clip;
+                audioSource.Play();
+            }
+            else
+            {
+                Debug.LogError($"Audio clip not found: {dialogue.audio}");
+            }
+        }
     }
 
     private bool ValidateDialogue(Dialogue dialogue)
@@ -311,7 +343,7 @@ public class DialogueManager : MonoBehaviour
                 {
                     GameObject button = Instantiate(choiceButtonPrefab, choiceContainer);
                     button.GetComponentInChildren<TMP_Text>().text = choice.text;
-                    button.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID));
+                    button.GetComponent<Button>().onClick.AddListener(() => SelectChoice(choice.targetID, choice.triggersQTE));
                 }
             }
         }

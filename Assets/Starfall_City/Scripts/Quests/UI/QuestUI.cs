@@ -90,13 +90,16 @@ public class QuestUI : MonoBehaviour
 
     private void HandleQuestCompleted(QuestSO quest)
     {
-        ShowNotification($"Quest Complete: {quest.Title}");
+        string rewardText = quest.ExperienceReward > 0 || quest.MoneyReward > 0
+            ? $" (+{quest.ExperienceReward} XP, +{quest.MoneyReward} Money)"
+            : "";
+        ShowNotification($"Quest Complete: {quest.Title} {rewardText}");
         RemoveQuestFromUI(quest);
         if (_questLogPanel.activeSelf)
         {
             RefreshQuestLog();
         }
-        // В этом методе можно добавить функционал добавления выполненных квестов
+        // В этом методе можно добавить функционал выполненных квестов, раздел завершенных
     }
 
     private void HandleObjectiveProgressed(ObjectiveSO objective, int current, int required)

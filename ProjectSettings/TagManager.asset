@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - InventoryPanel
+  - qteDance_cam
+  - QTEDance_cam
   layers:
   - Default
   - TransparentFX
@@ -14,7 +16,7 @@ TagManager:
   - UI
   - Floor 2
   - Interactable
-  - 
+  - QTE
   - 
   - Furniture
   - Props

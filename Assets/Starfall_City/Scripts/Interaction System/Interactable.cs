@@ -18,6 +18,8 @@ public abstract class Interactable : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (QTEGameManager.IsQTEActive) return;
+
         if (_isInProximity || _isHovered) ShowPrompt();
         else HidePrompt();
     }

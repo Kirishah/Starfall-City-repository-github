@@ -6,11 +6,13 @@ using UnityEngine;
 
 public class QuestEntryUI : MonoBehaviour
 {
-    public QuestSO QuestData { get; private set; }
     [SerializeField] private TextMeshProUGUI _titleText;
     [SerializeField] private TextMeshProUGUI _descriptionText;
     [SerializeField] private Transform _objectivesContainer;
     [SerializeField] private ObjectiveDisplay _objectivePrefab;
+    [SerializeField] private TextMeshProUGUI rewardsText;
+
+    public QuestSO QuestData { get; private set; }
 
     private Quest _quest;
     private List<ObjectiveDisplay> _objectiveDisplays = new List<ObjectiveDisplay>();
@@ -21,7 +23,13 @@ public class QuestEntryUI : MonoBehaviour
         _titleText.text = questData.Title;
         _descriptionText.text = questData.Description;
 
-        
+        string rewards = "";
+        if (QuestData.ExperienceReward > 0)
+            rewards += $"XP: {QuestData.ExperienceReward}";
+        if (QuestData.MoneyReward > 0)
+            rewards += (rewards.Length > 0 ? ", " : "") + $"Money: {QuestData.MoneyReward}";
+        rewardsText.text = rewards.Length > 0 ? $"Rewards: {rewards}" : "No rewards";
+
         _quest = QuestManager.Instance.FindQuestByObjective(questData.Objectives[0]);
         if (_quest == null)
         {

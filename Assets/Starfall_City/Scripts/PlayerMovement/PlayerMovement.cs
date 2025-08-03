@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 lastPosition;
     private Vector3 velocity;
     private const float DefaultStoppingDistance = 0.1f;
+    private bool isUsingNavMesh = true;
 
     [Header("Destination Indicator")]
     public GameObject destinationIndicatorPrefab; 
@@ -30,16 +31,23 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(1)) 
+        if (QTEGameManager.IsQTEActive) return;
+
+        if (player.enabled)
         {
-            HandleMovementInput();
+            if (Input.GetMouseButtonDown(1))
+            {
+                HandleMovementInput();
+            }
+            CheckIfReachedDestination();
         }
-        CheckIfReachedDestination();
         CalculateVelocity();
     }
 
     void HandleMovementInput()
     {
+        // Early exit if NavMeshAgent isn't active
+        if (!player.enabled) return;
         // Clear previous interaction target immediately
         _currentTargetInteractable = null;
 
@@ -89,6 +97,7 @@ public class PlayerMovement : MonoBehaviour
 
     void CheckIfReachedDestination()
     {
+        if (!player.enabled) return;
 
         if (player.hasPath && !player.pathPending &&
             player.remainingDistance <= player.stoppingDistance)
@@ -118,7 +127,7 @@ public class PlayerMovement : MonoBehaviour
         _currentTargetInteractable = null;
     }
 
-    void ClearDestinationIndicator()
+    public void ClearDestinationIndicator()
     {
         if (destinationIndicator != null)
         {
@@ -129,8 +138,14 @@ public class PlayerMovement : MonoBehaviour
     protected void CalculateVelocity()
     {
         // Calculate the velocity based on the change in position over time
-        velocity = (transform.position - lastPosition) / Time.deltaTime;
-
+        if (player.enabled)
+        {
+            velocity = (player.velocity); // Use NavMeshAgent's velocity
+        }
+        else 
+        {
+            velocity = (transform.position - lastPosition) / Time.deltaTime;
+        }
         // Update last position for the next frame
         lastPosition = transform.position;
     }

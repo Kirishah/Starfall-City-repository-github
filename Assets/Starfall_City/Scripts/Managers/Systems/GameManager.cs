@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     [Header("Persistent Data")]
     public SaveData PlayerData { get; private set; }
 
-    public GameObject playerPrefab;
+    public GameObject playerObject;
 
     void Awake()
     {
@@ -51,7 +51,6 @@ public class GameManager : MonoBehaviour
         }
 
         
-        LoadAfterSceneTransition();
     }
 
     public void SaveBeforeSceneTransition()
@@ -66,18 +65,6 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogError("Player object not found!");
-        }
-    }
-    public void LoadAfterSceneTransition()
-    {
-        // Load player
-        if (playerPrefab != null)
-        {
-            Instantiate(playerPrefab, PlayerData.Position, PlayerData.Rotation);
-        }
-        else
-        {
-            Debug.LogError("Player prefab not assigned!");
         }
     }
 }

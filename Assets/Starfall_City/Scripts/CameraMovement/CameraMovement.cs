@@ -23,6 +23,7 @@ public class CameraMovement : MonoBehaviour
 
     void Update()
     {
+        if (QTEGameManager.IsQTEActive) return;
         // Переключение режима камеры с помощью клавиши F
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -91,28 +92,19 @@ public class CameraMovement : MonoBehaviour
         if (player != null)
         {
             target = player.transform;
-            offset = transform.position - target.position;
+            offset = new Vector3(
+                transform.position.x - target.position.x,
+                0,  // Ignore Y difference
+                transform.position.z - target.position.z
+            );
             originalOffset = offset;
             fixedYPosition = transform.position.y;  // Set initial height
         }
         else
         {
-            Debug.LogError("Player not found!");
-            yield return new WaitForSeconds(0.1f);
-
-            while (true)
-            {
-                yield return new WaitForSeconds(0.1f);
-                GameObject potentialPlayer = GameObject.FindGameObjectWithTag("Player");
-                if (potentialPlayer != null)
-                {
-                    target = potentialPlayer.transform;
-                    offset = transform.position - target.position;
-                    originalOffset = offset;
-                    fixedYPosition = transform.position.y;
-                    break;
-                }
-            }
+            Debug.LogError("Player not found! Retrying...");
+            yield return new WaitForSeconds(0.5f);
+            StartCoroutine(FindPlayer()); // Retry if player not found
         }
     }
 }

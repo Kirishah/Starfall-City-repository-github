@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class MoneyHUD : MonoBehaviour
 {
@@ -17,17 +18,54 @@ public class MoneyHUD : MonoBehaviour
     [Header("Display Settings")]
     [SerializeField] private string currencySymbol = "$";
 
+    [Header("Visual Effects")]
+    [SerializeField] private ParticleSystem moneyChangeParticles;
+    [SerializeField] private float particleDuration = 0.5f;
+    [SerializeField] private float particleEmissionRate = 10f;
+
+    [Header("Neon Glow Settings")]
+    [SerializeField] private Color neonColor1 = new Color(1f, 0f, 1f); // Pink
+    [SerializeField] private Color neonColor2 = new Color(0f, 1f, 1f); // Cyan
+    [SerializeField] private float glowCycleDuration = 3f;
+
+    [Header("Progression Settings")]
+    [SerializeField] private Color glamorousPanelColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+    [SerializeField] private Color glamorousIconColor = new Color(1f, 0.84f, 0f);
+
     private int previousMoney = 0;
     private Color originalPanelColor;
     private Color originalIconColor;
     private Vector3 originalScale;
+    private ParticleSystem.EmissionModule particleEmission;
+    private ParticleSystem.MainModule particleMain;
 
     void Awake()
     {
+        if (moneyText == null) Debug.LogError("MoneyHUD: moneyText is not assigned in Inspector");
+        if (currencyIcon == null) Debug.LogError("MoneyHUD: currencyIcon is not assigned in Inspector");
+        if (panelBackground == null) Debug.LogError("MoneyHUD: panelBackground is not assigned in Inspector");
+        if (audioSource == null) Debug.LogError("MoneyHUD: audioSource is not assigned in Inspector");
+        if (moneyChangeParticles == null) Debug.LogError("MoneyHUD: moneyChangeParticles is not assigned in Inspector");
+        
+
         // Кэширование исходных цветов и масштабов для анимации
-        originalPanelColor = panelBackground.color;
-        originalIconColor = currencyIcon.color;
+        originalPanelColor = panelBackground != null ? panelBackground.color : Color.white;
+        originalIconColor = currencyIcon != null ? currencyIcon.color : Color.white;
         originalScale = transform.localScale;
+
+
+        // Кэширование модулей ParticleSystem
+        if (moneyChangeParticles != null)
+        {
+            particleEmission = moneyChangeParticles.emission;
+            particleMain = moneyChangeParticles.main;
+            particleMain.playOnAwake = false;
+            particleMain.loop = false;
+            particleMain.duration = particleDuration;
+            particleMain.simulationSpace = ParticleSystemSimulationSpace.Local;
+            particleEmission.enabled = true;
+        }
+        DontDestroyOnLoad(gameObject);
     }
     private void Start()
     {
@@ -40,6 +78,12 @@ public class MoneyHUD : MonoBehaviour
             CurrencyManager.Instance.OnMoneyChanged += UpdateMoneyDisplay;
             previousMoney = CurrencyManager.Instance.CurrentMoney;
             UpdateMoneyDisplay();
+            Debug.Log($"MoneyHUD: Subscribed to OnMoneyChanged, CurrentMoney: {previousMoney}");
+        }
+        else
+        {
+            Debug.LogError("MoneyHUD: CurrencyManager.Instance is null in OnEnable");
+            StartCoroutine(WaitForCurrencyManager());
         }
     }
 
@@ -48,15 +92,54 @@ public class MoneyHUD : MonoBehaviour
         if (CurrencyManager.Instance != null)
         {
             CurrencyManager.Instance.OnMoneyChanged -= UpdateMoneyDisplay;
+            Debug.Log("MoneyHUD: Unsubscribed from OnMoneyChanged");
         }
+    }
+
+    private void Update()
+    {
+        if (QTEGameManager.IsQTEActive) return;
+
+        if (Input.GetKeyDown(KeyCode.Space)) // Press Space to test
+        {
+            CurrencyManager.Instance.AddMoney(10);
+        }
+
+        // Neon glow effect
+        float t = Mathf.PingPong(Time.time / glowCycleDuration, 1f);
+        Color glowColor = Color.Lerp(neonColor1, neonColor2, t);
+        panelBackground.color = Color.Lerp(originalPanelColor, glowColor, 0.2f);
+    }
+
+    private IEnumerator WaitForCurrencyManager()
+    {
+        while (CurrencyManager.Instance == null)
+        {
+            Debug.Log("MoneyHUD: Waiting for CurrencyManager.Instance...");
+            yield return new WaitForSeconds(0.1f);
+        }
+        CurrencyManager.Instance.OnMoneyChanged += UpdateMoneyDisplay;
+        previousMoney = CurrencyManager.Instance.CurrentMoney;
+        UpdateMoneyDisplay();
+        Debug.Log($"MoneyHUD: Subscribed to OnMoneyChanged after wait, CurrentMoney: {previousMoney}");
     }
 
     void UpdateMoneyDisplay()
     {
-        if (CurrencyManager.Instance == null) return;
+        if (CurrencyManager.Instance == null)
+        {
+            Debug.LogError("MoneyHUD: CurrencyManager.Instance is null in UpdateMoneyDisplay");
+            return;
+        }
+        if (moneyText == null)
+        {
+            Debug.LogError("MoneyHUD: moneyText is null in UpdateMoneyDisplay");
+            return;
+        }
 
         int currentMoney = CurrencyManager.Instance.CurrentMoney;
         moneyText.text = $"{currencySymbol}{currentMoney:N0}";
+        Debug.Log($"MoneyHUD: Updated money display to {currentMoney} on {moneyText.gameObject.name}, active: {moneyText.gameObject.activeInHierarchy}");
 
         // Animate based on money change
         if (currentMoney > previousMoney)
@@ -73,12 +156,29 @@ public class MoneyHUD : MonoBehaviour
         previousMoney = currentMoney;
     }
 
-    private System.Collections.IEnumerator AnimateChange(Color glowColor, AudioClip sound)
+    private IEnumerator AnimateChange(Color glowColor, AudioClip sound)
     {
-        // Play sound
         if (audioSource != null && sound != null)
         {
             audioSource.PlayOneShot(sound);
+        }
+        else
+        {
+            Debug.LogWarning($"MoneyHUD: AudioSource or sound clip missing for {sound?.name}");
+        }
+
+        if (moneyChangeParticles != null)
+        {
+            particleEmission.enabled = true;
+            particleEmission.rateOverTime = particleEmissionRate;
+            particleMain.startColor = glowColor;
+            moneyChangeParticles.Clear();
+            moneyChangeParticles.Play();
+            Debug.Log($"MoneyHUD: Playing particles with rate {particleEmission.rateOverTime.constant}, color {particleMain.startColor.color}, duration {particleMain.duration}");
+        }
+        else
+        {
+            Debug.LogError("MoneyHUD: moneyChangeParticles is null in AnimateChange");
         }
 
         float duration = 0.5f;
@@ -103,8 +203,32 @@ public class MoneyHUD : MonoBehaviour
         }
 
         // Reset to original state
-        panelBackground.color = originalPanelColor;
-        currencyIcon.color = originalIconColor;
+        if (panelBackground != null)
+            panelBackground.color = originalPanelColor;
+        if (currencyIcon != null)
+            currencyIcon.color = originalIconColor;
         transform.localScale = originalScale;
+
+        if (moneyChangeParticles != null && moneyChangeParticles.isPlaying)
+        {
+            moneyChangeParticles.Stop();
+            particleEmission.enabled = false; // Disable emission to prevent residual particles
+            Debug.Log("MoneyHUD: Stopped particles after animation");
+        }
+    }
+
+    public void UpgradeHUDAppearance()
+    {
+        originalPanelColor = glamorousPanelColor;
+        originalIconColor = glamorousIconColor;
+        if (panelBackground != null)
+        {
+            panelBackground.color = originalPanelColor;
+        }
+        if (currencyIcon != null)
+        {
+            currencyIcon.color = originalIconColor;
+        }
+        Debug.Log("MoneyHUD: Upgraded HUD appearance for story progression");
     }
 }

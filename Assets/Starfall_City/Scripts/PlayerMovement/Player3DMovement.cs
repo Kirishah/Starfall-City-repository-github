@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Player3DMovement : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class Player3DMovement : MonoBehaviour
     [Header("References")]
     private CharacterController controller;
     private PlayerMovement agent;
+    private NavMeshAgent navAgent;
 
     private Vector3 moveDirection;
 
@@ -15,13 +17,33 @@ public class Player3DMovement : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         agent = GetComponent<PlayerMovement>();
+        navAgent = GetComponent<NavMeshAgent>();
     }
 
     void Update()
     {
+        if (QTEGameManager.IsQTEActive) return;
+
         GatherInput();
-        Look();
-        Move();
+        if (moveDirection.magnitude >= 0.1f)
+        {
+            // Disable NavMeshAgent when using WASD
+            if (navAgent.enabled)
+            {
+                Debug.Log("Switching to WASD movement");
+                navAgent.ResetPath();
+                navAgent.enabled = false;
+                agent.ClearDestinationIndicator();
+            }
+            Look();
+            Move();
+        }
+        else if (!navAgent.enabled)
+        {
+            // Re-enable NavMeshAgent when stopping WASD
+            Debug.Log("Switching to Point-and-Click movement");
+            navAgent.enabled = true;
+        }
     }
 
     private void GatherInput()
@@ -30,27 +52,37 @@ public class Player3DMovement : MonoBehaviour
     }
     private void Look()
     {
-        if (moveDirection.magnitude >= 0.1f)
-        {
-            // Calculate target rotation based on camera-relative input
-            Vector3 isoDirection = moveDirection.ToIso(); // Ensure this converts input to world space
-            Quaternion targetRotation = Quaternion.LookRotation(isoDirection.normalized, Vector3.up);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                turnSpeed * Time.deltaTime
-            );
-        }
+        Vector3 isoDirection = moveDirection.ToIso();
+        Quaternion targetRotation = Quaternion.LookRotation(isoDirection.normalized, Vector3.up);
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            targetRotation,
+            turnSpeed * Time.deltaTime
+        );
     }
 
     private void Move()
     {
-        if (moveDirection.magnitude >= 0.1f)
+        Vector3 move = transform.forward * moveSpeed * Time.deltaTime;
+        // —охранение начальной позиции дл€ проверки
+        Vector3 initialPosition = transform.position;
+        Vector3 proposedPosition = initialPosition + move;
+
+        // „ек действительна ли позици€ цели на NavMesh
+        if (IsPositionValid(proposedPosition))
         {
-            // Move in the direction the player is facing
-            Vector3 move = transform.forward * moveDirection.magnitude * moveSpeed * Time.deltaTime;
             controller.Move(move);
-            agent.player.SetDestination(transform.position);
         }
+        else
+        {
+            Debug.Log("Blocked movement beyond NavMesh boundaries");
+            // ћожно добавить звук или иконку, что невозможно достичь местоположени€
+        }
+    }
+
+    private bool IsPositionValid(Vector3 targetPosition)
+    {
+        NavMeshHit hit;
+        return NavMesh.SamplePosition(targetPosition, out hit, 0.1f, NavMesh.AllAreas);
     }
 }

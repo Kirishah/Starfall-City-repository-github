@@ -11,6 +11,7 @@ public class Dialogue
     [SerializeField] public string speaker;
     [SerializeField] public string targetID;
     [SerializeField] public string text;
+    [SerializeField] public string audio;
     [SerializeField] public List<Choice> choices;
 }
 
@@ -20,4 +21,5 @@ public class Choice
     public string text;
     public string targetID;
     public string condition;
+    public bool triggersQTE;
 }
