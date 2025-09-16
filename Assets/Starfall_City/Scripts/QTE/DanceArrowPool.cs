@@ -7,17 +7,17 @@ public class DanceArrowPool : MonoBehaviour
     [System.Serializable]
     public class Pool
     {
-        public string direction;
+        public ArrowDirection direction;
         public GameObject prefab;
         public int size;
     }
 
     public List<Pool> pools;
-    public Dictionary<string, Queue<GameObject>> poolDictionary;
+    public Dictionary<ArrowDirection, Queue<GameObject>> poolDictionary;
 
     private void Awake()
     {
-        poolDictionary = new Dictionary<string, Queue<GameObject>>();
+        poolDictionary = new Dictionary<ArrowDirection, Queue<GameObject>>();
 
         foreach (Pool pool in pools)
         {
@@ -48,7 +48,7 @@ public class DanceArrowPool : MonoBehaviour
         }
     }
 
-    public GameObject GetArrow(string direction)
+    public GameObject GetArrow(ArrowDirection direction)
     {
         if (!poolDictionary.ContainsKey(direction))
         {
@@ -74,16 +74,12 @@ public class DanceArrowPool : MonoBehaviour
     public void ReturnArrow(DanceArrow arrow)
     {
         if (arrow == null) return;
-        string direction = arrow.direction;
         arrow.gameObject.SetActive(false);
-        poolDictionary[direction].Enqueue(arrow.gameObject);
-        if (DanceInput.Instance != null)
-        {
-            DanceInput.Instance.UnregisterArrow(arrow);
-        }
+        poolDictionary[arrow.direction].Enqueue(arrow.gameObject);
+        DanceInput.Instance?.UnregisterArrow(arrow);
     }
 
-    private void ExpandPool(string direction)
+    private void ExpandPool(ArrowDirection direction)
     {
         Pool targetPool = pools.Find(p => p.direction == direction);
         if (targetPool == null || targetPool.prefab == null) return;

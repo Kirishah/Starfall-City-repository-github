@@ -1,6 +1,8 @@
 using UnityEngine;
 using DanceInputActions;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using MagicPigGames;
 
 public class DanceArrow : MonoBehaviour
 {
@@ -11,8 +13,8 @@ public class DanceArrow : MonoBehaviour
         Double   // Click twice
     }
     public ArrowType type = ArrowType.Single; // Default to single-click
-    public string direction; // "Up", "Down", "Left", "Right"
-    private float moveSpeed = 200f;
+    public ArrowDirection direction; // "Up", "Down", "Left", "Right"
+    [SerializeField] private QTEConfig config; // Centralized config
     private RectTransform rectTransform;
     private Vector2 startPosition;
 
@@ -23,20 +25,30 @@ public class DanceArrow : MonoBehaviour
     [SerializeField] private GameObject singleClickVisual; // Basic arrow
     [SerializeField] private GameObject holdVisual;        // Arrow with tail or bar
     [SerializeField] private GameObject doubleClickVisual; // Stacked arrow or "2x" symbol
-    [SerializeField] private Image holdProgressBar; // Progress bar for hold notes
-    public float holdDuration = 2f;
+    [SerializeField] private MagicPigGames.ProgressBar holdProgressBar; // Progress bar for hold notes
 
     private float holdTimer;
 
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        if (rectTransform == null)
+        if (rectTransform == null || config == null || singleClickVisual == null || holdVisual == null || doubleClickVisual == null || holdProgressBar == null)
         {
-            Debug.LogError($"RectTransform missing on {gameObject.name}! Ensure this is a UI element with a RectTransform.", this);
+            Debug.LogError($"Missing required components on {gameObject.name}!", this);
+            enabled = false;
             return;
         }
-        startPosition = new Vector2(1000, rectTransform.anchoredPosition.y);
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            float canvasWidth = canvas.GetComponent<RectTransform>().rect.width;
+            startPosition = new Vector2(canvasWidth * 0.5f, rectTransform.anchoredPosition.y); // Start off-screen right
+        }
+        else
+        {
+            Debug.LogError($"Canvas not found in parent hierarchy of {gameObject.name}!", this);
+            enabled = false;
+        }
     }
 
     void Start()
@@ -44,10 +56,30 @@ public class DanceArrow : MonoBehaviour
         hasPassedHitZone = false;
         IsInHitZone = false;
 
-        // Enable the correct visual based on arrow type
-        singleClickVisual.SetActive(type == ArrowType.Single);
-        holdVisual.SetActive(type == ArrowType.Hold);
-        doubleClickVisual.SetActive(type == ArrowType.Double);
+        // Ensure visuals are properly set
+        if (singleClickVisual != null)
+        {
+            singleClickVisual.SetActive(type == ArrowType.Single);
+            Debug.Log($"Setting singleClickVisual active: {type == ArrowType.Single}", this);
+        }
+        else
+            Debug.LogError("singleClickVisual is null!", this);
+
+        if (holdVisual != null)
+        {
+            holdVisual.SetActive(type == ArrowType.Hold);
+            Debug.Log($"Setting holdVisual active: {type == ArrowType.Hold}", this);
+        }
+        else
+            Debug.LogError("holdVisual is null!", this);
+
+        if (doubleClickVisual != null)
+        {
+            doubleClickVisual.SetActive(type == ArrowType.Double);
+            Debug.Log($"Setting doubleClickVisual active: {type == ArrowType.Double}", this);
+        }
+        else
+            Debug.LogError("doubleClickVisual is null!", this);
     }
 
     public void ResetArrow()
@@ -62,8 +94,20 @@ public class DanceArrow : MonoBehaviour
         hasPassedHitZone = false;
         IsInHitZone = false;
         holdTimer = 0f; // Reset hold timer
-        if (holdProgressBar != null) holdProgressBar.fillAmount = 0f;
+        if (holdProgressBar != null) holdProgressBar.SetProgress(0f);
         DanceInput.Instance?.RegisterArrow(this);
+
+        // Re-apply visual states on reset
+        if (singleClickVisual != null)
+            singleClickVisual.SetActive(type == ArrowType.Single);
+        if (holdVisual != null)
+            holdVisual.SetActive(type == ArrowType.Hold);
+        if (doubleClickVisual != null)
+            doubleClickVisual.SetActive(type == ArrowType.Double);
+        Debug.Log($"ResetArrow: Type={type}, " +
+            $"singleClickVisual={singleClickVisual != null && singleClickVisual.activeSelf}, " +
+            $"holdVisual={holdVisual != null && holdVisual.activeSelf}, " +
+            $"doubleClickVisual={doubleClickVisual != null && doubleClickVisual.activeSelf}", this);
     }
 
     public void UpdateHoldProgress(float elapsedTime)
@@ -71,28 +115,31 @@ public class DanceArrow : MonoBehaviour
         if (type == ArrowType.Hold && holdProgressBar != null)
         {
             holdTimer = elapsedTime;
-            holdProgressBar.fillAmount = Mathf.Clamp01(holdTimer / holdDuration);
+            float progress = Mathf.Clamp01(elapsedTime / config.holdDuration);
+            holdProgressBar.SetProgress(progress);
         }
     }
 
     void Update()
     {
-        if (!QTEGameManager.IsQTEActive) return;
+        if (!QTEGameManager.IsQTEActive || rectTransform == null) return;
 
-        if (rectTransform == null) return;
         // Move arrow leftward (adjust axis based on your UI setup)
         if (!DanceInput.IsHolding) // Only move when not holding
         {
-            rectTransform.anchoredPosition += Vector2.left * moveSpeed * Time.unscaledDeltaTime;
+             rectTransform.anchoredPosition += Vector2.left * config.arrowMoveSpeed * Time.unscaledDeltaTime;
         }
 
 
         // Define hit zone (e.g., between x = -100 and x = 0)
         float xPos = rectTransform.anchoredPosition.x;
-        IsInHitZone = xPos <= 0 && xPos >= -100;
+        Canvas canvas = GetComponentInParent<Canvas>();
+        float hitZoneStart = canvas != null ? canvas.GetComponent<RectTransform>().rect.width * config.hitZoneRange.x / 1920f : config.hitZoneRange.x;
+        float hitZoneEnd = config.hitZoneRange.y;
+        IsInHitZone = xPos <= hitZoneEnd && xPos >= hitZoneStart;
 
         // Check if arrow has passed the hit zone
-        if (xPos < -100 && !hasPassedHitZone)
+        if (xPos < hitZoneStart && !hasPassedHitZone)
         {
             hasPassedHitZone = true;
             if (gameObject.activeInHierarchy) // Only trigger miss if not hit
@@ -103,7 +150,7 @@ public class DanceArrow : MonoBehaviour
         }
 
         // Deactivate if off-screen
-        if (xPos < -1000)
+        if (xPos < -canvas.GetComponent<RectTransform>().rect.width * 0.5f)
         {
             gameObject.SetActive(false);
             DanceInput.Instance?.ReturnArrowToPool(this);

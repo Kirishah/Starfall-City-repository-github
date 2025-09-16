@@ -1,11 +1,15 @@
 using UnityEngine;
 using System.Collections;
 using DanceInputActions;
+using System;
+using System.Linq;
 
 public class ArrowSpawner : MonoBehaviour
 {
+    [SerializeField] private QTEConfig config; // Centralized config
     [SerializeField] private DanceArrowPool arrowPool;
-    private Coroutine spawnCoroutine;
+    private float spawnTimer;
+    private bool isSpawning = false;
 
     private void Start()
     {
@@ -22,55 +26,63 @@ public class ArrowSpawner : MonoBehaviour
 
     public void StartSpawning()
     {
-        if (spawnCoroutine != null)
-        {
-            StopCoroutine(spawnCoroutine);
-        }
-        spawnCoroutine = StartCoroutine(SpawnArrows());
+        isSpawning = true;
+        spawnTimer = config.beatInterval;
     }
 
     public void StopSpawning()
     {
-        if (spawnCoroutine != null)
-        {
-            StopCoroutine(spawnCoroutine);
-            spawnCoroutine = null;
-        }
+        isSpawning = false;
+        spawnTimer = 0f;
     }
 
-    IEnumerator SpawnArrows()
+    private void Update()
     {
-        yield return new WaitForSecondsRealtime(1f);
-        while (true)
+        if (!QTEGameManager.IsQTEActive) return;
+
+        if (isSpawning && !DanceInput.IsHolding && DanceGameManager.Instance != null)
         {
-            if (!DanceInput.IsHolding) // Pause spawning during hold
+            spawnTimer += Time.unscaledDeltaTime;
+            if (spawnTimer >= config.beatInterval)
             {
-                string[] directions = { "Up", "Down", "Left", "Right" };
-                string randomDir = directions[Random.Range(0, directions.Length)];
-                DanceArrow.ArrowType arrowType = (DanceArrow.ArrowType)Random.Range(0, 3);
-
-                GameObject arrowObj = arrowPool.GetArrow(randomDir);
-                Debug.Log($"Spawned arrow: {randomDir}, Type: {arrowType}");
-                if (arrowObj != null)
-                {
-                    DanceArrow arrow = arrowObj.GetComponent<DanceArrow>();
-                    if (arrow != null && DanceInput.Instance != null)
-                    {
-                        arrow.type = arrowType;
-                        arrow.ResetArrow();
-                    }
-                    else
-                    {
-                        Debug.LogError($"Failed to reset arrow. DanceArrow component or DanceInput.Instance is null for direction: {randomDir}");
-                    }
-                }
-                else
-                {
-                    Debug.LogError($"No arrow available in pool for direction: {randomDir}");
-                }
+                SpawnArrow();
+                spawnTimer = 0f;
             }
+        }
+    }
+    private void SpawnArrow()
+    {
+        ArrowDirection[] directions = Enum.GetValues(typeof(ArrowDirection)).Cast<ArrowDirection>().ToArray();
+        ArrowDirection randomDir = directions[UnityEngine.Random.Range(0, directions.Length)];
+        
+        // Weighted probabilities: Single (70%), Hold (15%), Double (15%)
+        float rand = UnityEngine.Random.value;
+        DanceArrow.ArrowType arrowType;
+        if (rand < 0.70f)
+            arrowType = DanceArrow.ArrowType.Single;
+        else if (rand < 0.85f)
+            arrowType = DanceArrow.ArrowType.Hold;
+        else
+            arrowType = DanceArrow.ArrowType.Double;
 
-            yield return new WaitForSecondsRealtime(DanceGameManager.Instance.beatInterval);
+        GameObject arrowObj = arrowPool.GetArrow(randomDir);
+        Debug.Log($"Spawned arrow: {randomDir}, Type: {arrowType}");
+        if (arrowObj != null)
+        {
+            DanceArrow arrow = arrowObj.GetComponent<DanceArrow>();
+            if (arrow != null && DanceInput.Instance != null)
+            {
+                arrow.type = arrowType;
+                arrow.ResetArrow();
+            }
+            else
+            {
+                Debug.LogError($"Failed to reset arrow. DanceArrow component or DanceInput.Instance is null for direction: {randomDir}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"No arrow available in pool for direction: {randomDir}");
         }
     }
 }

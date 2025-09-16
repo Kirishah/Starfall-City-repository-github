@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.AI;
 
 public class QTEGameManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class QTEGameManager : MonoBehaviour
     [SerializeField] private Camera uiCamera;
     [SerializeField] private Camera qteDance_cam;
     [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private DanceInput danceInput;
 
 
     private Vector3 playerOriginalPosition;
@@ -44,9 +46,18 @@ public class QTEGameManager : MonoBehaviour
                 $"uiCamera={uiCamera}, " +
                 $"qteDance_cam={qteDance_cam}, " +
                 $"playerMovement={playerMovement}");
+            enabled = false;
+            return;
         }
         audioListener = mainCamera.GetComponent<AudioListener>();
         audioListenerQTE = qteDance_cam.GetComponent<AudioListener>();
+        if (audioListener == null || audioListenerQTE == null)
+        {
+            Debug.LogError("AudioListener missing on mainCamera or qteDance_cam!", this);
+            enabled = false;
+            return;
+        }
+        audioListenerQTE.enabled = false;
         qteCanvas.SetActive(false);
         qteDance_cam.enabled = false;
     }
@@ -73,21 +84,28 @@ public class QTEGameManager : MonoBehaviour
 
         mainCamera.enabled = false;
         uiCamera.enabled = false;
-        // audioListener.enabled = false;
-        Destroy(audioListener);
+        audioListener.enabled = false;
 
         qteDance_cam.enabled = true;
-        // audioListenerQTE.enabled = true;
-        audioListenerQTE = qteDance_cam.gameObject.AddComponent<AudioListener>();
-
         qteDance_cam.tag = mainCameraOriginalTag;
+        audioListenerQTE.enabled = true;
 
         qteCanvas.SetActive(true);
 
         playerOriginalPosition = playerMovement.transform.position;
         playerOriginalLayer = playerMovement.gameObject.layer;
         playerMovement.gameObject.layer = LayerMask.NameToLayer("QTE");
-        playerMovement.transform.position = new Vector3(0, 0.35f, 0); // Adjust for Dance camera
+        NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
+        if (agent != null) agent.enabled = false;
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(playerOriginalPosition, out hit, 10f, NavMesh.AllAreas))
+        {
+            playerMovement.transform.position = hit.position + new Vector3(0, 0.35f, 0); // Align to NavMesh floor
+        }
+        else
+        {
+            playerMovement.transform.position = new Vector3(0, 0.35f, 0);
+        }
 
         Animator playerAnimator = playerMovement.GetComponent<Animator>();
         if (playerAnimator != null)
@@ -98,6 +116,7 @@ public class QTEGameManager : MonoBehaviour
         if (danceGameManager != null)
         {
             danceGameManager.StartQTE();
+            danceInput.EnableInput();
         }
         else
         {
@@ -114,6 +133,8 @@ public class QTEGameManager : MonoBehaviour
         // Restore player
         playerMovement.gameObject.layer = playerOriginalLayer;
         playerMovement.transform.position = playerOriginalPosition;
+        NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
+        if (agent != null) agent.enabled = true;
 
         Animator playerAnimator = playerMovement.GetComponent<Animator>();
         if (playerAnimator != null)
@@ -123,14 +144,14 @@ public class QTEGameManager : MonoBehaviour
         // Switch cameras
         mainCamera.enabled = true;
         mainCamera.tag = mainCameraOriginalTag;
-        audioListener = mainCamera.gameObject.AddComponent<AudioListener>();
-
         uiCamera.enabled = true;
+        audioListener.enabled = true;
+        audioListenerQTE.enabled = false;
         qteDance_cam.enabled = false;
         qteDance_cam.tag = "qteDance_cam";
-        Destroy(audioListenerQTE);
         qteCanvas.SetActive(false);
 
+        danceInput.DisableInput();
         ResumeRPG();
     }
 
