@@ -17,3 +17,7 @@ MonoBehaviour:
   doubleClickThreshold: 0.2
   beatInterval: 0.8
   holdDuration: 2
+  basePoints: 100
+  comboMultiplier: 0.1
+  qteDuration: 30
+  audioSourcePoolSize: 100

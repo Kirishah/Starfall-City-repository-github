@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using QTE;
 
 namespace MagicPigGames
 {
@@ -69,8 +70,12 @@ namespace MagicPigGames
 
         protected float ValueBasedOnInvert(float value) => invertProgress ? 1 - value : value;
 
-        protected virtual void LateUpdate() => HandleParentSizeChange();
-        
+        protected virtual void LateUpdate()
+        {
+            if (QTEGameManager.IsQTEPaused) return;
+            HandleParentSizeChange();
+        }
+
         // Starts the coroutine, but stops the existing one if that is running, while also
         // inverting the _elapsedTime so that the transition continues from the current progress.
         private void StartTheCoroutine()
@@ -115,6 +120,7 @@ namespace MagicPigGames
         {
             while (_elapsedTime < transitionTime)
             {
+                if (QTEGameManager.IsQTEPaused) yield return null;
                 var newWidth = Mathf.Lerp(startWidth, SizeAtCurrentProgress, _elapsedTime / transitionTime);
                 SetBarValue(newWidth);
                 

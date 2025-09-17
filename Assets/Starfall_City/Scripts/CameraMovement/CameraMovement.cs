@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using QTE;
 
 public class CameraMovement : MonoBehaviour
 {

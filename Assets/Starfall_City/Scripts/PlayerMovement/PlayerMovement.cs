@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.AI;
 using Invector.vCharacterController;
 using UnityEngine.EventSystems;
+using QTE;
 
 public class PlayerMovement : MonoBehaviour
 {

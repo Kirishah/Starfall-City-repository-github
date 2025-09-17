@@ -4,85 +4,88 @@ using DanceInputActions;
 using System;
 using System.Linq;
 
-public class ArrowSpawner : MonoBehaviour
+namespace QTE
 {
-    [SerializeField] private QTEConfig config; // Centralized config
-    [SerializeField] private DanceArrowPool arrowPool;
-    private float spawnTimer;
-    private bool isSpawning = false;
-
-    private void Start()
+    public class ArrowSpawner : MonoBehaviour
     {
-        if (arrowPool == null)
+        [SerializeField] private QTEConfig config; // Centralized config
+        [SerializeField] private DanceArrowPool arrowPool;
+        private float spawnTimer;
+        private bool isSpawning = false;
+
+        private void Start()
         {
-            Debug.LogError("Arrow Pool is not assigned in the ArrowSpawner.");
-            return;
-        }
-        if (DanceGameManager.Instance == null)
-        {
-            Debug.LogError("ArrowSpawner: DanceGameManager.Instance is null!");
-        }
-    }
-
-    public void StartSpawning()
-    {
-        isSpawning = true;
-        spawnTimer = config.beatInterval;
-    }
-
-    public void StopSpawning()
-    {
-        isSpawning = false;
-        spawnTimer = 0f;
-    }
-
-    private void Update()
-    {
-        if (!QTEGameManager.IsQTEActive) return;
-
-        if (isSpawning && !DanceInput.IsHolding && DanceGameManager.Instance != null)
-        {
-            spawnTimer += Time.unscaledDeltaTime;
-            if (spawnTimer >= config.beatInterval)
+            if (arrowPool == null)
             {
-                SpawnArrow();
-                spawnTimer = 0f;
+                Debug.LogError("Arrow Pool is not assigned in the ArrowSpawner.");
+                return;
+            }
+            if (DanceGameManager.Instance == null)
+            {
+                Debug.LogError("ArrowSpawner: DanceGameManager.Instance is null!");
             }
         }
-    }
-    private void SpawnArrow()
-    {
-        ArrowDirection[] directions = Enum.GetValues(typeof(ArrowDirection)).Cast<ArrowDirection>().ToArray();
-        ArrowDirection randomDir = directions[UnityEngine.Random.Range(0, directions.Length)];
-        
-        // Weighted probabilities: Single (70%), Hold (15%), Double (15%)
-        float rand = UnityEngine.Random.value;
-        DanceArrow.ArrowType arrowType;
-        if (rand < 0.70f)
-            arrowType = DanceArrow.ArrowType.Single;
-        else if (rand < 0.85f)
-            arrowType = DanceArrow.ArrowType.Hold;
-        else
-            arrowType = DanceArrow.ArrowType.Double;
 
-        GameObject arrowObj = arrowPool.GetArrow(randomDir);
-        Debug.Log($"Spawned arrow: {randomDir}, Type: {arrowType}");
-        if (arrowObj != null)
+        public void StartSpawning()
         {
-            DanceArrow arrow = arrowObj.GetComponent<DanceArrow>();
-            if (arrow != null && DanceInput.Instance != null)
+            isSpawning = true;
+            spawnTimer = config.beatInterval;
+        }
+
+        public void StopSpawning()
+        {
+            isSpawning = false;
+            spawnTimer = 0f;
+        }
+
+        private void Update()
+        {
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused) return;
+
+            if (isSpawning && !DanceInput.IsHolding && DanceGameManager.Instance != null)
             {
-                arrow.type = arrowType;
-                arrow.ResetArrow();
+                spawnTimer += Time.deltaTime;
+                if (spawnTimer >= config.beatInterval)
+                {
+                    SpawnArrow();
+                    spawnTimer = 0f;
+                }
+            }
+        }
+        private void SpawnArrow()
+        {
+            ArrowDirection[] directions = Enum.GetValues(typeof(ArrowDirection)).Cast<ArrowDirection>().ToArray();
+            ArrowDirection randomDir = directions[UnityEngine.Random.Range(0, directions.Length)];
+
+            // Weighted probabilities: Single (70%), Hold (15%), Double (15%)
+            float rand = UnityEngine.Random.value;
+            DanceArrow.ArrowType arrowType;
+            if (rand < 0.70f)
+                arrowType = DanceArrow.ArrowType.Single;
+            else if (rand < 0.85f)
+                arrowType = DanceArrow.ArrowType.Hold;
+            else
+                arrowType = DanceArrow.ArrowType.Double;
+
+            GameObject arrowObj = arrowPool.GetArrow(randomDir);
+            Debug.Log($"Spawned arrow: {randomDir}, Type: {arrowType}");
+            if (arrowObj != null)
+            {
+                DanceArrow arrow = arrowObj.GetComponent<DanceArrow>();
+                if (arrow != null && DanceInput.Instance != null)
+                {
+                    arrow.type = arrowType;
+                    arrow.ResetArrow();
+                }
+                else
+                {
+                    Debug.LogError($"Failed to reset arrow. DanceArrow component or DanceInput.Instance is null for direction: {randomDir}");
+                }
             }
             else
             {
-                Debug.LogError($"Failed to reset arrow. DanceArrow component or DanceInput.Instance is null for direction: {randomDir}");
+                Debug.LogError($"No arrow available in pool for direction: {randomDir}");
             }
         }
-        else
-        {
-            Debug.LogError($"No arrow available in pool for direction: {randomDir}");
-        }
-    }
+    } 
 }

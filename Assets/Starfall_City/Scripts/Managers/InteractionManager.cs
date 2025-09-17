@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using QTE;
 
 public class InteractionManager : MonoBehaviour
 {

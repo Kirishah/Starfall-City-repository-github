@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using QTE;
 
 public class MoneyHUD : MonoBehaviour
 {
