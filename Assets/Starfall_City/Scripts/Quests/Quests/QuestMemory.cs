@@ -8,16 +8,13 @@ public class QuestMemory : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            LoadCompletedQuests();
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+        Instance = this;
+        LoadCompletedQuests();
     }
 
     public void MarkQuestCompleted(QuestSO quest)

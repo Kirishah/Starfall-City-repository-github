@@ -2,6 +2,7 @@ using Cinemachine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using System;
 
 namespace QTE
 {
@@ -17,6 +18,7 @@ namespace QTE
         public TextMeshProUGUI scoreText, comboText;
         public CinemachineVirtualCamera wideCam, closeUpCam, dynamicCam;
         [SerializeField] private Camera qteDance_cam;
+        [SerializeField] private DanceArrowPool pool;
 
         // Runtime Variables
         private int currentScore;
@@ -38,6 +40,9 @@ namespace QTE
             }
             Instance = this;
 
+            audioSourcePool = new List<AudioSource>();
+            availableAudioSources = new Queue<AudioSource>();
+
             if (wideCam == null || closeUpCam == null || dynamicCam == null || config == null)
             {
                 Debug.LogError("Missing Cinemachine cameras or QTEConfig!", this);
@@ -57,13 +62,20 @@ namespace QTE
         {
             if (Instance == this) Instance = null;
             // Clean up AudioSource pool
-            foreach (AudioSource audioSource in audioSourcePool)
+            if (audioSourcePool != null)
             {
-                if (audioSource != null)
-                    Destroy(audioSource.gameObject);
+                foreach (AudioSource audioSource in audioSourcePool)
+                {
+                    if (audioSource != null)
+                        Destroy(audioSource.gameObject);
+                }
+                audioSourcePool.Clear();
             }
-            audioSourcePool.Clear();
-            availableAudioSources.Clear();
+
+            if (availableAudioSources != null)
+            {
+                availableAudioSources.Clear();
+            }
         }
 
         private void OnEnable()
@@ -78,8 +90,6 @@ namespace QTE
 
         private void InitializeAudioSourcePool()
         {
-            audioSourcePool = new List<AudioSource>();
-            availableAudioSources = new Queue<AudioSource>();
             for (int i = 0; i < config.audioSourcePoolSize; i++)
             {
                 GameObject audioObj = new GameObject($"AudioSource_{i}");
@@ -95,6 +105,8 @@ namespace QTE
 
         public void StartQTE()
         {
+            ResetQTE();
+
             currentScore = 0;
             currentCombo = 0;
             timer = 0;
@@ -139,12 +151,50 @@ namespace QTE
             {
                 isQTEActive = false;
                 if (musicTrack != null) musicTrack.Stop();
-                ArrowSpawner spawner = GetComponent<ArrowSpawner>();
-                if (spawner != null) spawner.StopSpawning();
+
+                ResetQTE();
+                
                 if (qteDance_cam != null) qteDance_cam.tag = "Untagged";
+                ResetAnimatorTriggers();
+                if (dancerAnimator != null)
+                {
+                    dancerAnimator.SetTrigger("stop_dance");
+                }
+
                 OnQTEComplete?.Invoke(currentScore > 1000);
                 CleanupAudioSources();
             }
+        }
+
+        public void ResetQTE()
+        {
+            ArrowSpawner spawner = GetComponent<ArrowSpawner>();
+            if (spawner != null)
+            {
+                spawner.ResetSpawner();
+            }
+            if (pool != null)
+            {
+                pool.ResetAllArrows();
+            }
+            if (DanceInput.Instance != null)
+            {
+                DanceInput.Instance.ClearRegisteredArrows();
+            }
+            Debug.Log("DanceGameManager: Full QTE reset complete");
+        }
+
+        private void ResetAnimatorTriggers()
+        {
+            if (dancerAnimator == null) return;
+
+            // List all known triggers used in the Animator
+            string[] triggers = new[] { "dance_Up", "dance_Down", "dance_Left", "dance_Right"};
+            foreach (string trigger in triggers)
+            {
+                dancerAnimator.ResetTrigger(trigger);
+            }
+            Debug.Log("Reset all Animator triggers");
         }
 
         public void HandleArrowEvent(ArrowDirection direction, DanceArrow.ArrowType type, bool success)

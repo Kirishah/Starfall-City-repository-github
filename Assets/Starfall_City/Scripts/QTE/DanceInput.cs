@@ -1,7 +1,10 @@
 using DanceInputActions;
+using MagicPigGames;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static Unity.Collections.AllocatorManager;
 
 namespace QTE
 {
@@ -15,6 +18,7 @@ namespace QTE
 
         [SerializeField] private QTEConfig config;
         [SerializeField] private DanceArrowPool arrowPool;
+        [SerializeField] private ProgressBar holdProgressBar;
         private Dictionary<ArrowDirection, List<DanceArrow>> activeArrowsByDirection = new();
         private DanceArrow currentHoldArrow;
         private float holdStartTime;
@@ -33,7 +37,6 @@ namespace QTE
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(gameObject);
             controls = new DanceControls();
 
             // Initialize all direction lists
@@ -65,6 +68,7 @@ namespace QTE
             controls.DanceActions.Right.canceled += OnRightCanceled;
 
             controls.Enable();
+            if (holdProgressBar != null) holdProgressBar.gameObject.SetActive(false);
         }
 
         // Called by QTEGameManager to disable input actions
@@ -84,6 +88,7 @@ namespace QTE
 
                 controls.Disable();
             }
+            ClearRegisteredArrows();
         }
 
         // Separate methods for each input to ensure proper subscription
@@ -122,6 +127,24 @@ namespace QTE
             {
                 pendingDoubleClickArrows.Remove(arrow.direction);
             }
+        }
+
+        public void ClearRegisteredArrows()
+        {
+            foreach (var kvp in activeArrowsByDirection)
+            {
+                kvp.Value.Clear();
+            }
+            pendingDoubleClickArrows.Clear();
+            lastPressTimes.Clear();
+            IsHolding = false;
+            currentHoldArrow = null;
+            if (holdProgressBar != null)
+            {
+                holdProgressBar.SetProgress(0f);
+                holdProgressBar.gameObject.SetActive(false);
+            }
+            Debug.Log("Cleared all registered arrows and reset input state in DanceInput", this);
         }
 
         private void HandleInput(ArrowDirection direction)
@@ -175,6 +198,13 @@ namespace QTE
                         IsHolding = true;
                         currentHoldArrow = arrow;
                         holdStartTime = Time.time;
+
+                        if (holdProgressBar != null)
+                        {
+                            holdProgressBar.SetProgress(0f);
+                            holdProgressBar.gameObject.SetActive(true); // Optional: Show if hidden
+                        }
+
                         OnArrowEvent?.Invoke(direction, arrow.type, true);
                     }
                     else if (arrow.type == DanceArrow.ArrowType.Single)
@@ -204,6 +234,13 @@ namespace QTE
             // No matching arrow in hit zone
             OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Single, false);
             DanceGameManager.Instance?.HandleArrowEvent(direction, DanceArrow.ArrowType.Single, false);
+
+            // If no arrow matched, check if it was a stale double-click attempt
+            if (pendingDoubleClickArrows.ContainsKey(direction))
+            {
+                DanceGameManager.Instance?.HandleMiss(); // Explicit miss for stale pending
+                pendingDoubleClickArrows.Remove(direction);
+            }
         }
 
         private void HandleInputRelease(ArrowDirection direction)
@@ -214,8 +251,17 @@ namespace QTE
             bool success = elapsed >= config.holdDuration;
             OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Hold, success);
             DanceGameManager.Instance?.HandleArrowEvent(direction, DanceArrow.ArrowType.Hold, success);
-            if (currentHoldArrow != null) currentHoldArrow.UpdateHoldProgress(elapsed); // Update progress bar before returning
-            ReturnArrowToPool(currentHoldArrow);
+            // Reset the progress bar before returning to pool
+            if (holdProgressBar != null)
+            {
+                holdProgressBar.SetProgress(0f);
+                holdProgressBar.gameObject.SetActive(false); // Optional: Hide when not holding
+            }
+
+            if (currentHoldArrow != null)
+            {
+                ReturnArrowToPool(currentHoldArrow);
+            }
             IsHolding = false;
             currentHoldArrow = null;
 
@@ -226,14 +272,43 @@ namespace QTE
             if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || currentHoldArrow == null || config == null) return;
 
             float elapsed = Time.time - holdStartTime;
-            currentHoldArrow.UpdateHoldProgress(elapsed);
+            float progress = Mathf.Clamp01(elapsed / config.holdDuration);
+
+            if (holdProgressBar != null)
+            {
+                holdProgressBar.SetProgress(progress);
+            }
 
             if (elapsed >= config.holdDuration)
             {
                 DanceGameManager.Instance?.HandleArrowEvent(currentHoldArrow.direction, DanceArrow.ArrowType.Hold, true);
+                // Reset the progress bar before returning to pool
+                if (holdProgressBar != null)
+                {
+                    holdProgressBar.SetProgress(0f);
+                    holdProgressBar.gameObject.SetActive(false); // Optional
+                }
                 ReturnArrowToPool(currentHoldArrow);
                 IsHolding = false;
                 currentHoldArrow = null;
+            }
+
+            // Cleanup stale lastPressTimes and pending doubles
+            List<ArrowDirection> toRemove = new List<ArrowDirection>();
+            foreach (var kvp in lastPressTimes)
+            {
+                if (Time.time - kvp.Value > config.doubleClickThreshold * 2) // Twice threshold for safety
+                {
+                    toRemove.Add(kvp.Key);
+                }
+            }
+            foreach (var dir in toRemove)
+            {
+                lastPressTimes.Remove(dir);
+                if (pendingDoubleClickArrows.ContainsKey(dir))
+                {
+                    pendingDoubleClickArrows.Remove(dir);
+                }
             }
         }
 

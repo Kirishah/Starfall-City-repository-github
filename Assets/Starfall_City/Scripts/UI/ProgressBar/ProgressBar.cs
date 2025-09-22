@@ -21,7 +21,7 @@ namespace MagicPigGames
         public bool invertProgress = true;
         [Tooltip("When 0, the progress bar will update immediately. When greater than 0, the progress bar will take this many seconds to update.")]
         [Min(0f)]
-        public float transitionTime = 0f;
+        public float transitionTime = 0.1f;
         
         [Header("Plumbing")]
         public RectTransform rectTransform;

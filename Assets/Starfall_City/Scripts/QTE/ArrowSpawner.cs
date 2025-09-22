@@ -12,6 +12,7 @@ namespace QTE
         [SerializeField] private DanceArrowPool arrowPool;
         private float spawnTimer;
         private bool isSpawning = false;
+        private bool hasStartedSpawning = false;
 
         private void Start()
         {
@@ -28,8 +29,19 @@ namespace QTE
 
         public void StartSpawning()
         {
+            hasStartedSpawning = false;
+            spawnTimer = 0f;
             isSpawning = true;
-            spawnTimer = config.beatInterval;
+
+            // Start a coroutine to handle the initial delay
+            StartCoroutine(StartSpawningAfterDelay());
+        }
+
+        private IEnumerator StartSpawningAfterDelay()
+        {
+            yield return new WaitForSeconds(config.initialSpawnDelay);
+            hasStartedSpawning = true;
+            spawnTimer = config.beatInterval; // Start the timer so first arrow spawns immediately after delay
         }
 
         public void StopSpawning()
@@ -42,7 +54,7 @@ namespace QTE
         {
             if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused) return;
 
-            if (isSpawning && !DanceInput.IsHolding && DanceGameManager.Instance != null)
+            if (isSpawning && !DanceInput.IsHolding && DanceGameManager.Instance != null && hasStartedSpawning)
             {
                 spawnTimer += Time.deltaTime;
                 if (spawnTimer >= config.beatInterval)
@@ -86,6 +98,15 @@ namespace QTE
             {
                 Debug.LogError($"No arrow available in pool for direction: {randomDir}");
             }
+        }
+
+        public void ResetSpawner()
+        {
+            StopSpawning();
+            spawnTimer = 0f;
+            hasStartedSpawning = false;
+            StopAllCoroutines(); // Stop any running delay coroutines
+            Debug.Log("ArrowSpawner: Reset complete", this);
         }
     } 
 }

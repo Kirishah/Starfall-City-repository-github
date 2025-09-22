@@ -28,15 +28,12 @@ public class QuestUI : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+        Instance = this;
         _audioSource = GetComponent<AudioSource>();
         _questLogPanel.SetActive(false);
 

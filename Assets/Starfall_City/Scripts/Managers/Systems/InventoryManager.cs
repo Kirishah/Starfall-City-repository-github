@@ -16,13 +16,10 @@ public class InventoryManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); 
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); 
-        }
+        Instance = this;
         InitializeSlots();
     }
 

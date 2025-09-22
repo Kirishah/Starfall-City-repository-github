@@ -40,7 +40,7 @@ public class PlayerAnimation : MonoBehaviour
 
         if (isMoving)
         {
-            // If the player is moving, set the running animation
+            // If the player is moving, set the walking animation
             animator.SetBool("is_Walking", true);
         }
         else

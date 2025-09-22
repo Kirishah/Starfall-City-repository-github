@@ -31,6 +31,8 @@ namespace QTE
         [Header("QTE Timing")]
         [SerializeField, Tooltip("Total duration of the QTE (seconds).")]
         [Min(0f)] public float qteDuration = 90f;
+        [SerializeField, Tooltip("Time in seconds before first arrow spawns")]
+        [Min(0f)] public float initialSpawnDelay = 2.0f; 
 
         [Header("Audio")]
         [SerializeField, Tooltip("Number of AudioSource components in the pool for one-shot sounds.")]
@@ -77,6 +79,11 @@ namespace QTE
             {
                 Debug.LogWarning("QTEDuration should be non-negative.", this);
                 qteDuration = 0f;
+            }
+            if (initialSpawnDelay < 0f)
+            {
+                Debug.LogWarning("initialSpawnDelay should be non-negative.", this);
+                initialSpawnDelay = 0f;
             }
             if (audioSourcePoolSize < 1)
             {

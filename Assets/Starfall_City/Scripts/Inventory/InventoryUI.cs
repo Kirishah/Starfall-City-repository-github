@@ -72,7 +72,6 @@ public class InventoryUI : MonoBehaviour
         }
 
         _hasSpawned = true;
-        DontDestroyOnLoad(gameObject);
         InitializeReferences(); 
     }
 

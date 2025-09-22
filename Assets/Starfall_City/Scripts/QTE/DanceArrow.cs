@@ -2,7 +2,6 @@ using UnityEngine;
 using DanceInputActions;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
-using MagicPigGames;
 
 namespace QTE
 {
@@ -27,14 +26,11 @@ namespace QTE
         [SerializeField] private GameObject singleClickVisual; // Basic arrow
         [SerializeField] private GameObject holdVisual;        // Arrow with tail or bar
         [SerializeField] private GameObject doubleClickVisual; // Stacked arrow or "2x" symbol
-        [SerializeField] private MagicPigGames.ProgressBar holdProgressBar; // Progress bar for hold notes
-
-        private float holdTimer;
 
         void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
-            if (rectTransform == null || config == null || singleClickVisual == null || holdVisual == null || doubleClickVisual == null || holdProgressBar == null)
+            if (rectTransform == null || config == null || singleClickVisual == null || holdVisual == null || doubleClickVisual == null)
             {
                 Debug.LogError($"Missing required components on {gameObject.name}!", this);
                 enabled = false;
@@ -57,32 +53,8 @@ namespace QTE
         {
             hasPassedHitZone = false;
             IsInHitZone = false;
-
-            // Ensure visuals are properly set
-            if (singleClickVisual != null)
-            {
-                singleClickVisual.SetActive(type == ArrowType.Single);
-                Debug.Log($"Setting singleClickVisual active: {type == ArrowType.Single}", this);
-            }
-            else
-                Debug.LogError("singleClickVisual is null!", this);
-
-            if (holdVisual != null)
-            {
-                holdVisual.SetActive(type == ArrowType.Hold);
-                Debug.Log($"Setting holdVisual active: {type == ArrowType.Hold}", this);
-            }
-            else
-                Debug.LogError("holdVisual is null!", this);
-
-            if (doubleClickVisual != null)
-            {
-                doubleClickVisual.SetActive(type == ArrowType.Double);
-                Debug.Log($"Setting doubleClickVisual active: {type == ArrowType.Double}", this);
-            }
-            else
-                Debug.LogError("doubleClickVisual is null!", this);
         }
+
 
         public void ResetArrow()
         {
@@ -95,9 +67,12 @@ namespace QTE
             gameObject.SetActive(true);
             hasPassedHitZone = false;
             IsInHitZone = false;
-            holdTimer = 0f; // Reset hold timer
-            if (holdProgressBar != null) holdProgressBar.SetProgress(0f);
+
             DanceInput.Instance?.RegisterArrow(this);
+            // Explicitly disable all visuals before re-enabling correct one
+            if (singleClickVisual != null) singleClickVisual.SetActive(false);
+            if (holdVisual != null) holdVisual.SetActive(false);
+            if (doubleClickVisual != null) doubleClickVisual.SetActive(false);
 
             // Re-apply visual states on reset
             if (singleClickVisual != null)
@@ -110,16 +85,6 @@ namespace QTE
                 $"singleClickVisual={singleClickVisual != null && singleClickVisual.activeSelf}, " +
                 $"holdVisual={holdVisual != null && holdVisual.activeSelf}, " +
                 $"doubleClickVisual={doubleClickVisual != null && doubleClickVisual.activeSelf}", this);
-        }
-
-        public void UpdateHoldProgress(float elapsedTime)
-        {
-            if (type == ArrowType.Hold && holdProgressBar != null)
-            {
-                holdTimer = elapsedTime;
-                float progress = Mathf.Clamp01(elapsedTime / config.holdDuration);
-                holdProgressBar.SetProgress(progress);
-            }
         }
 
         void Update()

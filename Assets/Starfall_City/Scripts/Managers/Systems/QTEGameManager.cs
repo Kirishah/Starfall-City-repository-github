@@ -1,13 +1,15 @@
-using UnityEngine;
-using System.Collections;
-using UnityEngine.AI;
 using Core;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
 
 namespace QTE
 {
     public class QTEGameManager : MonoBehaviour
     {
         public static QTEGameManager Instance { get; private set; }
+        public interface IRPGComponent { } // implement in RPG scripts like PlayerMovement.cs
         public static bool IsQTEActive { get; private set; } // Public state flag
         public static bool IsQTEPaused { get; private set; }
         public static event System.Action OnQTEStart;
@@ -29,18 +31,16 @@ namespace QTE
         private AudioListener audioListener;
         private AudioListener audioListenerQTE;
         private bool wasRPGPaused;
+        private List<MonoBehaviour> rpgComponents = new List<MonoBehaviour>(); // Cache list
 
         private void Awake()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
+                return;
             }
+            Instance = this;
 
 
             if (!qteCanvas || !danceGameManager || !mainCamera || !uiCamera || !qteDance_cam || !playerMovement)
@@ -66,6 +66,15 @@ namespace QTE
             audioListenerQTE.enabled = false;
             qteCanvas.SetActive(false);
             qteDance_cam.enabled = false;
+
+            var allScripts = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+            foreach (var script in allScripts)
+            {
+                if (script is IRPGComponent)
+                {
+                    rpgComponents.Add(script);
+                }
+            }
         }
 
         private void OnEnable()
@@ -98,7 +107,6 @@ namespace QTE
             IsQTEActive = true;
             IsQTEPaused = false;
             wasRPGPaused = PauseManager.IsPaused;
-            DanceGameManager.Instance?.StartQTE();
             OnQTEStart?.Invoke();
             PauseRPG();
 
@@ -112,30 +120,11 @@ namespace QTE
             qteDance_cam.tag = mainCameraOriginalTag;
             audioListenerQTE.enabled = true;
 
+            // Reset all components 
+            DanceGameManager.Instance.ResetQTE(); // call to centralized reset
+
             qteCanvas.SetActive(true);
 
-            playerOriginalPosition = playerMovement.transform.position;
-            playerOriginalLayer = playerMovement.gameObject.layer;
-            playerMovement.gameObject.layer = LayerMask.NameToLayer("QTE");
-            NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
-            if (agent != null) agent.enabled = false;
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(playerOriginalPosition, out hit, 10f, NavMesh.AllAreas))
-            {
-                playerMovement.transform.position = hit.position + new Vector3(11.5f, 0, 1); // Align to NavMesh floor
-            }
-            else
-            {
-                playerMovement.transform.position = new Vector3(11.5f, 0, 1);
-            }
-
-            Animator playerAnimator = playerMovement.GetComponent<Animator>();
-            if (playerAnimator != null)
-            {
-                playerAnimator.updateMode = AnimatorUpdateMode.Normal;
-            }
-
-            Time.timeScale = 1f; // Ensure normal time for QTE
             if (danceGameManager != null)
             {
                 danceGameManager.StartQTE();
@@ -146,6 +135,22 @@ namespace QTE
                 Debug.LogError("QTEGameManager: danceGameManager is null!");
             }
 
+            playerOriginalPosition = playerMovement.transform.position;
+            playerOriginalLayer = playerMovement.gameObject.layer;
+            playerMovement.gameObject.layer = LayerMask.NameToLayer("QTE");
+            NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
+            if (agent != null) agent.enabled = false;
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(playerOriginalPosition, out hit, 10f, NavMesh.AllAreas))
+            {
+                playerMovement.transform.position = hit.position + new Vector3(11.5f, 0, -5); // Align to NavMesh floor
+            }
+            else
+            {
+                playerMovement.transform.position = new Vector3(11.5f, 0, 1);
+            }
+
+            Time.timeScale = 1f; // Ensure normal time for QTE
         }
 
         public void EndQTE(bool success)
@@ -160,11 +165,6 @@ namespace QTE
             NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
             if (agent != null) agent.enabled = true;
 
-            Animator playerAnimator = playerMovement.GetComponent<Animator>();
-            if (playerAnimator != null)
-            {
-                playerAnimator.updateMode = AnimatorUpdateMode.Normal;
-            }
             // Switch cameras
             mainCamera.enabled = true;
             mainCamera.tag = mainCameraOriginalTag;
@@ -176,24 +176,16 @@ namespace QTE
             qteCanvas.SetActive(false);
 
             danceInput.DisableInput();
+            DanceGameManager.Instance.ResetQTE();
             ResumeRPG();
         }
 
         private void PauseRPG()
         {
-            // Disable RPG-specific components instead of setting timeScale
-            if (playerMovement != null)
+            // Disable RPG-specific components 
+            foreach (var script in rpgComponents)
             {
-                playerMovement.enabled = false;
-            }
-            // Add other RPG components to disable (e.g., enemy AI, scripts)
-            foreach (var script in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
-            {
-                if (script != null && script != this &&
-                    (script.GetType().Namespace?.Contains("QTE") != true) &&
-                    (script.GetType().Namespace?.Contains("Core") != true) &&
-                    (script.GetType().Namespace?.Contains("Cinemachine") != true) &&
-                    (script.GetType().Namespace?.Contains("UnityEngine.Rendering.Universal") != true))
+                if (script != null && script.enabled) // Extra safety
                 {
                     script.enabled = false;
                 }
@@ -202,17 +194,9 @@ namespace QTE
 
         private void ResumeRPG()
         {
-            if (playerMovement != null)
+            foreach (var script in rpgComponents)
             {
-                playerMovement.enabled = !wasRPGPaused; // Respect pause state
-            }
-            foreach (var script in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
-            {
-                if (script != null && script != this &&
-                    (script.GetType().Namespace?.Contains("QTE") != true) &&
-                    (script.GetType().Namespace?.Contains("Core") != true) &&
-                    (script.GetType().Namespace?.Contains("Cinemachine") != true) &&
-                    (script.GetType().Namespace?.Contains("UnityEngine.Rendering.Universal") != true))
+                if (script != null)
                 {
                     script.enabled = true;
                 }

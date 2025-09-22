@@ -322,4 +322,4 @@ MonoBehaviour:
   singleClickVisual: {fileID: 3818033123327707527}
   holdVisual: {fileID: 2394846817707020829}
   doubleClickVisual: {fileID: 4167349044397973057}
-  holdProgressBar: {fileID: 672752558859913028, guid: bd6b16ebae3e748678b90a25cb354102, type: 3}
+  holdProgressBar: {fileID: 0}

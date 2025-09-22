@@ -43,15 +43,12 @@ public class DialogueManager : MonoBehaviour
 
     private void InitializeSingleton()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+        Instance = this;
     }
 
     private void LoadDialogues(string jsonPath)

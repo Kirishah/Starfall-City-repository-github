@@ -60,6 +60,13 @@ namespace QTE
 
             if (poolDictionary[direction].Count == 0)
             {
+                // Cap expansion to prevent unbounded growth
+                Pool targetPool = pools.Find(p => p.direction == direction);
+                if (poolDictionary[direction].Count > targetPool.size * 2)
+                {
+                    Debug.LogWarning($"Pool for {direction} exceeded 2x initial size ({targetPool.size}). Not expanding further.");
+                    return null;
+                }
                 ExpandPool(direction);
             }
 
@@ -88,6 +95,24 @@ namespace QTE
             GameObject obj = Instantiate(targetPool.prefab, transform);
             obj.SetActive(false);
             poolDictionary[direction].Enqueue(obj);
+        }
+
+        public void ResetAllArrows()
+        {
+            foreach (Transform child in transform)
+            {
+                DanceArrow arrow = child.GetComponent<DanceArrow>();
+                if (arrow != null)
+                {
+                    arrow.gameObject.SetActive(false); // Ensure deactivation
+                    if (!poolDictionary[arrow.direction].Contains(arrow.gameObject))
+                    {
+                        poolDictionary[arrow.direction].Enqueue(arrow.gameObject); // Return to pool
+                    }
+                    DanceInput.Instance?.UnregisterArrow(arrow); // Unregister from DanceInput
+                }
+            }
+            Debug.Log("ResetAllArrows: All arrows deactivated and reset", this);
         }
     } 
 }

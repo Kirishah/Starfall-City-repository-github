@@ -1,6 +1,6 @@
+using QTE;
 using System.Collections.Generic;
 using UnityEngine;
-using QTE;
 using UnityEngine.SceneManagement;
 
 namespace Core
@@ -20,6 +20,9 @@ namespace Core
         private AudioSource musicSource;
         private int currentTrackIndex = 0;
         private bool isFading;
+        private bool isPausedDueToFocus; // Track if paused due to window focus
+        private float pauseTime; // Track where we paused to resume from same position
+        private bool applicationHasFocus = true; // Track application focus state
 
         private void Awake()
         {
@@ -29,7 +32,6 @@ namespace Core
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(gameObject);
 
             // Set up AudioSource
             musicSource = gameObject.AddComponent<AudioSource>();
@@ -83,6 +85,44 @@ namespace Core
                 DanceGameManager.OnQTEComplete -= OnQTEComplete;
         }
 
+        // Handle application focus changes
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            applicationHasFocus = hasFocus;
+
+            if (!enabled || musicPlaylist.Count == 0 || isFading) return;
+
+            if (!hasFocus && musicSource.isPlaying && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
+            {
+                pauseTime = musicSource.time;
+                musicSource.Pause();
+                isPausedDueToFocus = true;
+                Debug.Log("BackgroundMusicManager: Paused music due to window minimize");
+            }
+            else if (hasFocus && isPausedDueToFocus && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
+            {
+                // Wait a frame before resuming to ensure everything is properly initialized
+                StartCoroutine(ResumeAfterFocusGain());
+            }
+        }
+
+        private System.Collections.IEnumerator ResumeAfterFocusGain()
+        {
+            // Wait one frame to ensure the application is fully focused
+            yield return null;
+
+            musicSource.time = pauseTime;
+            musicSource.UnPause();
+            isPausedDueToFocus = false;
+            Debug.Log("BackgroundMusicManager: Unpaused music after window focus gain");
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            // Handle mobile pause (treat as focus loss)
+            OnApplicationFocus(!pause);
+        }
+
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             // Re-subscribe to QTEGameManager events to handle scene transitions
@@ -114,9 +154,14 @@ namespace Core
 
         private void Update()
         {
+            // Only process music if the application has focus
+            if (!applicationHasFocus) return;
+
             if (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive)
             {
-                if (!musicSource.isPlaying && !isFading && musicPlaylist.Count > 0)
+                // Only advance to next track if not paused due to focus
+                if (!musicSource.isPlaying && !isFading && !isPausedDueToFocus && musicPlaylist.Count > 0 &&
+                (PauseManager.Instance == null || !PauseManager.IsPaused))
                 {
                     NextTrack();
                 }
@@ -125,10 +170,14 @@ namespace Core
                 if (PauseManager.Instance != null && PauseManager.IsPaused && musicSource.isPlaying)
                 {
                     musicSource.Pause();
+                    isPausedDueToFocus = false; // Ensure focus pause doesn't interfere
+                    Debug.Log("BackgroundMusicManager: Paused due to PauseManager");
                 }
-                else if (PauseManager.Instance != null && !PauseManager.IsPaused && !musicSource.isPlaying && musicPlaylist.Count > 0)
+                else if (PauseManager.Instance != null && !PauseManager.IsPaused && 
+                    !musicSource.isPlaying && !isFading && !isPausedDueToFocus && musicPlaylist.Count > 0)
                 {
                     musicSource.UnPause();
+                    Debug.Log("BackgroundMusicManager: Unpaused due to PauseManager");
                 }
             }
             else if (musicSource.isPlaying && !isFading)
@@ -196,6 +245,7 @@ namespace Core
             source.Stop();
             source.volume = startVolume;
             isFading = false;
+            isPausedDueToFocus = false; // Reset to ensure no conflict
         }
 
         private System.Collections.IEnumerator FadeIn(AudioSource source, float duration)
