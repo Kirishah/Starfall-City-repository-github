@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using QTE;
 
-public class Player3DMovement : MonoBehaviour
+public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float turnSpeed = 9f;

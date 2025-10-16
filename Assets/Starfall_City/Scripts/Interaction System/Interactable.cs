@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using QTE;
 
-public abstract class Interactable : MonoBehaviour
+public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [SerializeField] public string interactionText;
     public UnityEvent onInteract;

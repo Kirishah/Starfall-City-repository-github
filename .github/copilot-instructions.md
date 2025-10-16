@@ -1,8 +1,8 @@
 <!-- UNITY CODE ASSIST INSTRUCTIONS START -->
 - Project name: Neighbours-call-repository-github
-- Unity version: Unity 6000.2.4f1
+- Unity version: Unity 6000.2.6f2
 - Active game object:
-  - Name: Wall_White
+  - Name: PostitiveBar
   - Tag: Untagged
-  - Layer: Floor 2
+  - Layer: UI
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

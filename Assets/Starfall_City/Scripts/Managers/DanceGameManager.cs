@@ -1,8 +1,9 @@
 using Cinemachine;
+using Core;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using System;
 
 namespace QTE
 {
@@ -23,6 +24,9 @@ namespace QTE
         // Runtime Variables
         private int currentScore;
         private int currentCombo;
+        private float _healthSpeedMultiplier = 1f;
+        private float _healthSuccessPenalty = 1f;
+        private float _foolishnessBonus = 1f;
         private float timer;
         private bool isQTEActive;
         private List<AudioSource> audioSourcePool;
@@ -54,8 +58,12 @@ namespace QTE
             dynamicCam.Priority = 10;
             musicTrack.ignoreListenerPause = true;
 
-            // Initialize AudioSource pool
             InitializeAudioSourcePool();
+
+            if (CharacteristicsManager.Instance != null)
+            {
+                CharacteristicsManager.Instance.OnCharacteristicChanged += OnCharacteristicChanged;
+            }
         }
 
         private void OnDestroy()
@@ -75,6 +83,11 @@ namespace QTE
             if (availableAudioSources != null)
             {
                 availableAudioSources.Clear();
+            }
+
+            if (CharacteristicsManager.Instance != null)
+            {
+                CharacteristicsManager.Instance.OnCharacteristicChanged -= OnCharacteristicChanged;
             }
         }
 
@@ -103,9 +116,29 @@ namespace QTE
             Debug.Log($"Initialized AudioSource pool with {config.audioSourcePoolSize} sources", this);
         }
 
+        private void OnCharacteristicChanged(CharacteristicType type, int value)
+        {
+            UpdateCharacteristicEffects();
+        }
+
+        private void UpdateCharacteristicEffects()
+        {
+            if (CharacteristicsManager.Instance != null)
+            {
+                _healthSpeedMultiplier = CharacteristicsManager.Instance.GetHealthMultiplier();
+                _healthSuccessPenalty = CharacteristicsManager.Instance.GetQTEHealthPenalty();
+                _foolishnessBonus = CharacteristicsManager.Instance.GetFoolishnessBonus();
+
+                Debug.Log($"QTE Effects Updated - Speed: {_healthSpeedMultiplier}x, " +
+                    $"Success: {_healthSuccessPenalty}, Foolishness: {_foolishnessBonus}");
+            }
+        }
+
         public void StartQTE()
         {
             ResetQTE();
+
+            UpdateCharacteristicEffects();
 
             currentScore = 0;
             currentCombo = 0;
@@ -115,6 +148,7 @@ namespace QTE
 
             if (musicTrack != null)
             {
+                musicTrack.pitch = _healthSpeedMultiplier;
                 musicTrack.Play();
             }
             else
@@ -212,9 +246,13 @@ namespace QTE
                 dancerAnimator.SetTrigger($"dance_{direction}");
             }
 
-            // Score & Combo
+            // Apply characteristic bonuses to scoring
+            float scoreMultiplier = _healthSuccessPenalty * _foolishnessBonus;
+            int baseScore = Mathf.RoundToInt(config.basePoints * (1 + currentCombo * config.comboMultiplier));
+            int adjustedScore = Mathf.RoundToInt(baseScore * scoreMultiplier);
+
             currentCombo++;
-            currentScore += Mathf.RoundToInt(config.basePoints * (1 + currentCombo * config.comboMultiplier));
+            currentScore += adjustedScore;
             UpdateUI();
 
             // SFX
@@ -224,9 +262,9 @@ namespace QTE
             }
 
             // Camera
-            if (currentCombo % 10 == 0)
+            if (currentCombo % Mathf.RoundToInt(10 / _healthSuccessPenalty) == 0)
                 SwitchCamera(closeUpCam); // Close-up on high combos
-            else if (currentCombo % 5 == 0)
+            else if (currentCombo % Mathf.RoundToInt(5 / _healthSuccessPenalty) == 0)
                 SwitchCamera(dynamicCam); // Dynamic on every 5 combos
         }
 
@@ -234,7 +272,11 @@ namespace QTE
         {
             if (!isQTEActive || QTEGameManager.IsQTEPaused) return;
 
-            currentCombo = 0;
+            // Health affects how punishing misses are
+            float missPenalty = 2f / _healthSuccessPenalty; // Worse health = more punishing misses
+
+            currentCombo = Mathf.Max(0, currentCombo - Mathf.RoundToInt(missPenalty));
+
             if (missSFX != null)
             {
                 PlaySFX(missSFX);

@@ -32,11 +32,15 @@ public class QuestMemory : MonoBehaviour
         return quest != null && _completedQuests.Contains(quest.name);
     }
 
+    public HashSet<string> GetCompletedQuestNames()
+    {
+        return new HashSet<string>(_completedQuests);
+    }
+
     private void SaveCompletedQuests()
     {
         string json = string.Join(",", _completedQuests);
         PlayerPrefs.SetString("CompletedQuests", json);
-        PlayerPrefs.Save();
     }
 
     private void LoadCompletedQuests()

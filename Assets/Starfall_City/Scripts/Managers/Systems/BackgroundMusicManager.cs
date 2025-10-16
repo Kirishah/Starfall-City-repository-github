@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace Core
 {
+    [RequireComponent(typeof(AudioSource))]
     public class BackgroundMusicManager : MonoBehaviour
     {
         public static BackgroundMusicManager Instance { get; private set; }
@@ -13,7 +14,7 @@ namespace Core
         [SerializeField, Tooltip("List of background music clips to play in sequence.")]
         private List<AudioClip> musicPlaylist = new List<AudioClip>();
         [SerializeField, Tooltip("Volume for background music (0 to 1).")]
-        [Range(0f, 1f)] private float musicVolume = 0.5f;
+        [Range(0f, 1f)] private float musicVolume = 0.2f;
         [SerializeField, Tooltip("Fade duration when transitioning between songs (seconds).")]
         [Min(0f)] private float fadeDuration = 1f;
 
@@ -34,7 +35,13 @@ namespace Core
             Instance = this;
 
             // Set up AudioSource
-            musicSource = gameObject.AddComponent<AudioSource>();
+            musicSource = GetComponent<AudioSource>();
+            if (musicSource == null)
+            {
+                Debug.LogError("BackgroundMusicManager: Failed to add AudioSource component!", this);
+                enabled = false;
+                return;
+            }
             musicSource.loop = false; // We'll handle looping manually
             musicSource.playOnAwake = false;
             musicSource.spatialBlend = 0f; // 2D audio
@@ -45,24 +52,42 @@ namespace Core
             {
                 Debug.LogWarning("BackgroundMusicManager: Music playlist is empty!", this);
                 enabled = false;
+                return;
             }
+        }
 
-            // Subscribe to events
+        private void SubscribeToEvents()
+        {
             if (QTEGameManager.Instance != null)
             {
+                QTEGameManager.OnQTEStart -= OnQTEStart; // Unsubscribe first to avoid duplicates
                 QTEGameManager.OnQTEStart += OnQTEStart;
+                Debug.Log("BackgroundMusicManager: Subscribed to QTEGameManager events", this);
             }
             else
             {
-                Debug.LogError("BackgroundMusicManager: QTEGameManager.Instance is null during Awake!", this);
+                Debug.LogWarning("BackgroundMusicManager: QTEGameManager.Instance is null, will try again later", this);
             }
+
             if (DanceGameManager.Instance != null)
             {
+                DanceGameManager.OnQTEComplete -= OnQTEComplete;
                 DanceGameManager.OnQTEComplete += OnQTEComplete;
+                Debug.Log("BackgroundMusicManager: Subscribed to DanceGameManager events", this);
             }
             else
             {
-                Debug.LogError("BackgroundMusicManager: DanceGameManager.Instance is null during Awake!", this);
+                Debug.LogWarning("BackgroundMusicManager: DanceGameManager.Instance is null, will try again later", this);
+            }
+        }
+
+        private void Start()
+        {
+            SubscribeToEvents();
+
+            if (musicPlaylist.Count > 0 && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
+            {
+                PlayCurrentTrack();
             }
         }
 
@@ -80,9 +105,15 @@ namespace Core
         {
             if (Instance == this) Instance = null;
             if (QTEGameManager.Instance != null)
+            {
                 QTEGameManager.OnQTEStart -= OnQTEStart;
+                Debug.Log("BackgroundMusicManager: Unsubscribed from QTEGameManager.OnQTEStart");
+            }
             if (DanceGameManager.Instance != null)
+            {
                 DanceGameManager.OnQTEComplete -= OnQTEComplete;
+                Debug.Log("BackgroundMusicManager: Unsubscribed from DanceGameManager.OnQTEComplete");
+            }
         }
 
         // Handle application focus changes
@@ -144,14 +175,6 @@ namespace Core
             }
         }
 
-        private void Start()
-        {
-            if (musicPlaylist.Count > 0 && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
-            {
-                PlayCurrentTrack();
-            }
-        }
-
         private void Update()
         {
             // Only process music if the application has focus
@@ -189,6 +212,17 @@ namespace Core
 
         private void OnQTEStart()
         {
+            if (musicSource == null)
+            {
+                // Try to get the AudioSource if it's null
+                musicSource = GetComponent<AudioSource>();
+                if (musicSource == null)
+                {
+                    Debug.LogWarning("BackgroundMusicManager: musicSource is null in OnQTEStart, skipping.", this);
+                    return;
+                }
+            }
+
             if (musicSource.isPlaying)
             {
                 StartCoroutine(FadeOut(musicSource, fadeDuration));
@@ -198,6 +232,19 @@ namespace Core
 
         private void OnQTEComplete(bool success)
         {
+            if (this == null) return;  // Early exit if this instance is destroyed
+
+            if (musicSource == null)
+            {
+                // Try to get the AudioSource if it's null
+                musicSource = GetComponent<AudioSource>();
+                if (musicSource == null)
+                {
+                    Debug.LogWarning("BackgroundMusicManager: musicSource is null in OnQTEComplete, skipping.", this);
+                    return;
+                }
+            }
+
             if (musicPlaylist.Count > 0 && !musicSource.isPlaying)
             {
                 StartCoroutine(FadeIn(musicSource, fadeDuration));

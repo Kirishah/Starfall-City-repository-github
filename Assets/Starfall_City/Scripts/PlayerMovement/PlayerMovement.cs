@@ -5,7 +5,7 @@ using Invector.vCharacterController;
 using UnityEngine.EventSystems;
 using QTE;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [Header("References")]
     public NavMeshAgent player;
@@ -15,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 lastPosition;
     private Vector3 velocity;
     private const float DefaultStoppingDistance = 0.1f;
-    private bool isUsingNavMesh = true;
 
     [Header("Destination Indicator")]
     public GameObject destinationIndicatorPrefab; 

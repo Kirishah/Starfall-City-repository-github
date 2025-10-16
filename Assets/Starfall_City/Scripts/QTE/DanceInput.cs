@@ -170,10 +170,9 @@ namespace QTE
             if (pendingDoubleClickArrows.ContainsKey(direction) && isDoubleClick)
             {
                 DanceArrow arrow = pendingDoubleClickArrows[direction];
-                if (arrow != null && arrow.gameObject.activeInHierarchy)
+                if (arrow != null && arrow.gameObject.activeInHierarchy && arrow.IsInHitZone)
                 {
                     OnArrowEvent?.Invoke(direction, arrow.type, true);
-                    DanceGameManager.Instance?.HandleArrowEvent(direction, arrow.type, true);
                     ReturnArrowToPool(arrow);
                     pendingDoubleClickArrows.Remove(direction);
                     return;
@@ -183,7 +182,6 @@ namespace QTE
             if (!activeArrowsByDirection.ContainsKey(direction) || activeArrowsByDirection[direction].Count == 0)
             {
                 OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Single, false);
-                DanceGameManager.Instance?.HandleMiss();
                 return;
             }
 
@@ -210,7 +208,6 @@ namespace QTE
                     else if (arrow.type == DanceArrow.ArrowType.Single)
                     {
                         OnArrowEvent?.Invoke(direction, arrow.type, true);
-                        DanceGameManager.Instance?.HandleArrowEvent(direction, arrow.type, true);
                         ReturnArrowToPool(arrow);
                     }
                     else if (arrow.type == DanceArrow.ArrowType.Double)
@@ -218,7 +215,6 @@ namespace QTE
                         if (isDoubleClick)
                         {
                             OnArrowEvent?.Invoke(direction, arrow.type, true);
-                            DanceGameManager.Instance?.HandleArrowEvent(direction, arrow.type, true);
                             ReturnArrowToPool(arrow);
                         }
                         else
@@ -233,24 +229,23 @@ namespace QTE
 
             // No matching arrow in hit zone
             OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Single, false);
-            DanceGameManager.Instance?.HandleArrowEvent(direction, DanceArrow.ArrowType.Single, false);
 
             // If no arrow matched, check if it was a stale double-click attempt
             if (pendingDoubleClickArrows.ContainsKey(direction))
             {
-                DanceGameManager.Instance?.HandleMiss(); // Explicit miss for stale pending
                 pendingDoubleClickArrows.Remove(direction);
             }
         }
 
         private void HandleInputRelease(ArrowDirection direction)
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || currentHoldArrow == null || currentHoldArrow.direction != direction) return;
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || currentHoldArrow == null || 
+                currentHoldArrow.direction != direction) return;
 
             float elapsed = Time.time - holdStartTime;
             bool success = elapsed >= config.holdDuration;
             OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Hold, success);
-            DanceGameManager.Instance?.HandleArrowEvent(direction, DanceArrow.ArrowType.Hold, success);
+
             // Reset the progress bar before returning to pool
             if (holdProgressBar != null)
             {

@@ -7,6 +7,7 @@ TagManager:
   - InventoryPanel
   - qteDance_cam
   - QTEDance_cam
+  - iNamePanel
   layers:
   - Default
   - TransparentFX

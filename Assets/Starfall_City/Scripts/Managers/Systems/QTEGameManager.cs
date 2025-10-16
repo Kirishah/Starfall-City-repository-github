@@ -107,11 +107,26 @@ namespace QTE
             IsQTEActive = true;
             IsQTEPaused = false;
             wasRPGPaused = PauseManager.IsPaused;
-            OnQTEStart?.Invoke();
+
+            if (OnQTEStart != null)
+            {
+                try
+                {
+                    OnQTEStart.Invoke();
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"QTEGameManager: Exception in OnQTEStart: {ex.Message}", this);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("QTEGameManager: OnQTEStart has no subscribers", this);
+            }
+
             PauseRPG();
 
             mainCameraOriginalTag = mainCamera.tag;
-
             mainCamera.enabled = false;
             uiCamera.enabled = false;
             audioListener.enabled = false;
@@ -139,7 +154,13 @@ namespace QTE
             playerOriginalLayer = playerMovement.gameObject.layer;
             playerMovement.gameObject.layer = LayerMask.NameToLayer("QTE");
             NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
-            if (agent != null) agent.enabled = false;
+            if (agent != null)
+            {
+                // Stop agent instead of disabling component to avoid state issues
+                agent.isStopped = true;
+                agent.updatePosition = false;
+                agent.updateRotation = false;
+            }
             NavMeshHit hit;
             if (NavMesh.SamplePosition(playerOriginalPosition, out hit, 10f, NavMesh.AllAreas))
             {
@@ -161,9 +182,30 @@ namespace QTE
 
             // Restore player
             playerMovement.gameObject.layer = playerOriginalLayer;
-            playerMovement.transform.position = playerOriginalPosition;
             NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
-            if (agent != null) agent.enabled = true;
+            if (agent != null)
+            {
+                // Re-sample original position and warp agent to valid NavMesh spot
+                NavMeshHit hit;
+                if (NavMesh.SamplePosition(playerOriginalPosition, out hit, 10f, NavMesh.AllAreas))
+                {
+                    agent.Warp(hit.position);
+                    Debug.Log("QTEGameManager: Warped player to valid NavMesh position.");
+                }
+                else
+                {
+                    agent.Warp(playerOriginalPosition);
+                    Debug.LogWarning("QTEGameManager: Failed to sample NavMesh for restore—using original position.");
+                }
+                // Resume agent instead of re-enabling component
+                agent.updatePosition = true;
+                agent.updateRotation = true;
+                agent.isStopped = false;
+            }
+            else
+            {
+                playerMovement.transform.position = playerOriginalPosition;
+            }
 
             // Switch cameras
             mainCamera.enabled = true;

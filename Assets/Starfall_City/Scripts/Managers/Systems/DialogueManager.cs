@@ -1,12 +1,14 @@
-using System.Collections;
+using Core;
+using QTE;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Text.RegularExpressions;
-using System.Linq;
 
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     public static DialogueManager Instance { get; private set; }
 
@@ -210,6 +212,34 @@ public class DialogueManager : MonoBehaviour
         return result;
     }
 
+    private bool EvaluateCharacteristicCondition(string condition)
+    {
+        var parts = condition.Split(':');
+        if (parts.Length != 3)
+        {
+            Debug.LogError($"Invalid characteristic condition format: {condition}");
+            return false;
+        }
+
+        string conditionType = parts[0]; // "Char"
+        string charTypeStr = parts[1];
+        string requiredValueStr = parts[2];
+
+        if (!Enum.TryParse<CharacteristicType>(charTypeStr, out CharacteristicType charType))
+        {
+            Debug.LogError($"Unknown characteristic type: {charTypeStr}");
+            return false;
+        }
+
+        if (!int.TryParse(requiredValueStr, out int requiredValue))
+        {
+            Debug.LogError($"Invalid required value: {requiredValueStr}");
+            return false;
+        }
+
+        return CharacteristicsManager.Instance.CheckRequirement(charType, requiredValue);
+    }
+
     private bool EvaluateSingleCondition(string condition, string fullCondition)
     {
         if (string.IsNullOrWhiteSpace(condition))
@@ -226,6 +256,12 @@ public class DialogueManager : MonoBehaviour
         }
 
         string conditionType = parts[0];
+
+        if (conditionType == "Char")
+        {
+            return EvaluateCharacteristicCondition(condition);
+        }
+
         switch (conditionType)
         {
             case "QuestCompleted":

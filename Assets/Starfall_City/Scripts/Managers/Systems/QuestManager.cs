@@ -89,15 +89,14 @@ public class QuestManager : MonoBehaviour
         OnQuestCompleted?.Invoke(questSO);
         Debug.Log($"QuestManager: Fired OnQuestCompleted for {questSO.Title}");
 
-        if (CurrencyManager.Instance != null && XPManager.Instance != null)
+        if (CurrencyManager.Instance != null)
         {
-            XPManager.Instance.AddExperience(quest.Data.ExperienceReward);
             CurrencyManager.Instance.AddMoney(quest.Data.MoneyReward);
-            Debug.Log($"Awarded {quest.Data.ExperienceReward} XP and {quest.Data.MoneyReward} Money for completing {quest.Data.Title}");
+            Debug.Log($"Awarded {quest.Data.MoneyReward} Money for completing {quest.Data.Title}");
         }
         else
         {
-            Debug.LogError("Instances are null. Cannot award rewards.");
+            Debug.LogError("Instance is null. Cannot award rewards.");
         }
 
         // Чистка и возвращение в пул

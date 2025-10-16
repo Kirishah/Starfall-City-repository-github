@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using QTE;
 
-public class InteractionManager : MonoBehaviour
+public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [Header("Settings")]
     public float interactionRadius = 1f; 
@@ -14,7 +14,6 @@ public class InteractionManager : MonoBehaviour
     private Interactable _closestInteractable;
     private Interactable _hoveredInteractable;
 
-    private bool inputEnabled = true;
 
     void Update()
     {

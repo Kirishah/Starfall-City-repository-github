@@ -113,7 +113,7 @@
     "choices": [
       {
         "text": "Погнали.",
-        "triggersQTE": true,
+        "triggersQTE": false,
         "targetID": "lola_dance"
       },
       {
@@ -127,6 +127,17 @@
     "id": "lola_dance",
     "speaker": "Лола: ",
     "text": "Окееей, лееетс гоооу.",
-    "targetID": "-1"
+    "choices": [
+      {
+        "text": "Продолжить.",
+        "triggersQTE": true,
+        "targetID": "-1"
+      },
+      {
+        "text": "Я передумал. [Уйти]",
+        "triggersQTE": false,
+        "targetID": "-1"
+      }
+    ]
   }
 ]

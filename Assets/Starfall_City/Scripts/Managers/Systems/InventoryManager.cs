@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using QTE;
 
-public class InventoryManager : MonoBehaviour
+public class InventoryManager : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     public static InventoryManager Instance { get; private set; }
 
