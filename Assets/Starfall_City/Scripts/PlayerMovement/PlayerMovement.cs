@@ -1,8 +1,5 @@
 using UnityEngine;
-using System.Collections;
 using UnityEngine.AI;
-using Invector.vCharacterController;
-using UnityEngine.EventSystems;
 using QTE;
 
 public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
@@ -26,7 +23,9 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     private void Start()
     {
        lastPosition = transform.position;
-       player.stoppingDistance = DefaultStoppingDistance; 
+       player.stoppingDistance = DefaultStoppingDistance;
+       player.angularSpeed = 360f; // Increased for smoother, faster turns
+       player.acceleration = 20f; // Increased for quicker speed changes
     }
 
     void Update()
@@ -151,6 +150,11 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     }
 
     public Vector3 GetVelocity() => velocity;
+
+    public Vector3 GetDesiredDirection()
+    {
+        return player.enabled && player.desiredVelocity.magnitude > 0.01f ? player.desiredVelocity.normalized : Vector3.zero;
+    }
 }
 
     

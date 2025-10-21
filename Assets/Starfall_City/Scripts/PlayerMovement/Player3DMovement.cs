@@ -5,7 +5,7 @@ using QTE;
 public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [SerializeField] private float moveSpeed = 3f;
-    [SerializeField] private float turnSpeed = 9f;
+    [SerializeField] private float turnSpeed = 20f;
 
     [Header("References")]
     private CharacterController controller;
@@ -13,6 +13,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     private NavMeshAgent navAgent;
 
     private Vector3 moveDirection;
+    private Vector3 desiredDirection;
 
     void Start()
     {
@@ -86,4 +87,5 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         NavMeshHit hit;
         return NavMesh.SamplePosition(targetPosition, out hit, 0.1f, NavMesh.AllAreas);
     }
+    public Vector3 GetDesiredDirection() => desiredDirection;
 }

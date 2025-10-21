@@ -45,21 +45,12 @@ public class CharacteristicsUI : MonoBehaviour
             if (!barsDictionary.ContainsKey(bar.Type))
             {
                 barsDictionary.Add(bar.Type, bar);
-
-                // Configure slider for -5 to 5 range
-                bar.slider.minValue = -5;
-                bar.slider.maxValue = 5;
             }
         }
     }
 
     private void ApplyStyling()
     {
-        // Set dark theme background
-        if (backgroundPanel != null)
-        {
-            backgroundPanel.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
-        }
 
         // Style each bar with its specific color
         foreach (var bar in characteristicBars)
@@ -77,8 +68,8 @@ public class CharacteristicsUI : MonoBehaviour
             }
 
             // Style text
-            bar.nameText.color = Color.white;
-            bar.valueText.color = Color.white;
+            bar.nameText.color = new Color(0.2f, 0.2f, 0.2f); // Dark gray
+            bar.valueText.color = new Color(0.1f, 0.1f, 0.1f); // Almost black
             bar.valueText.fontStyle = FontStyles.Bold;
         }
 
@@ -150,19 +141,23 @@ public class CharacteristicsUI : MonoBehaviour
     {
         if (barsDictionary.TryGetValue(type, out CharacteristicBar bar))
         {
-            bar.slider.value = value;
             bar.valueText.text = value.ToString();
+
+            float absValue = Mathf.Abs(value);
+            float fillAmount = absValue / 5f; // Normalize to 0-1 for full half-bar
 
             // Show/hide fill images based on value
             if (value >= 0)
             {
                 bar.positiveFillImage.gameObject.SetActive(true);
+                bar.positiveFillImage.fillAmount = fillAmount;
                 bar.negativeFillImage.gameObject.SetActive(false);
             }
             else
             {
                 bar.positiveFillImage.gameObject.SetActive(false);
                 bar.negativeFillImage.gameObject.SetActive(true);
+                bar.negativeFillImage.fillAmount = fillAmount;
             }
 
             // Update name text based on type
@@ -174,26 +169,51 @@ public class CharacteristicsUI : MonoBehaviour
         }
     }
 
-    // Method to manually update a specific bar (useful for testing)
-    public void UpdateCharacteristicBar(CharacteristicType type)
+    [ContextMenu("Test Positive Values")]
+    public void TestPositiveValues()
     {
         if (CharacteristicsManager.Instance != null)
         {
-            int value = CharacteristicsManager.Instance.GetCharacteristicValue(type);
-            UpdateBar(type, value);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Health, 3);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, 4);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, 2);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, 5);
         }
     }
 
-    // Method to simulate characteristic changes (for testing in inspector)
-    [ContextMenu("Test Health Increase")]
-    public void TestHealthIncrease()
+    [ContextMenu("Test Negative Values")]
+    public void TestNegativeValues()
     {
-        CharacteristicsManager.Instance?.ModifyCharacteristic(CharacteristicType.Health, 1);
+        if (CharacteristicsManager.Instance != null)
+        {
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Health, -2);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, -4);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, -1);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, -3);
+        }
     }
 
-    [ContextMenu("Test Health Decrease")]
-    public void TestHealthDecrease()
+    [ContextMenu("Test Mixed Values")]
+    public void TestMixedValues()
     {
-        CharacteristicsManager.Instance?.ModifyCharacteristic(CharacteristicType.Health, -1);
+        if (CharacteristicsManager.Instance != null)
+        {
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Health, 2);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, -3);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, 4);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, -1);
+        }
+    }
+
+    [ContextMenu("Reset All to Zero")]
+    public void ResetAllToZero()
+    {
+        if (CharacteristicsManager.Instance != null)
+        {
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Health, 0);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, 0);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, 0);
+            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, 0);
+        }
     }
 }

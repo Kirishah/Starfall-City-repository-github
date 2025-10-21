@@ -87,33 +87,6 @@ public class CharacteristicsManager : MonoBehaviour
     {
         return _characteristics.Find(c => c.Type == type);
     }
-
-    public float GetHealthMultiplier()
-    {
-        // Convert health from -5 to 5 scale to a multiplier (e.g., -5 = 2.0x speed, 5 = 0.5x speed)
-        int health = GetCharacteristicValue(CharacteristicType.Health);
-        return Mathf.Lerp(2.0f, 0.5f, (health + 5) / 10f);
-    }
-
-    public float GetQTEHealthPenalty()
-    {
-        // Health affects QTE success rate - worse health = harder QTEs
-        int health = GetCharacteristicValue(CharacteristicType.Health);
-        return Mathf.Lerp(0.3f, 1.0f, (health + 5) / 10f); // 30% to 100% success multiplier
-    }
-    public float GetFoolishnessBonus()
-    {
-        // Foolishness provides bonus to physical challenges
-        int foolishness = GetCharacteristicValue(CharacteristicType.Blockhead);
-        return 1.0f + (foolishness * 0.1f); // 10% bonus per point
-    }
-
-    public float GetAuraBonus()
-    {
-        // Aura provides bonus to social/speech challenges
-        int aura = GetCharacteristicValue(CharacteristicType.Aura);
-        return 1.0f + (aura * 0.1f); // 10% bonus per point
-    }
     #endregion
 
     #region Item Effects
