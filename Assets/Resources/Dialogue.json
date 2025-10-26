@@ -139,5 +139,74 @@
         "targetID": "-1"
       }
     ]
+  },
+  {
+    "id": "MarthaInitialDialogue",
+    "speaker": "Марта: ",
+    "text": "Дэнни, не мог бы ты подать мне кофе?",
+    "choices": [
+      {
+        "text": "Да, сейчас принесу.",
+        "targetID": "action:StartQuest:test_1:MarthaCoffeeQuestStart_1"
+      },
+      {
+        "text": "Да пошла ты на*уй.",
+        "targetID": "-1"
+      },
+      {
+        "text": "[Отдать кофе].",
+        "targetID": "action:GiveItem:coffee_cup:MarthaCoffeeGiven",
+        "condition": "IsQuestObjectiveActive:Martha:coffee_cup && HasItem:coffee_cup:1"
+      }
+    ]
+  },
+  {
+    "id": "MarthaCoffeeQuestStart_1",
+    "speaker": "Марта: ",
+    "text": "Отлично, скорее всего я оставила его за своим рабочим местом.",
+    "targetID": "-1"
+  },
+  {
+    "id": "MarthaCoffeeGiven",
+    "speaker": "Марта: ",
+    "text": "Спасибо тебе большое! Ты просто спаситель!",
+    "targetID": "-1"
+  },
+  {
+    "id": "MarthaFollowUpQuestOffer",
+    "speaker": "Марта: ",
+    "text": "Дэнни, сегодня день танцев. Ты готов?",
+    "choices": [
+      {
+        "text": "Всегда готов!",
+        "targetID": "action:StartQuest:qte_dance1:MarthaFollowUpQuestStarted"
+      },
+      {
+        "text": "Приду позже.",
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "MarthaFollowUpQuestStarted",
+    "speaker": "Марта: ",
+    "text": "Мне нужно, чтобы ты танцевал как бог.",
+    "targetID": "-1"
+  },
+  {
+    "id": "MarthaNeutralDialogue",
+    "speaker": "Марта: ",
+    "text": "Дэнни?",
+    "choices": [
+      {
+        "text": "Что-то еще?",
+        "targetID": "MarthaFollowUpQuestOffer",
+        "condition": "QuestCompleted:test_1"
+      },
+      {
+        "text": "Уйти.",
+        "targetID": "-1"
+      }
+    ]
   }
 ]

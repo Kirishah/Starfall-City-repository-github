@@ -1,0 +1,245 @@
+:root {
+}
+
+.phoneWrap {
+    width: 25%;
+    height: 75%;
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/Phone/Phone-wrapper.png?fileID=2800000&guid=f59da8e697b629d4db17a948fc298df8&type=3#Phone-wrapper");
+    align-self: flex-end;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 3%;
+}
+
+.screen {
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/Phone/Phone-whiteback.png?fileID=2800000&guid=ed588ff6afd80e64aa3381f46e7a3c80&type=3#Phone-whiteback");
+    width: 71%;
+    height: 89%;
+    align-self: center;
+}
+
+.topDiv {
+    width: 100%;
+    height: 16%;
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/Phone/Top-div.png?fileID=2800000&guid=9b92746bae658e8448afcfa3a74948db&type=3#Top-div");
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    align-content: auto;
+    padding-top: 0%;
+    padding-right: 0%;
+    padding-bottom: 0%;
+    padding-left: 5%;
+    top: -1px;
+}
+
+.progressBar {
+    width: 99.5%;
+    height: 10%;
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/Phone/progressDisplay.png?fileID=2800000&guid=ebbdacf5391267b4db079759ad43d9f5&type=3#progressDisplay");
+    top: -2px;
+    right: auto;
+}
+
+.charContainer {
+    width: 100%;
+    height: 55%;
+    padding-top: 4%;
+    padding-right: 4%;
+    padding-bottom: 4%;
+    padding-left: 4%;
+    justify-content: space-between;
+    margin-top: 40px;
+}
+
+.barContainer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: 0%;
+    width: 100%;
+}
+
+.name-label {
+    font-size: 18px;
+    width: 30%;
+    -unity-font-style: bold;
+    color: rgb(255, 218, 218);
+    justify-content: flex-start;
+    margin-right: 20px;
+}
+
+.bar-background {
+    width: 60%;
+    height: 30%;
+    background-color: rgba(77, 77, 77, 0.8);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.39);
+    border-right-color: rgba(0, 0, 0, 0.39);
+    border-top-color: rgba(0, 0, 0, 0.39);
+    border-bottom-color: rgba(0, 0, 0, 0.39);
+}
+
+.value-label {
+    width: 10%;
+    font-size: 18px;
+    -unity-font-style: bold;
+    margin-left: 20px;
+    color: rgb(255, 255, 255);
+}
+
+.negative-fill {
+    position: absolute;
+    top: 0;
+    right: 50%;
+    width: 0;
+    height: 100%;
+    transition-property: width;
+    transition-duration: 0.3s;
+}
+
+.positive-fill {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0;
+    height: 100%;
+    transition-property: width;
+    transition-duration: 0.3s;
+}
+
+.center-marker {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.78);
+}
+
+.blockhead {
+}
+
+.aura {
+}
+
+.reputation {
+}
+
+.button-sect-container {
+    width: 100%;
+    height: 15%;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 5%;
+}
+
+.sect-btns {
+    width: auto;
+    height: 70%;
+    align-items: stretch;
+    align-self: center;
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+    color: rgba(27, 27, 27, 0);
+}
+
+.qUI {
+    margin-right: 10%;
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/Phone/NotesBtn.png?fileID=2800000&guid=1cf5d9cc901806742b308be072ced171&type=3#NotesBtn");
+    -unity-background-scale-mode: scale-to-fit;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+}
+
+.pUI {
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/Phone/PersBtn.png?fileID=2800000&guid=2b276893168cf1a469fc9cdbf11d8fb1&type=3#PersBtn");
+    -unity-background-scale-mode: scale-to-fit;
+    margin-left: 10%;
+}
+
+.sectionTitle {
+    height: 70%;
+    width: 75%;
+    font-size: 24px;
+    -unity-font-style: bold;
+    align-items: stretch;
+    justify-content: flex-start;
+    align-content: auto;
+    align-self: auto;
+    -unity-text-align: middle-left;
+}
+
+.iconSection {
+    width: 50%;
+    height: 100%;
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/Phone/Crown.png?fileID=2800000&guid=6cc8b0dfc2cc79e45aa9227a24c1c44a&type=3#Crown");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.reputation .positive-fill {
+    background-color: rgb(114, 170, 210);
+}
+
+.reputation .negative-fill {
+    background-color: rgb(210, 114, 170);
+}
+
+.blockhead .positive-fill {
+    background-color: rgb(210, 170, 114);
+}
+
+.blockhead .negative-fill {
+    background-color: rgb(170, 114, 210);
+}
+
+.aura .positive-fill {
+    background-color: rgb(210, 114, 210);
+}
+
+.aura .negative-fill {
+    background-color: rgb(114, 210, 210);
+}
+
+.i_t_container {
+    flex-direction: row;
+    width: 90%;
+    margin-top: 6%;
+}
+
+.quest-ui-root {
+    width: 100%;
+    height: 100%;
+}
+
+.progress-bar {
+}
+
+ScrollView {
+    flex-grow: 1;
+}
+
+ScrollView > .unity-scroll-viewport {
+    flex-grow: 1;
+}
+
+ScrollView > .unity-container-viewport {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+ScrollView .unity-scroll-viewport {
+    width: 10px;
+}
+
+.notification-bar {
+}

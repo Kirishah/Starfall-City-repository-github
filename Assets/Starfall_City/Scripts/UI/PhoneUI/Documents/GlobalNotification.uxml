@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Starfall_City/Scripts/UI/PhoneUI/Documents/Phone.uss?fileID=7433441132597879392&amp;guid=2f1c3e8b30ba85e4d9070eba4b388bf1&amp;type=3#Phone" />
+    <ui:VisualElement name="Root" class="root-notification">
+        <ui:VisualElement name="NotificationBar" class="notification-bar">
+            <ui:Label name="NotificationText" class="notification-text" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

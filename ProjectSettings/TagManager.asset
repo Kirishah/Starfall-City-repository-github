@@ -8,6 +8,7 @@ TagManager:
   - qteDance_cam
   - QTEDance_cam
   - iNamePanel
+  - HUD
   layers:
   - Default
   - TransparentFX

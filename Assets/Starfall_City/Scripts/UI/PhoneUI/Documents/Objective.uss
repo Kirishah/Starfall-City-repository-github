@@ -1,0 +1,17 @@
+:root {
+}
+
+.objective-display {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 2px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
+
+.completed {
+    -unity-text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.5);  /* Optional: Fade on complete */
+}
