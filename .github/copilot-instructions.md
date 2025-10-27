@@ -2,7 +2,7 @@
 - Project name: Neighbours-call-repository-github
 - Unity version: Unity 6000.2.6f2
 - Active game object:
-  - Name: Ch43_nonPBR Variant
-  - Tag: Player
-  - Layer: Player
+  - Name: Systems
+  - Tag: Untagged
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
