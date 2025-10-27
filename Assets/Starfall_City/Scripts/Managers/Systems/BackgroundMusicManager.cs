@@ -14,7 +14,7 @@ namespace Core
         [SerializeField, Tooltip("List of background music clips to play in sequence.")]
         private List<AudioClip> musicPlaylist = new List<AudioClip>();
         [SerializeField, Tooltip("Volume for background music (0 to 1).")]
-        [Range(0f, 1f)] private float musicVolume = 0.2f;
+        [Range(0f, 1f)] private float musicVolume = 0.1f;
         [SerializeField, Tooltip("Fade duration when transitioning between songs (seconds).")]
         [Min(0f)] private float fadeDuration = 1f;
 

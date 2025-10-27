@@ -3173,7 +3173,7 @@ Transform:
   m_GameObject: {fileID: 2935730807115008858}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.0791, y: 3.0609999, z: -5}
+  m_LocalPosition: {x: 1.7109, y: 3.0609999, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3801,6 +3801,7 @@ GameObject:
   - component: {fileID: 7224625201947420106}
   - component: {fileID: 5054523385867966312}
   - component: {fileID: 316106366421767669}
+  - component: {fileID: 6731283708825091922}
   m_Layer: 5
   m_Name: HudInterface
   m_TagString: HUD
@@ -3862,6 +3863,19 @@ MonoBehaviour:
   iTweaker: {fileID: 3508158687154083383}
   phoneController: {fileID: 8063187077999836890}
   menuTweaker: {fileID: 3203842538724528945}
+--- !u!114 &6731283708825091922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3590937199077981987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a25b5398732b18c4790650be8d429da7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthDisplay
+  hudDocument: {fileID: 5054523385867966312}
 --- !u!1 &3816808885363150549
 GameObject:
   m_ObjectHideFlags: 0
@@ -4005,7 +4019,7 @@ MonoBehaviour:
   musicPlaylist:
   - {fileID: 8300000, guid: 12c2a5f51c6166c4cbc7308718b49d33, type: 3}
   - {fileID: 8300000, guid: 1e53974a13c5169409210c49fea29fea, type: 3}
-  musicVolume: 0.2
+  musicVolume: 0
   fadeDuration: 1
 --- !u!82 &5832783830432053212
 AudioSource:
@@ -4250,9 +4264,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1984724034477423278}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 691.66675, y: -130}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3321106970213538970
@@ -5385,9 +5399,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1984724034477423278}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 468.33337, y: -130}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3562592757565994755
@@ -5867,9 +5881,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1984724034477423278}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 915.0001, y: -130}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5011450038438749505
@@ -8883,6 +8897,7 @@ MonoBehaviour:
   phoneDocument: {fileID: 4095199405986148033}
   questUIPrefab: {fileID: 5451050500027293076, guid: 3da34ac1ab7894c4294867fba960e29c, type: 3}
   characteristicsUIPrefab: {fileID: 7605576407511508133, guid: 09934084a73a4ec49aadc547a8b7cd74, type: 3}
+  reputationUIPrefab: {fileID: 4310941647519529328, guid: f58eb2da26447ef4190cf814b0bbba86, type: 3}
 --- !u!1 &8987655801941110757
 GameObject:
   m_ObjectHideFlags: 0
@@ -9277,15 +9292,15 @@ PrefabInstance:
       objectReference: {fileID: 4145455962073050416}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.54
+      value: -5.408
       objectReference: {fileID: 0}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5
+      value: 9.056
       objectReference: {fileID: 0}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.54
+      value: -5.408
       objectReference: {fileID: 0}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9343,6 +9358,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6140358036053115891, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
+      propertyPath: transparentMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 78e442715331c2d45963f51ca905dfdf, type: 2}
     - target: {fileID: 8407827597948261956, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_Name
       value: Main Camera

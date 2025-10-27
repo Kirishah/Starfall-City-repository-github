@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Starfall_City/Scripts/UI/PhoneUI/Documents/Phone.uss?fileID=7433441132597879392&amp;guid=2f1c3e8b30ba85e4d9070eba4b388bf1&amp;type=3#Phone" />
+    <ui:VisualElement name="Root" style="flex-grow: 1; width: 100%; height: 100%;">
+        <ui:VisualElement name="repContainer" class="repContainer" style="margin-top: 5%; margin-right: 2%; margin-bottom: 2%; margin-left: 2%;">
+            <ui:VisualElement name="ReputationBar" class="barContainer reputation">
+                <ui:Label text="Reputation" name="NameLabel" class="name-label" />
+                <ui:VisualElement name="BarBackground" class="bar-background">
+                    <ui:VisualElement name="NegativeFill" class="negative-fill" />
+                    <ui:VisualElement name="PositiveFill" class="positive-fill" />
+                    <ui:VisualElement name="CenterMarker" class="center-marker" />
+                </ui:VisualElement>
+                <ui:Label text="0" name="ValueLabel" class="value-label" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

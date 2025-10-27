@@ -5,11 +5,13 @@ public class PhoneInterfaceController : MonoBehaviour
 {
     [SerializeField] private UIDocument phoneDocument;
     [SerializeField] private UIDocument questUIPrefab; 
-    [SerializeField] private UIDocument characteristicsUIPrefab; 
+    [SerializeField] private UIDocument characteristicsUIPrefab;
+    [SerializeField] private UIDocument reputationUIPrefab;
 
     private VisualElement root;
     private UIDocument currentQuestUIInstance;
     private UIDocument currentCharacteristicsUIInstance;
+    private UIDocument currentReputationUIInstance;
     private QuestUI_Toolkit questUI;
     private GameObject questGO;  // Track for OnDestroy
 
@@ -276,7 +278,11 @@ public class PhoneInterfaceController : MonoBehaviour
 
     private void CleanupReputationUI()
     {
-        // TODO: Implement cleanup for reputation UI if instantiated
+        if (currentReputationUIInstance != null)
+        {
+            Destroy(currentReputationUIInstance.gameObject);
+            currentReputationUIInstance = null;
+        }
     }
 
     private void CleanupCodexUI()
@@ -286,8 +292,24 @@ public class PhoneInterfaceController : MonoBehaviour
 
     private void InitializeReputationUI()
     {
-        // TODO: Implement reputation UI
-        Debug.Log("Reputation UI - To be implemented");
+        if (reputationPanel == null || reputationUIPrefab == null)
+        {
+            Debug.LogError("Reputation setup missing! Assign reputationUIPrefab in Inspector.");
+            return;
+        }
+
+        CleanupReputationUI();  // Helper
+
+        var repGO = Instantiate(reputationUIPrefab);
+        currentReputationUIInstance = repGO.GetComponent<UIDocument>();
+        var repRoot = currentReputationUIInstance.rootVisualElement;
+        if (repRoot != null)
+        {
+            reputationPanel.Clear();
+            reputationPanel.Add(repRoot);
+            var repUI = repGO.GetComponent<ReputationUI_Toolkit>();
+            if (repUI != null) repUI.RefreshUI();
+        }
     }
 
     private void InitializeCodexUI()

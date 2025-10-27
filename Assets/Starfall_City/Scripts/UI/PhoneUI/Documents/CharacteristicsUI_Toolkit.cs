@@ -128,7 +128,6 @@ public class CharacteristicsUI_Toolkit : MonoBehaviour
     {
         if (CharacteristicsManager.Instance != null)
         {
-            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, 4);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, 2);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, 5);
         }
@@ -139,7 +138,6 @@ public class CharacteristicsUI_Toolkit : MonoBehaviour
     {
         if (CharacteristicsManager.Instance != null)
         {
-            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, -4);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, -1);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, -3);
         }
@@ -150,7 +148,6 @@ public class CharacteristicsUI_Toolkit : MonoBehaviour
     {
         if (CharacteristicsManager.Instance != null)
         {
-            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, -3);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, 4);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, -1);
         }
@@ -161,7 +158,6 @@ public class CharacteristicsUI_Toolkit : MonoBehaviour
     {
         if (CharacteristicsManager.Instance != null)
         {
-            CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Reputation, 0);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Blockhead, 0);
             CharacteristicsManager.Instance.SetCharacteristic(CharacteristicType.Aura, 0);
         }

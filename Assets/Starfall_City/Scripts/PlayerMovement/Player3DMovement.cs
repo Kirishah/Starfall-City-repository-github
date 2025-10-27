@@ -7,6 +7,9 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float turnSpeed = 20f;
 
+    [Header("NavMesh Validation")]
+    [SerializeField] private float navMeshSampleDistance = 3f; // adjust based on your CharacterController.height / 2 + buffer
+
     [Header("References")]
     private CharacterController controller;
     private PlayerMovement agent;
@@ -20,6 +23,12 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         controller = GetComponent<CharacterController>();
         agent = GetComponent<PlayerMovement>();
         navAgent = GetComponent<NavMeshAgent>();
+
+        // Auto-set based on CharacterController height for robustness
+        if (controller != null)
+        {
+            navMeshSampleDistance = controller.height * 0.6f + 0.5f; // ~half height + buffer
+        }
     }
 
     void Update()
