@@ -24,6 +24,9 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     private PlayerMovement agent;
     private NavMeshAgent navAgent;
 
+    [Header("Controls")]
+    public bool controlsEnabled = true;
+
     private Vector3 moveDirection;
     private Vector3 desiredDirection;
     private Vector3 verticalVelocity; // For gravity
@@ -65,7 +68,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void Update()
     {
-        if (QTEGameManager.IsQTEActive) return;
+        if (QTEGameManager.IsQTEActive || !controlsEnabled) return;
 
         GatherInput();
         if (moveDirection.magnitude >= 0.1f)

@@ -23,7 +23,7 @@ public class NPCInteractable : Interactable
         else
         {
             Debug.LogWarning("No QuestStarter assigned to NPC: " + npcID);
-            DialogueManager.Instance.StartDialogue(startDialogueID, npcID);
+            DialogueManager_UIToolkit.Instance.StartDialogue(startDialogueID, npcID);
         }
         onInteract.Invoke();
     }

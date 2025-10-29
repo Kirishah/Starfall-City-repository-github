@@ -1,6 +1,4 @@
 using UnityEngine;
-using TMPro;
-using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -12,6 +10,8 @@ public class Dialogue
     [SerializeField] public string targetID;
     [SerializeField] public string text;
     [SerializeField] public string audio;
+    [SerializeField] public string description;
+    [SerializeField] public string iconPath;
     [SerializeField] public List<Choice> choices;
 }
 

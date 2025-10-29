@@ -9,6 +9,10 @@ public class PlayerAnimation : MonoBehaviour
     private PlayerMovement playerMovement;
     private Player3DMovement player3DMovement;
 
+    [Header("Sitting Animations")]
+    public bool isSitting = false;
+    private Coroutine getUpCoroutine;
+
     private float speedThreshold = 0.1f; 
     private float smoothTime = 0.1f; 
     private float currentSpeed;
@@ -26,6 +30,8 @@ public class PlayerAnimation : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
         player3DMovement = GetComponent<Player3DMovement>();
 
+        isSitting = false; // Initial state
+
         // Initialize turn tracking
         previousDesired = transform.forward;
         lastTurnTime = -turnCooldown; // Allow immediate turn
@@ -35,6 +41,18 @@ public class PlayerAnimation : MonoBehaviour
     {
         if (QTEGameManager.IsQTEActive) return;
         CheckMovement();
+
+        if (isSitting)
+        {
+            animator.SetBool("isSitting", true);
+            animator.SetBool("is_Walking", false); // Override walking during sit
+        }
+        else
+        {
+            animator.SetBool("isSitting", false);
+            // Existing walking logic...
+        }
+
         CheckTurnAnimation();
     }
 
@@ -92,5 +110,20 @@ public class PlayerAnimation : MonoBehaviour
             previousDesired = desired;
         }
     }
+
+    public void TriggerGetUp()
+    {
+        if (getUpCoroutine != null) StopCoroutine(getUpCoroutine);
+        getUpCoroutine = StartCoroutine(GetUpSequence());
+    }
+
+    private IEnumerator GetUpSequence()
+    {
+        animator.SetTrigger("GetUp");
+        // Wait for animation length (assume ~1.5s; adjust via Animator.GetCurrentAnimatorStateInfo(0).length if dynamic)
+        yield return new WaitForSeconds(1.5f);
+        isSitting = false; // Re-enable locomotion
+    }
+
 }
 

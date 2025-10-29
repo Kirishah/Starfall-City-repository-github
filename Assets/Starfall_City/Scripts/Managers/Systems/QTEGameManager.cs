@@ -20,10 +20,9 @@ namespace QTE
         [SerializeField] private Camera mainCamera; // Orthographic camera
         [SerializeField] private Camera uiCamera;
         [SerializeField] private Camera qteDance_cam;
-        [SerializeField] private PlayerMovement playerMovement;
         [SerializeField] private DanceInput danceInput;
 
-
+        private PlayerMovement playerMovement;
         private Vector3 playerOriginalPosition;
         private int playerOriginalLayer;
         private string mainCameraOriginalTag;
@@ -32,6 +31,7 @@ namespace QTE
         private AudioListener audioListenerQTE;
         private bool wasRPGPaused;
         private List<MonoBehaviour> rpgComponents = new List<MonoBehaviour>(); // Cache list
+        private bool isInitialized = false; // Flag to prevent re-init spam
 
         private void Awake()
         {

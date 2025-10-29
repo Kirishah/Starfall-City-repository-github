@@ -20,6 +20,9 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     [Header("Interaction")]
     [SerializeField] private float interactionRange = 1.5f;
 
+    [Header("Controls")]
+    public bool controlsEnabled = true;
+
     private void Start()
     {
        lastPosition = transform.position;
@@ -30,7 +33,11 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void Update()
     {
-        if (QTEGameManager.IsQTEActive) return;
+        if (QTEGameManager.IsQTEActive || !controlsEnabled)
+        {
+            CalculateVelocity(); // Still update velocity for animations
+            return;
+        }
 
         if (player.enabled)
         {

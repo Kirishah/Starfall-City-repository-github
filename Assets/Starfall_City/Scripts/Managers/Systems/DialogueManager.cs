@@ -1,4 +1,3 @@
-using Core;
 using QTE;
 using System;
 using System.Collections.Generic;
@@ -20,6 +19,8 @@ public class DialogueManager : MonoBehaviour, QTEGameManager.IRPGComponent
     [SerializeField] private TMP_Text dialogueText;
     [SerializeField] private Transform choiceContainer;
     [SerializeField] private GameObject choiceButtonPrefab;
+    [SerializeField] private TMP_Text descriptionText;
+    [SerializeField] private Image iconImage;
 
     [Header("Audio")]
     [SerializeField] private AudioSource audioSource;
@@ -351,9 +352,9 @@ public class DialogueManager : MonoBehaviour, QTEGameManager.IRPGComponent
             Debug.LogError("Dialogue is null!");
             return false;
         }
-        if (speakerText == null || dialogueText == null)
+        if (speakerText == null || dialogueText == null || descriptionText == null || iconImage == null)
         {
-            Debug.LogError("TMP_Text fields are not assigned in the Inspector!");
+            Debug.LogError("TMP_Text fields or Image are not assigned in the Inspector!");
             return false;
         }
         return true;
@@ -362,7 +363,35 @@ public class DialogueManager : MonoBehaviour, QTEGameManager.IRPGComponent
     private void UpdateDialogueUI(Dialogue dialogue)
     {
         speakerText.text = string.IsNullOrEmpty(dialogue.speaker) ? "Unknown" : dialogue.speaker;
-        dialogueText.text = dialogue.text;
+        dialogueText.text = string.IsNullOrEmpty(dialogue.text) ? "" : dialogue.text;
+
+        if (!string.IsNullOrEmpty(dialogue.description))
+        {
+            descriptionText.text = dialogue.description;
+        }
+        else
+        {
+            descriptionText.text = "";
+        }
+
+        if (!string.IsNullOrEmpty(dialogue.iconPath))
+        {
+            Sprite iconSprite = Resources.Load<Sprite>(dialogue.iconPath);
+            if (iconSprite != null)
+            {
+                iconImage.sprite = iconSprite;
+                iconImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning($"Icon sprite not found at path: {dialogue.iconPath}");
+                iconImage.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            iconImage.gameObject.SetActive(false);
+        }
     }
 
     private void DisplayChoices(Dialogue dialogue)

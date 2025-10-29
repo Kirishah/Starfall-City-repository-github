@@ -110,6 +110,8 @@
     "speaker": "Лола: ",
     "text": "Потанцуем?",
     "audio": "Audio/DialogueLines/lola_start",
+    "description": "Лола хочет танцевать",
+    "iconPath": "Icons/Female_Icon_1",
     "choices": [
       {
         "text": "Погнали.",
@@ -126,6 +128,7 @@
   {
     "id": "lola_dance",
     "speaker": "Лола: ",
+    "iconPath": "Icons/Female_Icon_1",
     "text": "Окееей, лееетс гоооу.",
     "choices": [
       {
@@ -208,5 +211,22 @@
         "targetID": "-1"
       }
     ]
+  },
+  {
+    "id": "boss_intro",
+    "speaker": "Босс",
+    "text": "Дэнни, после обеда жду отчет по созвону с КиряСтар, это очень крупный клиент, постарайся не облажаться как в прошлый раз!",
+    "targetID": "d_thought_entry",
+    "description": "Середина рабочего дня. Дэнни сидит в офисе, когда к нему подходит его начальник Майкл и дает ему указания:",
+    "iconPath": "Icons/Shrek"
+  },
+  {
+    "id": "d_thought_entry",
+    "speaker": "Дэнни",
+    "text": "",
+    "audio": "",
+    "description": "*Как я устал... Бл*! Как же срать хочется.* (твои мысли)",
+    "iconPath": "Icons/Danny",
+    "targetID": "-1"
   }
 ]
