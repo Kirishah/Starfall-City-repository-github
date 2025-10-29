@@ -46,6 +46,7 @@
     border-left-color: rgb(255, 156, 0);
     color: rgb(230, 211, 163);
     font-size: 18px;
+    white-space: normal;
 }
 
 .history-entry:hover {
@@ -58,12 +59,25 @@
     font-size: 18px;
     max-height: none;
     min-height: auto;
+    min-width: auto;
+    max-width: none;
+    -unity-font-style: italic;
+    white-space: normal;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
 }
 
 .history-player {
     -unity-font-style: bold;
     color: rgb(0, 255, 255);
     font-size: 18px;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    white-space: normal;
 }
 
 .choice-container {

@@ -9,17 +9,22 @@ public class IntroManager : MonoBehaviour
     [SerializeField] private DialogueManager_UIToolkit dialogueManager;
 
     [Header("Timing")]
-    [SerializeField] private float bossApproachDelay = 1f; // Seconds after scene load
+    [SerializeField] private float bossApproachDelay = 6f; // Seconds after scene load
+
+    [Header("Positions")]
+    [SerializeField] private float bossStoppingDistance = 1.5f; // Distance from deskPos to stop
+    [SerializeField] private float minStartDistance = 3f; // Minimum distance between start and desk to ensure movement
 
     private GameObject player;
     private GameObject boss;
-    private Transform bossStartPos; 
+    private Vector3 bossInitialPos; 
     private Transform deskPos; // Куда подходит босс
     private PlayerMovement playerMovement;
     private Player3DMovement player3DMovement;
     private PlayerAnimation playerAnimation;
     private NavMeshAgent bossAgent;
     private Animator bossAnimator; // Optional: For boss walk/idle
+    private NPCController bossController; // To use HasReachedDestination if available
 
     private bool sequenceActive = true;
     private bool isInitialized = false;
@@ -48,6 +53,7 @@ public class IntroManager : MonoBehaviour
         playerAnimation = player.GetComponent<PlayerAnimation>();
         bossAgent = boss.GetComponent<NavMeshAgent>();
         bossAnimator = boss.GetComponent<Animator>();
+        bossController = boss.GetComponent<NPCController>();
 
         if (playerMovement == null && player3DMovement == null)
         {
@@ -63,17 +69,20 @@ public class IntroManager : MonoBehaviour
             return;
         }
 
+        bossAgent.stoppingDistance = bossStoppingDistance;
+
         // Initial state
         if (playerMovement != null) playerMovement.controlsEnabled = false;
         if (player3DMovement != null) player3DMovement.controlsEnabled = false;
         if (playerAnimation != null) playerAnimation.isSitting = true;
+
+        Debug.Log($"IntroManager: Controls confirmed disabled - PM: {playerMovement?.controlsEnabled ?? true}, P3D: {player3DMovement?.controlsEnabled ?? true}");
 
         // Subscribe to events
         DialogueManager_UIToolkit.OnDialogueEnded += HandleDialogueEnd;
 
         // Start sequence
         StartCoroutine(RunIntroSequence());
-
         Debug.Log("IntroManager: Initialized successfully.");
     }
 
@@ -94,7 +103,7 @@ public class IntroManager : MonoBehaviour
         }
 
         // Boss start pos is the boss itself
-        bossStartPos = boss.transform;
+        bossInitialPos = boss.transform.position;
 
         // Find deskPos: closest GameObject tagged "Desk" to player
         GameObject[] potentialDesks = GameObject.FindGameObjectsWithTag("Desk");
@@ -130,6 +139,17 @@ public class IntroManager : MonoBehaviour
             deskPos.position += player.transform.forward * 2f;
         }
 
+        // Validate start and desk positions are sufficiently apart
+        float distBetweenPositions = Vector3.Distance(bossInitialPos, deskPos.position);
+        if (distBetweenPositions < minStartDistance)
+        {
+            Debug.LogWarning($"IntroManager: Start pos and desk pos too close ({distBetweenPositions:F2}m). Adjusting initial pos to distant location.");
+            // Set a distant initial position (do not move boss yet; will move in sequence)
+            bossInitialPos = player.transform.position - (player.transform.forward * 8f) + (player.transform.right * 2f); // Distant fallback: behind and to side
+            distBetweenPositions = Vector3.Distance(bossInitialPos, deskPos.position);
+            Debug.Log($"IntroManager: Adjusted initial pos to {bossInitialPos}. New distance to desk: {distBetweenPositions:F2}m.");
+        }
+
         return true;
     }
 
@@ -145,21 +165,48 @@ public class IntroManager : MonoBehaviour
         yield return new WaitForSeconds(bossApproachDelay);
 
         // Boss approaches
-        boss.transform.position = bossStartPos.position;
+        boss.transform.position = bossInitialPos;
         bossAgent.enabled = true;
+        bossAgent.ResetPath(); // Clear any prior path
         bossAgent.SetDestination(deskPos.position);
-        if (bossAnimator != null) bossAnimator.SetBool("isWalking", true); // Optional
 
-        // Wait for boss to reach
-        while (bossAgent.enabled && bossAgent.remainingDistance > bossAgent.stoppingDistance)
+        if (bossAnimator != null) bossAnimator.SetBool("isWalking", true); 
+
+        // Wait for boss to reach with tolerance and path check
+        float tolerance = 0.2f;
+        while (bossAgent.enabled &&
+               (bossAgent.pathPending ||
+                bossAgent.remainingDistance > bossAgent.stoppingDistance + tolerance))
         {
+            // Debug log every 2 seconds
+            if (Time.frameCount % 120 == 0)
+            {
+                Debug.Log($"IntroManager: Boss remaining distance: {bossAgent.remainingDistance}, stopping: {bossAgent.stoppingDistance}, pathPending: {bossAgent.pathPending}");
+            }
             yield return null;
         }
 
+        Debug.Log("IntroManager: Boss has reached destination.");
+
         if (bossAnimator != null) bossAnimator.SetBool("isWalking", false); // Idle
 
-        // Start dialogue
-        dialogueManager.StartDialogue("boss_intro", "Boss");
+        // Rotate boss to face player
+        Vector3 lookDirection = (player.transform.position - boss.transform.position).normalized;
+        lookDirection.y = 0; // Keep on ground plane
+        if (lookDirection != Vector3.zero)
+        {
+            boss.transform.rotation = Quaternion.LookRotation(lookDirection);
+        }
+
+        // Start dialogue only after approach
+        if (dialogueManager != null)
+        {
+            dialogueManager.StartDialogue("boss_intro", "Boss");
+        }
+        else
+        {
+            Debug.LogError("IntroManager: DialogueManager not assigned!");
+        }
     }
 
     public void HandleDialogueEnd()
@@ -181,22 +228,62 @@ public class IntroManager : MonoBehaviour
         if (playerMovement != null) playerMovement.controlsEnabled = true;
         if (player3DMovement != null) player3DMovement.controlsEnabled = true;
 
-        // Optional: Boss leaves
+        // Boss returns to initial position and stays there
         if (bossAgent != null)
         {
-            bossAgent.SetDestination(bossStartPos.position);
-            if (bossAnimator != null) bossAnimator.SetBool("isWalking", true);
+            float returnDistance = Vector3.Distance(boss.transform.position, bossInitialPos);
+            Debug.Log($"IntroManager: Boss returning to initial pos {bossInitialPos}. Distance: {returnDistance}");
+
+            if (returnDistance < 0.5f)
+            {
+                Debug.LogWarning("IntroManager: Boss already near initial pos (dist < 0.5m) -- skipping return movement.");
+            }
+            else
+            {
+                bossAgent.stoppingDistance = 0.1f; // Close stop for idle position
+                bossAgent.ResetPath();
+                bossAgent.SetDestination(bossInitialPos);
+                if (bossAnimator != null) bossAnimator.SetBool("isWalking", true);
+
+                // Wait for boss to reach back with tolerance
+                float tolerance = 0.2f;
+                while (bossAgent.enabled &&
+                       (bossAgent.pathPending ||
+                        (bossController != null ? !bossController.HasReachedDestination() : bossAgent.remainingDistance > bossAgent.stoppingDistance + tolerance)))
+                {
+                    // Debug log every 2 seconds during return
+                    if (Time.frameCount % 120 == 0)
+                    {
+                        Debug.Log($"IntroManager: Boss returning - remaining distance: {bossAgent.remainingDistance}, stopping: {bossAgent.stoppingDistance}, pathPending: {bossAgent.pathPending}");
+                    }
+                    yield return null;
+                }
+
+                Debug.Log("IntroManager: Boss has returned to initial position and is now idle.");
+            }
+
+            // Ensure idle at position
+            if (bossAnimator != null) bossAnimator.SetBool("isWalking", false);
+
+            // Optional: Rotate boss to a default facing (e.g., forward or away from player)
+            // boss.transform.rotation = Quaternion.LookRotation(Vector3.forward); // Example: face forward
         }
 
-        Destroy(gameObject, 5f); // Clean up
+        // Deactivate the boss after sequence completion
+        if (boss != null)
+        {
+            boss.SetActive(false);
+            Debug.Log("IntroManager: Boss deactivated.");
+        }
+
+        // Clean up IntroManager
+        gameObject.SetActive(false);
     }
 
     void OnDestroy()
     {
         DialogueManager_UIToolkit.OnDialogueEnded -= HandleDialogueEnd;
         // Re-enable if destroyed early
-        if (playerMovement != null) playerMovement.controlsEnabled = true;
-        if (player3DMovement != null) player3DMovement.controlsEnabled = true;
     }
 
     // For scene reloads/async loads

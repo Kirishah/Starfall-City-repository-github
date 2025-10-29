@@ -2863,8 +2863,16 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 3340063332116200480, guid: a6664f3ca085e9d479e2aa6d76d0d59a, type: 3}
+      propertyPath: controlsEnabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3340063332116200480, guid: a6664f3ca085e9d479e2aa6d76d0d59a, type: 3}
       propertyPath: groundLayerMask.m_Bits
       value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 3690273094412009627, guid: a6664f3ca085e9d479e2aa6d76d0d59a, type: 3}
+      propertyPath: controlsEnabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4545523896412579399, guid: a6664f3ca085e9d479e2aa6d76d0d59a, type: 3}
       propertyPath: m_Center.y

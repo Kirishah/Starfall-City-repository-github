@@ -4,6 +4,8 @@ using QTE;
 
 public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
+    public bool IsInTransitionAnimation { get; set; } = false;
+
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float turnSpeed = 20f;
 
@@ -68,6 +70,10 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void Update()
     {
+        if (IsInTransitionAnimation)
+        {
+            SnapToSurface();
+        }
         if (QTEGameManager.IsQTEActive || !controlsEnabled) return;
 
         GatherInput();
@@ -173,7 +179,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         return isValid;
     }
 
-    private void SnapToSurface()
+    public void SnapToSurface()
     {
         if (controller == null) return;
 
@@ -224,12 +230,16 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
             // Force snap if grounded (ignores tolerance for zero-drift reliability)
             bool shouldSnap = forceSnapWhenGrounded && controller.isGrounded || yDrift > surfaceSnapTolerance;
 
+            if (IsInTransitionAnimation)
+            {
+                shouldSnap = true; // Force snap every frame during transitions, ignoring tolerance
+            }
+
             if (shouldSnap)
             {
                 float oldY = transform.position.y;
                 transform.position = new Vector3(transform.position.x, desiredPivotY, transform.position.z);
                 if (handleGravity) verticalVelocity.y = 0f;
-                Debug.Log($"Y snapped from {oldY:F3} to {desiredPivotY:F3} (drift: {yDrift:F3}, grounded: {controller.isGrounded})");
             }
         }
     }

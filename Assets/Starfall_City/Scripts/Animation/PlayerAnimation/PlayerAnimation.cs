@@ -119,9 +119,23 @@ public class PlayerAnimation : MonoBehaviour
 
     private IEnumerator GetUpSequence()
     {
+        player3DMovement.IsInTransitionAnimation = true;
         animator.SetTrigger("GetUp");
-        // Wait for animation length (assume ~1.5s; adjust via Animator.GetCurrentAnimatorStateInfo(0).length if dynamic)
-        yield return new WaitForSeconds(1.5f);
+
+        // Brief wait for transition to start (1 frame ensures state updates)
+        yield return new WaitForEndOfFrame();
+
+        // Now get the length of the actual GetUp state
+        float animLength = animator.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(animLength);
+
+        // Snap to surface immediately after anim ends for visual correction
+        if (player3DMovement != null)
+        {
+            player3DMovement.SnapToSurface(); // Forces Y-alignment before locomotion resumes
+        }
+
+        player3DMovement.IsInTransitionAnimation = false;
         isSitting = false; // Re-enable locomotion
     }
 

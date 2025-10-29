@@ -6806,7 +6806,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroManager
   dialogueManager: {fileID: 5931975876995255804}
-  bossApproachDelay: 1
+  bossApproachDelay: 2
+  bossStoppingDistance: 1.5
+  minStartDistance: 3
 --- !u!1 &7280050305752471344
 GameObject:
   m_ObjectHideFlags: 0
