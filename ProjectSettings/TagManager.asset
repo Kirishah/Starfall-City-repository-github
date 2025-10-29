@@ -10,6 +10,8 @@ TagManager:
   - iNamePanel
   - HUD
   - Wall
+  - Boss
+  - Desk
   layers:
   - Default
   - TransparentFX

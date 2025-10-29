@@ -831,7 +831,7 @@ Transform:
   m_GameObject: {fileID: 585943707860757764}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.949, y: 3.0609999, z: -5}
+  m_LocalPosition: {x: -4.12, y: 3.0809999, z: -7.101}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1513,7 +1513,7 @@ Transform:
   m_GameObject: {fileID: 1479236503698655158}
   serializedVersion: 2
   m_LocalRotation: {x: 0.1584933, y: 0.26329893, z: -0.043900106, w: 0.95059264}
-  m_LocalPosition: {x: -11.449, y: 2.0609999, z: -2.5}
+  m_LocalPosition: {x: -6.031332, y: 2.0809999, z: -4.3025475}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3242,7 +3242,7 @@ Transform:
   m_GameObject: {fileID: 2935730807115008858}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -9.949, y: 3.0609999, z: -5}
+  m_LocalPosition: {x: -4.12, y: 3.0809999, z: -7.101}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6805,10 +6805,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16220d58b4115a94280b358a6a233142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroManager
-  player: {fileID: 0}
-  boss: {fileID: 0}
-  bossStartPos: {fileID: 0}
-  deskPos: {fileID: 0}
   dialogueManager: {fileID: 5931975876995255804}
   bossApproachDelay: 1
 --- !u!1 &7280050305752471344
@@ -7971,7 +7967,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c65d009d2192948499eada82445844fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerObject: {fileID: 0}
 --- !u!1 &7987842864447793768
 GameObject:
   m_ObjectHideFlags: 0
@@ -8087,7 +8082,7 @@ Transform:
   m_GameObject: {fileID: 8000676175604222596}
   serializedVersion: 2
   m_LocalRotation: {x: 0.26693356, y: -0, z: -0, w: 0.96371496}
-  m_LocalPosition: {x: -9.949, y: 2.5609999, z: -2.5}
+  m_LocalPosition: {x: -4.5541205, y: 2.5809999, z: -4.5630198}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8533,7 +8528,6 @@ MonoBehaviour:
   mainCamera: {fileID: 7811361248072422451}
   uiCamera: {fileID: 4145455962073050416}
   qteDance_cam: {fileID: 7073895236775151929}
-  playerMovement: {fileID: 0}
   danceInput: {fileID: 4661843349927170033}
 --- !u!1 &8929273360454097050
 GameObject:
@@ -9338,7 +9332,7 @@ PrefabInstance:
       objectReference: {fileID: 4145455962073050416}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -16.434
+      value: -12.587
       objectReference: {fileID: 0}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalPosition.y
@@ -9346,7 +9340,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.038
+      value: -7.680001
       objectReference: {fileID: 0}
     - target: {fileID: 5384797989486754621, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: m_LocalRotation.w

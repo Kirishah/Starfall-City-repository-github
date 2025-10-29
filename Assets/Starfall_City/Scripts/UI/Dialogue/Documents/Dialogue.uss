@@ -44,7 +44,7 @@
     background-color: rgba(255, 255, 255, 0.05);
     border-left-width: 3px;
     border-left-color: rgb(255, 156, 0);
-    color: #E6D3A3;
+    color: rgb(230, 211, 163);
     font-size: 18px;
 }
 
@@ -56,12 +56,13 @@
     color: rgb(248, 240, 227);
     border-left-color: rgb(255, 0, 255);
     font-size: 18px;
+    max-height: none;
+    min-height: auto;
 }
 
 .history-player {
     -unity-font-style: bold;
     color: rgb(0, 255, 255);
-    text-align: right;
     font-size: 18px;
 }
 
@@ -71,7 +72,6 @@
 
 .choice-button {
     background-color: rgb(106, 58, 74);
-    border: none;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
@@ -80,7 +80,6 @@
     -unity-font-style: bold;
     padding: 8px 16px;
     margin: 4px;
-    cursor: pointer;
 }
 
 .choice-button:hover {
