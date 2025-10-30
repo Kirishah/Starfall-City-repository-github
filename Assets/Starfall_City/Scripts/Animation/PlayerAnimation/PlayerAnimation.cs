@@ -8,6 +8,7 @@ public class PlayerAnimation : MonoBehaviour
     private Animator animator;
     private PlayerMovement playerMovement;
     private Player3DMovement player3DMovement;
+    private CharacterController controller;
 
     [Header("Sitting Animations")]
     public bool isSitting = false;
@@ -29,12 +30,25 @@ public class PlayerAnimation : MonoBehaviour
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovement>();
         player3DMovement = GetComponent<Player3DMovement>();
+        controller = GetComponent<CharacterController>();
 
         isSitting = false; // Initial state
 
         // Initialize turn tracking
         previousDesired = transform.forward;
         lastTurnTime = -turnCooldown; // Allow immediate turn
+    }
+
+    private void OnAnimatorMove()
+    {
+        if (animator.applyRootMotion && controller != null && player3DMovement.IsInTransitionAnimation)
+        {
+            // Apply position delta from root motion to CharacterController
+            controller.Move(animator.deltaPosition);
+
+            // Optional: Apply rotation if your get-up anim includes root rotation
+            // transform.rotation = animator.deltaRotation * transform.rotation;
+        }
     }
 
     void Update()
@@ -119,24 +133,56 @@ public class PlayerAnimation : MonoBehaviour
 
     private IEnumerator GetUpSequence()
     {
-        player3DMovement.IsInTransitionAnimation = true;
+        animator.applyRootMotion = true;
         animator.SetTrigger("GetUp");
 
         // Brief wait for transition to start (1 frame ensures state updates)
         yield return new WaitForEndOfFrame();
 
-        // Now get the length of the actual GetUp state
-        float animLength = animator.GetCurrentAnimatorStateInfo(0).length;
-        yield return new WaitForSeconds(animLength);
+        player3DMovement.IsInTransitionAnimation = true;
+
+        // Poll for the state entry (in case of blend/transition time >1 frame)
+        float maxWaitTime = 0.5f; // Timeout after 0.5s if state doesn't enter
+        float elapsed = 0f;
+        AnimatorStateInfo stateInfo;
+        bool stateEntered = false;
+        stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        while (elapsed < maxWaitTime)
+        {
+            if (stateInfo.IsName("Sit to Stand"))
+            {
+                stateEntered = true;
+                break;
+            }
+            yield return null; // Wait one more frame
+            elapsed += Time.deltaTime;
+        }
+
+        if (!stateEntered)
+        {
+            Debug.LogWarning("GetUpSequence: Animator did not enter 'Sit to Stand' state within timeout!");
+            // Fallback: Proceed anyway to avoid hanging, but disable root motion early
+            animator.applyRootMotion = false;
+            player3DMovement.IsInTransitionAnimation = false;
+            isSitting = false;
+            yield break;
+        }
+
+        // Now that we're in the state, get its length
+        float animLength = stateInfo.length;
+        // Wait for the full length, minus a tiny buffer to apply the last delta before disabling
+        yield return new WaitForSeconds(animLength - 0.05f);
+
+        animator.applyRootMotion = false;
+        player3DMovement.IsInTransitionAnimation = false;
+        isSitting = false; // Re-enable locomotion
 
         // Snap to surface immediately after anim ends for visual correction
         if (player3DMovement != null)
         {
             player3DMovement.SnapToSurface(); // Forces Y-alignment before locomotion resumes
         }
-
-        player3DMovement.IsInTransitionAnimation = false;
-        isSitting = false; // Re-enable locomotion
     }
 
 }

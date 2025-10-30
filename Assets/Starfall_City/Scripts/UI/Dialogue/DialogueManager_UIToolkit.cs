@@ -20,6 +20,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     private List<Dialogue> dialogues;
     private Dialogue currentDialogue;
     private string currentNPCID;
+    private string currentStartID;
 
     // Событие для отображения диалоговой строки
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
@@ -65,6 +66,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     #region Dialogue Flow
     public void StartDialogue(string startID, string npcID)
     {
+        currentStartID = startID;
         currentNPCID = npcID;
         currentDialogue = FindDialogue(startID);
         if (currentDialogue == null)
@@ -180,6 +182,20 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             Debug.Log($"Dialogue ended: NPCID={currentNPCID}");
         }
 
+        // Auto-start quest if this dialogue's start ID matches a quest's StartingDialogueID
+        if (!string.IsNullOrEmpty(currentStartID))
+        {
+            QuestSO questToStart = FindQuestByStartingDialogue(currentStartID);
+            if (questToStart != null &&
+                !QuestManager.Instance.IsQuestActive(questToStart) &&
+                !QuestMemory.Instance.IsQuestCompleted(questToStart))
+            {
+                QuestManager.Instance.StartQuest(questToStart);
+                Debug.Log($"Auto-started quest '{questToStart.Title}' after dialogue '{currentStartID}' ended.");
+            }
+            currentStartID = null;  // Reset to prevent re-triggering
+        }
+
         OnDialogueEnded?.Invoke();
     }
     #endregion
@@ -266,6 +282,19 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     public void TransferToLocation(int targetLocation)
     {
         GameManager.Instance.LoadSceneWithTransition(targetLocation);
+    }
+
+    private QuestSO FindQuestByStartingDialogue(string startingDialogueID)
+    {
+        QuestSO[] allQuests = Resources.LoadAll<QuestSO>("Quests");
+        foreach (var quest in allQuests)
+        {
+            if (quest.StartingDialogueID == startingDialogueID)
+            {
+                return quest;
+            }
+        }
+        return null;
     }
     #endregion
 }

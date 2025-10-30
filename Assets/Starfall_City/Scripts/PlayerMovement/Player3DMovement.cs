@@ -25,6 +25,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     private CharacterController controller;
     private PlayerMovement agent;
     private NavMeshAgent navAgent;
+    private Animator animator;
 
     [Header("Controls")]
     public bool controlsEnabled = true;
@@ -42,6 +43,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         controller = GetComponent<CharacterController>();
         agent = GetComponent<PlayerMovement>();
         navAgent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
 
         if (controller == null)
         {
@@ -70,10 +72,16 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void Update()
     {
-        if (IsInTransitionAnimation)
+        // Modified: Skip snap if root motion is active during transition
+        if (IsInTransitionAnimation && animator != null && animator.applyRootMotion)
         {
-            SnapToSurface();
+            // Let root motion handle positioning - no snap here
         }
+        else if (IsInTransitionAnimation)
+        {
+            SnapToSurface(); // Only snap every frame for non-root-motion transitions
+        }
+
         if (QTEGameManager.IsQTEActive || !controlsEnabled) return;
 
         GatherInput();
@@ -128,7 +136,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
         // Vertical (gravity) if enabled
         Vector3 verticalMove = Vector3.zero;
-        if (handleGravity)
+        if (handleGravity && !IsInTransitionAnimation)
         {
             if (controller.isGrounded && verticalVelocity.y < 0)
             {
