@@ -16,6 +16,13 @@ public class NPCInteractable : Interactable
 
     public override void Interact()
     {
+        // NEW: Respect gating conditions
+        if (!_isInteractable)
+        {
+            Debug.LogWarning($"Cannot interact with NPC {npcID}: Conditions not met. Complete prerequisites first.");
+            return;
+        }
+
         if (questStarter != null)
         {
             questStarter.StartDialogue();

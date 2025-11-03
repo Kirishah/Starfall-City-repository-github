@@ -84,6 +84,13 @@ public class ObjectInteractable : Interactable
 
     public override void Interact()
     {
+        // Respect gating conditions (base check is skipped since we override fully)
+        if (!_isInteractable)
+        {
+            Debug.LogWarning($"Cannot interact with {gameObject.name}: Conditions not met. Complete prerequisites first.");
+            return;
+        }
+
         if (_isPickedUp) return;
 
         // Добавление предмета в инвентарь
@@ -98,6 +105,9 @@ public class ObjectInteractable : Interactable
         {
             Debug.Log("Inventory full!");
         }
+
+        // Call base for quest progress (e.g., if this is a Collection or Interaction objective)
+        base.Interact();
     }
     public override string GetIdentifier()
     {

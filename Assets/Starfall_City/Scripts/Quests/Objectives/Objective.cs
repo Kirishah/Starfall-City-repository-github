@@ -35,7 +35,7 @@ public abstract class Objective
     public virtual void Cleanup() { }
     public abstract void CheckProgress(ObjectiveType type, string identifier, string itemID);
 
-    public void Complete()
+    public virtual void Complete()
     {
         if (!IsCompleted)
         {

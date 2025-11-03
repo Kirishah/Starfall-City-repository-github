@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: q_toilet_Dialogue_d52e172c
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
   ObjectiveID: obj_7150
-  Description: New Objective
-  TargetNPCID: 
+  Description: "\u041F\u043E\u0433\u043E\u0432\u043E\u0440\u0438\u0442\u044C \u0441
+    \u043A\u043E\u043B\u043B\u0435\u0433\u043E\u0439"
+  TargetNPCID: toilet_npc

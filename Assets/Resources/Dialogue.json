@@ -213,7 +213,7 @@
     ]
   },
   {
-    "id": "boss_intro",
+    "id": "d_boss_intro",
     "speaker": "Майкл",
     "text": "Дэнни, после обеда жду отчет по созвону с КиряСтар, это очень крупный клиент, постарайся не облажаться как в прошлый раз!",
     "targetID": "d_thought_entry",
@@ -227,6 +227,235 @@
     "audio": "",
     "description": "*Как я устал... Бл*! Как же срать хочется.* (твои мысли)",
     "iconPath": "Icons/Danny",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_toilet_dialogue_start",
+    "speaker": "Джо",
+    "text": "Бл*дь. Тут занято на*уй!",
+    "description": "Джо, коллега Дэнни, немного в а*уе, что кто-то рвется к нему в кабинку",
+    "iconPath": "Icons/Male_Icon_1",
+    "choices": [
+      {
+        "text": "Джо, чувак, там на парковке кто-то въехал в твою тачку! (аура +1, репутация - 1)",
+        "targetID": "d_toilet_dialogue_angryJoe"
+      },
+      {
+        "text": "[выбить дверь, скинуть коллегу с унитаза и сесть срать] (дурь +1, репутация -1)",
+        "targetID": "-1"
+      },
+      {
+        "text": "[стерпеть и уйти на рабочее место] (репутация + 1, самочувствие - 2)",
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "d_toilet_dialogue_angryJoe",
+    "speaker": "Джо",
+    "text": "Вот с*ки, сейчас бегу!",
+    "targetID": "-1",
+    "description": "",
+    "iconPath": "Icons/Male_Icon_1"
+  },
+  {
+    "id": "d_Kirya_Star_Company_onTime",
+    "speaker": "Дэнни",
+    "text": "Добрый день, коллеги!",
+    "description": "Дэнни потеет во время разговора, слегка сжимая кулаки. (Внутренний голос: Боже, почему сейчас? Просто держись...)",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_1"
+  },
+  {
+    "id": "d_Kirya_Star_Company_1",
+    "speaker": "Клиент",
+    "text": "Добрый день, давайте оперативно начнем, у нас с вами есть всего пол часа.",
+    "description": "",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "d_Kirya_Star_Company_2"
+  },
+  {
+    "id": "d_Kirya_Star_Company_2",
+    "speaker": "Дэнни",
+    "text": "Эм... Да, я думаю, мы можем начать встречу",
+    "description": "",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_3"
+  },
+  {
+    "id": "d_Kirya_Star_Company_3",
+    "speaker": "Дэнни",
+    "text": "На чем мы остановились в прошлый раз?",
+    "description": "Неловкая пауза, Дэнни ерзает на стуле...",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_4"
+  },
+  {
+    "id": "d_Kirya_Star_Company_4",
+    "speaker": "Клиент",
+    "text": "Вы спрашиваете меня?",
+    "description": "",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Да, а что?",
+        "delta_points": 0,
+        "targetID": "d_client_um_proposal"
+      },
+      {
+        "text": "Извините, я плохо себя чувствую... [завершить звонок]",
+        "delta_points": 1,
+        "targetID": "d_client_end_sick"
+      },
+      {
+        "text": "Да, конечно. По поводу нашего совместного проекта, я думаю, это полная чушь.",
+        "delta_points": 1,
+        "targetID": "d_client_excuse_me_rude"
+      },
+      {
+        "text": "Да, мы обсудили это с командой, и проект должен начаться с интеграции блокчейна в CRM для отслеживания кофе-бобов в реальном времени.",
+        "delta_points": 0,
+        "targetID": "d_client_nonsense_react"
+      }
+    ]
+  },
+  {
+    "id": "d_client_um_proposal",
+    "speaker": "Клиент",
+    "text": "Эм… разве вы не должны были подготовить предложение по нашему совместному проекту?",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Его нет. Не было времени...",
+        "delta_points": 0,
+        "targetID": "d_client_end_wasted"
+      },
+      {
+        "text": "Да, конечно. По поводу проекта, это полная чушь.",
+        "delta_points": 1,
+        "targetID": "d_client_excuse_me_rude"
+      }
+    ]
+  },
+  {
+    "id": "d_client_excuse_me_rude",
+    "speaker": "Клиент",
+    "text": "Что? Простите?",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Честно говоря, мы не хотим работать с вами, потому что ваш продукт - чушь.",
+        "delta_points": 1,
+        "targetID": "d_client_end_rude_full"
+      },
+      {
+        "text": "Извините, это не то, что я хотел сказать.",
+        "delta_points": -1,
+        "targetID": "d_client_end_backtrack"
+      }
+    ]
+  },
+  {
+    "id": "d_client_nonsense_react",
+    "speaker": "Клиент",
+    "text": "Блокчейн для кофе? Это звучит... необычно.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Это была шутка, конечно.",
+        "delta_points": 0,
+        "targetID": "d_client_end_bad"
+      },
+      {
+        "text": "Точно! Это революция в кофейной индустрии! Каждый боб будет токенизирован как NFT.",
+        "delta_points": 1,
+        "targetID": "d_client_hmm_more"
+      }
+    ]
+  },
+  {
+    "id": "d_client_hmm_more",
+    "speaker": "Клиент",
+    "text": "Хм, расскажите подробнее.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "На самом деле, я передумал.",
+        "delta_points": 0,
+        "targetID": "d_client_end_bad"
+      },
+      {
+        "text": "Конечно! Клиенты смогут торговать своими NFT-кофе на вторичном рынке!",
+        "delta_points": 1,
+        "targetID": "d_client_still_skeptical"
+      }
+    ]
+  },
+  {
+    "id": "d_client_still_skeptical",
+    "speaker": "Клиент",
+    "text": "Звучит безумно, но... интригующе. А как это поможет нашему бизнесу?",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Эээ, ну, повысит продажи... наверное.",
+        "delta_points": 0,
+        "targetID": "d_client_end_half"
+      },
+      {
+        "text": "Это позволит персонализировать кофе на основе блокчейн-данных о предпочтениях, увеличивая лояльность на 300%!",
+        "delta_points": 1,
+        "targetID": "d_client_end_convinced"
+      }
+    ]
+  },
+  {
+    "id": "d_client_end_wasted",
+    "speaker": "Клиент",
+    "text": "Да, я знал, что не стоило тратить на вас время. Всего доброго.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_rude_full",
+    "speaker": "Клиент",
+    "text": "Как вы смеете! Считайте контракт разорванным!",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_backtrack",
+    "speaker": "Клиент",
+    "text": "Ладно, но это было странно. Давайте отложим встречу.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_bad",
+    "speaker": "Клиент",
+    "text": "Я не уверен, что это хорошая идея. Позвоним вам позже... наверное.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_sick",
+    "speaker": "Клиент",
+    "text": "Ох, поправляйтесь. Свяжемся позже.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_half",
+    "speaker": "Клиент",
+    "text": "Хм, давайте вернемся к реальности. У вас есть нормальное предложение? К сожалению, уже нет времени разбираться. Давайте отложим встречу",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_convinced",
+    "speaker": "Клиент",
+    "text": "Звучит странно... Дайте нам подумать об этом... Встреча окончена.",
+    "iconPath": "Icons/KiryaStar_employees",
     "targetID": "-1"
   }
 ]

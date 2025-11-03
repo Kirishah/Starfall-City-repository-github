@@ -40,6 +40,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             Debug.LogError("DialogueUI_Toolkit not found! Assign in Inspector.");
         }
         LoadDialogues("Dialogue");
+        uiHandler.turnOffPicking();
     }
 
     private void InitializeSingleton()
@@ -180,6 +181,12 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         {
             QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Dialogue, currentNPCID);
             Debug.Log($"Dialogue ended: NPCID={currentNPCID}");
+        }
+
+        if (currentStartID.StartsWith("d_branching_"))
+        {  // use a tag/list of branching IDs
+            Debug.Log($"Skipping auto-start for branching dialogue: {currentStartID}");
+            return;  // skip the block
         }
 
         // Auto-start quest if this dialogue's start ID matches a quest's StartingDialogueID

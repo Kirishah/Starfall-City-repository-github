@@ -90,7 +90,7 @@ public class QuestUI_Toolkit : MonoBehaviour
 
         if (mainUIDocument == null)
         {
-            mainUIDocument = FindObjectOfType<UIDocument>();  // Fallback: Grab any UIDocument (e.g., HUD)
+            mainUIDocument = FindFirstObjectByType<UIDocument>();  // Fallback: Grab any UIDocument (e.g., HUD)
             if (mainUIDocument == null)
             {
                 Debug.LogError("QuestUI: No UIDocument fallback found!");

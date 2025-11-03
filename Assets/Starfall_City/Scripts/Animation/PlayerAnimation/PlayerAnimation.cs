@@ -185,5 +185,20 @@ public class PlayerAnimation : MonoBehaviour
         }
     }
 
+    public void TriggerSit(bool enableRootMotion = false)
+    {
+        isSitting = true;
+        if (enableRootMotion)
+        {
+            animator.applyRootMotion = true;
+            if (player3DMovement != null)
+            {
+                player3DMovement.IsInTransitionAnimation = true;
+            }
+        }
+        // Optional: Set a trigger if your Animator uses one for sit entry
+        // animator.SetTrigger("Sit"); // Uncomment if added to controller
+    }
+
 }
 

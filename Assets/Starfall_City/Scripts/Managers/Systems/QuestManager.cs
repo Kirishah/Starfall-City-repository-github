@@ -89,6 +89,8 @@ public class QuestManager : MonoBehaviour
         OnQuestCompleted?.Invoke(questSO);
         Debug.Log($"QuestManager: Fired OnQuestCompleted for {questSO.Title}");
 
+        CheckFollowUps(questSO);
+
         if (CurrencyManager.Instance != null)
         {
             CurrencyManager.Instance.AddMoney(quest.Data.MoneyReward);
@@ -142,6 +144,52 @@ public class QuestManager : MonoBehaviour
     public Quest FindQuestByObjective(ObjectiveSO objective)
     {
         return _activeQuests.Find(quest => quest.Data.Objectives.Contains(objective));
+    }
+
+    private void CheckFollowUps(QuestSO completedQuest)
+    {
+        if (completedQuest.FollowUpQuests == null || completedQuest.FollowUpQuests.Count == 0)
+        {
+            Debug.Log($"No follow-up quests configured for {completedQuest.Title}");
+            return;
+        }
+
+        foreach (var followUp in completedQuest.FollowUpQuests)
+        {
+            if (followUp.Quest == null)
+            {
+                Debug.LogWarning($"Follow-up quest is null in {completedQuest.Title}");
+                continue;
+            }
+
+            // Evaluate all unlock conditions (empty list evaluates to true)
+            bool allConditionsMet = followUp.UnlockConditions == null || followUp.UnlockConditions.All(condition => condition.Evaluate());
+
+            if (allConditionsMet &&
+                !IsQuestActive(followUp.Quest) &&
+                !QuestMemory.Instance.IsQuestCompleted(followUp.Quest))
+            {
+                StartQuest(followUp.Quest);
+                Debug.Log($"Auto-started follow-up quest: {followUp.Quest.Title} after {completedQuest.Title}");
+
+                // If a DialogueStartID is specified, trigger it after starting the quest
+                // (This assumes the dialogue will handle any further quest progression if needed)
+                if (!string.IsNullOrEmpty(followUp.DialogueStartID))
+                {
+                    // You may need to specify an NPC ID here; adjust based on your setup (e.g., a default NPC or from quest data)
+                    string npcID = followUp.Quest.StartingDialogueID != null ? "default_npc" : ""; // Placeholder; customize as needed
+                    if (DialogueManager_UIToolkit.Instance != null && !string.IsNullOrEmpty(npcID))
+                    {
+                        DialogueManager_UIToolkit.Instance.StartDialogue(followUp.DialogueStartID, npcID);
+                        Debug.Log($"Triggered follow-up dialogue: {followUp.DialogueStartID} for quest {followUp.Quest.Title}");
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log($"Follow-up quest {followUp.Quest.Title} blocked: conditions met={allConditionsMet}, active={IsQuestActive(followUp.Quest)}, completed={QuestMemory.Instance.IsQuestCompleted(followUp.Quest)}");
+            }
+        }
     }
 
     public List<Quest> GetActiveQuests() => _activeQuests;

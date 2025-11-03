@@ -1,6 +1,7 @@
 using core;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,6 +10,7 @@ public class DialogueUI_Toolkit : MonoBehaviour
     [SerializeField] private UIDocument uiDocument;
     private List<HistoryEntry> history = new List<HistoryEntry>();
 
+    private VisualElement GetRoot() => uiDocument.rootVisualElement.Q<VisualElement>("Root");
     private VisualElement GetPanel() => uiDocument.rootVisualElement.Q<VisualElement>("DialoguePanel");
     private VisualElement GetHistoryContent() => GetPanel().Q<VisualElement>("HistoryContent");
     private ScrollView GetHistoryScroll() => GetPanel().Q<ScrollView>("HistoryScrollView");
@@ -16,7 +18,12 @@ public class DialogueUI_Toolkit : MonoBehaviour
     private Image GetIcon() => GetPanel().Q<Image>("Icon");
     private VisualElement GetChoiceContainer() => GetPanel().Q<VisualElement>("ChoiceContainer");
 
-    public void ShowPanel() => GetPanel().style.display = DisplayStyle.Flex;
+    public void turnOffPicking() => GetRoot().pickingMode = PickingMode.Ignore;
+    public void ShowPanel()
+    {
+        GetPanel().style.display = DisplayStyle.Flex;
+        GetPanel().pickingMode = PickingMode.Ignore;
+    }
     public void HidePanel() => GetPanel().style.display = DisplayStyle.None;
 
     public void UpdateSpeakerAndIcon(string speaker, string iconPath)

@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: q_toilet_Exploration_dce55f42
   m_EditorClassIdentifier: Assembly-CSharp::ExplorationSO
   ObjectiveID: obj_1a09
-  Description: New Objective
-  LocationID: 
+  Description: "\u0411\u0435\u0433\u0438 \u0432 \u0443\u0431\u043E\u0440\u043D\u0443\u044E!"
+  LocationID: lavatory_0

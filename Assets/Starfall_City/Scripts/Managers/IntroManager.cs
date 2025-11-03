@@ -201,7 +201,7 @@ public class IntroManager : MonoBehaviour
         // Start dialogue only after approach
         if (dialogueManager != null)
         {
-            dialogueManager.StartDialogue("boss_intro", "Boss");
+            dialogueManager.StartDialogue("d_boss_intro", "Boss");
         }
         else
         {
