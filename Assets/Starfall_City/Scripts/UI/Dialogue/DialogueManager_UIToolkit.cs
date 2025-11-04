@@ -1,9 +1,7 @@
 using core;
 using QTE;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGComponent
 {
@@ -21,6 +19,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     private Dialogue currentDialogue;
     private string currentNPCID;
     private string currentStartID;
+    private int currentDeltaPoints;
 
     // Событие для отображения диалоговой строки
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
@@ -69,6 +68,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     {
         currentStartID = startID;
         currentNPCID = npcID;
+        currentDeltaPoints = 0;
         currentDialogue = FindDialogue(startID);
         if (currentDialogue == null)
         {
@@ -80,25 +80,19 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         ShowDialogue(currentDialogue);
     }
 
+    // 3-ARG OVERLOAD: For non-choice advances (e.g., HandleContinueAction)
     public void SelectChoice(string choiceText, string targetID, bool triggersQTE = false)
     {
-        // Append player choice to history if applicable
-        if (!string.IsNullOrEmpty(choiceText))
-        {
-            uiHandler.AddToHistory("You", choiceText, isPlayer: true);
-        }
 
         if (triggersQTE)
         {
             OnQTETrigger?.Invoke();
         }
-
         if (string.IsNullOrEmpty(targetID))
         {
             EndDialogue();
             return;
         }
-
         if (targetID.StartsWith("action:"))
         {
             HandleActionChoice(targetID);
@@ -111,6 +105,22 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         {
             AdvanceToDialogue(targetID);
         }
+    }
+
+    // 4-ARG OVERLOAD: For actual choice buttons (with deltaPoints)
+    public void SelectChoice(string choiceText, string targetID, bool triggersQTE, int deltaPoints)
+    {
+        // Append player choice to history if applicable
+        if (!string.IsNullOrEmpty(choiceText))
+        {
+            uiHandler.AddToHistory("You", choiceText, isPlayer: true);
+        }
+
+        // Accumulate points from this choice
+        currentDeltaPoints += deltaPoints;
+
+        // Delegate to original logic
+        SelectChoice(choiceText, targetID, triggersQTE);
     }
 
     private void HandleActionChoice(string targetID)
@@ -183,6 +193,13 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             Debug.Log($"Dialogue ended: NPCID={currentNPCID}");
         }
 
+        // ALWAYS apply effects before any early returns
+        string effectType = GetEffectType();
+        Debug.Log($"EndDialogue: Applying effects - effectType='{effectType}', totalPoints={currentDeltaPoints}");  
+        EffectsManager.Instance?.ApplyPoints(effectType, currentDeltaPoints);
+        currentDeltaPoints = 0;
+
+
         if (currentStartID.StartsWith("d_branching_"))
         {  // use a tag/list of branching IDs
             Debug.Log($"Skipping auto-start for branching dialogue: {currentStartID}");
@@ -202,7 +219,6 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             }
             currentStartID = null;  // Reset to prevent re-triggering
         }
-
         OnDialogueEnded?.Invoke();
     }
     #endregion
@@ -223,7 +239,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         }
         OnDialogueLineDisplayed?.Invoke(dialogue.id, currentNPCID);
         // Display choices or continue
-        uiHandler.DisplayChoices(dialogue.choices, dialogue, (text, target, qte) => SelectChoice(text, target, qte));
+        uiHandler.DisplayChoices(dialogue.choices, dialogue, (text, target, qte, delta) => SelectChoice(text, target, qte, delta));
         if (dialogue.choices == null || dialogue.choices.Count == 0)
         {
             uiHandler.ShowContinueButton(() => HandleContinueAction(dialogue));
@@ -255,7 +271,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         return true;
     }
 
-    private void HandleContinueAction(Dialogue dialogue) // Unchanged
+    private void HandleContinueAction(Dialogue dialogue) 
     {
         if (dialogue == null)
         {
@@ -302,6 +318,12 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             }
         }
         return null;
+    }
+
+    private string GetEffectType()
+    {
+        var startDialogue = FindDialogue(currentStartID);
+        return startDialogue?.effectType ?? currentDialogue?.effectType ?? "";
     }
     #endregion
 }

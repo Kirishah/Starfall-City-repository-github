@@ -75,7 +75,7 @@ public class DialogueUI_Toolkit : MonoBehaviour
         scroll.scrollOffset = new Vector2(0, scroll.contentContainer.resolvedStyle.height);
     }
 
-    public void DisplayChoices(List<Choice> choices, Dialogue current, System.Action<string, string, bool> onChoiceSelected)
+    public void DisplayChoices(List<Choice> choices, Dialogue current, System.Action<string, string, bool, int> onChoiceSelected)
     {
         var container = GetChoiceContainer();
         container.Clear();
@@ -87,7 +87,7 @@ public class DialogueUI_Toolkit : MonoBehaviour
                 {
                     var btn = new Button { text = choice.text };
                     btn.AddToClassList("choice-button");
-                    btn.clicked += () => onChoiceSelected(choice.text, choice.targetID, choice.triggersQTE);
+                    btn.clicked += () => onChoiceSelected(choice.text, choice.targetID, choice.triggersQTE, choice.deltaPoints);
                     container.Add(btn);
                 }
             }
