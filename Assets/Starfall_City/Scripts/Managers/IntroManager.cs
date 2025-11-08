@@ -1,6 +1,6 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
-using System.Collections;
 using UnityEngine.SceneManagement;
 
 public class IntroManager : MonoBehaviour
@@ -74,7 +74,7 @@ public class IntroManager : MonoBehaviour
         // Initial state
         if (playerMovement != null) playerMovement.controlsEnabled = false;
         if (player3DMovement != null) player3DMovement.controlsEnabled = false;
-        if (playerAnimation != null) playerAnimation.isSitting = true;
+        if (playerAnimation != null) playerAnimation.isInPose = true;
 
         Debug.Log($"IntroManager: Controls confirmed disabled - PM: {playerMovement?.controlsEnabled ?? true}, P3D: {player3DMovement?.controlsEnabled ?? true}");
 
@@ -214,8 +214,8 @@ public class IntroManager : MonoBehaviour
         if (!sequenceActive) return;
         sequenceActive = false;
 
-        // Trigger get-up
-        if (playerAnimation != null) playerAnimation.TriggerGetUp();
+        // Trigger pose exit (updated: generalized exit for sitting pose)
+        if (playerAnimation != null) PosePresenter.Instance.ExitPose();
 
         // Wait for get-up to finish, then enable controls
         StartCoroutine(EnableControlsAfterGetUp());
@@ -223,7 +223,15 @@ public class IntroManager : MonoBehaviour
 
     private IEnumerator EnableControlsAfterGetUp()
     {
-        yield return new WaitForSeconds(1.5f); // Match GetUpSequence duration
+        // Wait for pose exit coroutine 
+        if (playerAnimation != null)
+        {
+            yield return playerAnimation.WaitForPoseComplete(false); // false = exit
+        }
+        else
+        {
+            yield return new WaitForSeconds(1.5f); // Fallback if no animation component
+        }
 
         if (playerMovement != null) playerMovement.controlsEnabled = true;
         if (player3DMovement != null) player3DMovement.controlsEnabled = true;

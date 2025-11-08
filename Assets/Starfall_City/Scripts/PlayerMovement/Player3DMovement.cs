@@ -68,7 +68,19 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
         // Initial snap on Start
         SnapToSurface();
+
+        DialogueManager_UIToolkit.OnDialogueStarted += PauseControls;
+        DialogueManager_UIToolkit.OnDialogueEnded += ResumeControls;
     }
+
+    private void OnDestroy()  // NEW: Unsubscribe
+    {
+        DialogueManager_UIToolkit.OnDialogueStarted -= PauseControls;
+        DialogueManager_UIToolkit.OnDialogueEnded -= ResumeControls;
+    }
+
+    private void PauseControls() => controlsEnabled = false;
+    private void ResumeControls() => controlsEnabled = true;
 
     void Update()
     {

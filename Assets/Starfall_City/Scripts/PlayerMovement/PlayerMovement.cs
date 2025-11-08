@@ -29,7 +29,19 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
        player.stoppingDistance = DefaultStoppingDistance;
        player.angularSpeed = 360f; // Increased for smoother, faster turns
        player.acceleration = 20f; // Increased for quicker speed changes
+
+       DialogueManager_UIToolkit.OnDialogueStarted += PauseControls;
+       DialogueManager_UIToolkit.OnDialogueEnded += ResumeControls;
     }
+
+    private void OnDestroy() 
+    {
+        DialogueManager_UIToolkit.OnDialogueStarted -= PauseControls;
+        DialogueManager_UIToolkit.OnDialogueEnded -= ResumeControls;
+    }
+
+    private void PauseControls() => controlsEnabled = false;
+    private void ResumeControls() => controlsEnabled = true;
 
     void Update()
     {

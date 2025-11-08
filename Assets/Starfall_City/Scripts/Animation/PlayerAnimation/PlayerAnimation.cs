@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using QTE;
@@ -10,9 +10,13 @@ public class PlayerAnimation : MonoBehaviour
     private Player3DMovement player3DMovement;
     private CharacterController controller;
 
-    [Header("Sitting Animations")]
-    public bool isSitting = false;
-    private Coroutine getUpCoroutine;
+    [Header("Pose State")]
+    public bool isInPose = false; // Replaces isSitting
+    public PoseConfig currentConfig; // Track full config for exit
+    private string currentPoseID; // Track for exit (e.g., "Sit") - used for logging/events
+    private string currentExitTrigger; // Track for generic exit 
+    private Coroutine currentEnterCoroutine;
+    private Coroutine currentExitCoroutine;
 
     private float speedThreshold = 0.1f; 
     private float smoothTime = 0.1f; 
@@ -32,11 +36,85 @@ public class PlayerAnimation : MonoBehaviour
         player3DMovement = GetComponent<Player3DMovement>();
         controller = GetComponent<CharacterController>();
 
-        isSitting = false; // Initial state
+        isInPose = false;
+        currentPoseID = null;
+        currentExitTrigger = null;
+        currentConfig = null;
 
         // Initialize turn tracking
         previousDesired = transform.forward;
         lastTurnTime = -turnCooldown; // Allow immediate turn
+
+        DialogueManager_UIToolkit.OnDialogueEnded += HandleDialogueEnd;
+    }
+
+    private void OnDestroy() 
+    {
+        if (DialogueManager_UIToolkit.Instance != null)
+        {
+            DialogueManager_UIToolkit.OnDialogueEnded -= HandleDialogueEnd;
+        }
+    }
+
+    // Public setters for tracking (called from PosePresenter)
+    public void SetCurrentPose(string poseID, PoseConfig config)
+    {
+        currentPoseID = poseID;
+        currentConfig = config; // Store for exit
+        Debug.Log($"Entered pose: {currentPoseID} (using config: {config?.name ?? "null"})");
+    }
+
+    public void SetCurrentExitTrigger(string exitTrigger)
+    {
+        currentExitTrigger = exitTrigger;
+    }
+
+    // uses tracked values with fallback
+    private void HandleDialogueEnd()
+    {
+        if (!isInPose)
+        {
+            return; // Not posed, do nothing
+        }
+
+        PoseConfig configToUse = currentConfig ?? ScriptableObject.CreateInstance<PoseConfig>(); // Fallback instance if null (rare)
+        configToUse.blackHoldDuration = 2f; // Set fallback value after creation
+        Debug.Log($"Dialogue ended while in pose '{currentPoseID}'. Instant exiting with config: {configToUse.name}");
+        InstantExitPose(configToUse);
+    }
+
+    public void InstantExitPose(PoseConfig config)
+    {
+        if (currentExitCoroutine != null) StopCoroutine(currentExitCoroutine);
+        currentExitCoroutine = StartCoroutine(InstantExitSequence(config));
+    }
+
+    private IEnumerator InstantExitSequence(PoseConfig config)
+    {
+        Debug.Log($"Instant exit from pose '{currentPoseID}'.");
+
+        // Black screen in
+        yield return ScreenFader.Instance.FadeToBlack(duration: 0f, frameWait:0);
+
+        // Hold full black for config duration (realtime)
+        yield return new WaitForSecondsRealtime(config.blackHoldDuration);
+
+        // Immediately stand: No anim, just state change
+        isInPose = false;
+        currentPoseID = null;
+        currentExitTrigger = null;
+        currentConfig = null; // New: Clear config tracking
+        animator.SetBool("isSitting", false); // Trigger transition to idle/stand
+
+        // Re-enable movement
+        if (playerMovement != null) playerMovement.controlsEnabled = true;
+        if (player3DMovement != null) player3DMovement.controlsEnabled = true;
+        if (player3DMovement != null) player3DMovement.SnapToSurface();
+
+        // Black screen out
+        yield return ScreenFader.Instance.FadeFromBlack(duration: 0f);
+
+        Debug.Log("Instant pose exit complete: Standing and movement re-enabled.");
     }
 
     private void OnAnimatorMove()
@@ -56,7 +134,7 @@ public class PlayerAnimation : MonoBehaviour
         if (QTEGameManager.IsQTEActive) return;
         CheckMovement();
 
-        if (isSitting)
+        if (isInPose)
         {
             animator.SetBool("isSitting", true);
             animator.SetBool("is_Walking", false); // Override walking during sit
@@ -64,7 +142,6 @@ public class PlayerAnimation : MonoBehaviour
         else
         {
             animator.SetBool("isSitting", false);
-            // Existing walking logic...
         }
 
         CheckTurnAnimation();
@@ -125,69 +202,22 @@ public class PlayerAnimation : MonoBehaviour
         }
     }
 
-    public void TriggerGetUp()
+    // Generalized enter 
+    public void TriggerEnterPose(string enterTrigger, bool enableRootMotion = false)
     {
-        if (getUpCoroutine != null) StopCoroutine(getUpCoroutine);
-        getUpCoroutine = StartCoroutine(GetUpSequence());
+        if (isInPose)
+        {
+            Debug.LogWarning($"Already in pose '{currentPoseID}'. Skipping enter.");
+            return;
+        }
+
+        if (currentEnterCoroutine != null) StopCoroutine(currentEnterCoroutine);
+        currentEnterCoroutine = StartCoroutine(EnterPoseSequence(enterTrigger, enableRootMotion));
     }
 
-    private IEnumerator GetUpSequence()
+    private IEnumerator EnterPoseSequence(string enterTrigger, bool enableRootMotion)
     {
-        animator.applyRootMotion = true;
-        animator.SetTrigger("GetUp");
-
-        // Brief wait for transition to start (1 frame ensures state updates)
-        yield return new WaitForEndOfFrame();
-
-        player3DMovement.IsInTransitionAnimation = true;
-
-        // Poll for the state entry (in case of blend/transition time >1 frame)
-        float maxWaitTime = 0.5f; // Timeout after 0.5s if state doesn't enter
-        float elapsed = 0f;
-        AnimatorStateInfo stateInfo;
-        bool stateEntered = false;
-        stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-        while (elapsed < maxWaitTime)
-        {
-            if (stateInfo.IsName("Sit to Stand"))
-            {
-                stateEntered = true;
-                break;
-            }
-            yield return null; // Wait one more frame
-            elapsed += Time.deltaTime;
-        }
-
-        if (!stateEntered)
-        {
-            Debug.LogWarning("GetUpSequence: Animator did not enter 'Sit to Stand' state within timeout!");
-            // Fallback: Proceed anyway to avoid hanging, but disable root motion early
-            animator.applyRootMotion = false;
-            player3DMovement.IsInTransitionAnimation = false;
-            isSitting = false;
-            yield break;
-        }
-
-        // Now that we're in the state, get its length
-        float animLength = stateInfo.length;
-        // Wait for the full length, minus a tiny buffer to apply the last delta before disabling
-        yield return new WaitForSeconds(animLength - 0.05f);
-
-        animator.applyRootMotion = false;
-        player3DMovement.IsInTransitionAnimation = false;
-        isSitting = false; // Re-enable locomotion
-
-        // Snap to surface immediately after anim ends for visual correction
-        if (player3DMovement != null)
-        {
-            player3DMovement.SnapToSurface(); // Forces Y-alignment before locomotion resumes
-        }
-    }
-
-    public void TriggerSit(bool enableRootMotion = false)
-    {
-        isSitting = true;
+        isInPose = true;
         if (enableRootMotion)
         {
             animator.applyRootMotion = true;
@@ -196,9 +226,81 @@ public class PlayerAnimation : MonoBehaviour
                 player3DMovement.IsInTransitionAnimation = true;
             }
         }
-        // Optional: Set a trigger if your Animator uses one for sit entry
-        // animator.SetTrigger("Sit"); // Uncomment if added to controller
+
+        animator.SetTrigger(enterTrigger);
+
+        // Brief wait for transition to start
+        yield return new WaitForEndOfFrame();
+
+        // Poll for state entry (generic; customize per anim if needed)
+        float maxWaitTime = 0.5f;
+        float elapsed = 0f;
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        bool stateEntered = false;
+
+        while (elapsed < maxWaitTime)
+        {
+            // Check for any "enter" state; extend with specific names if multi-pose
+            if (stateInfo.IsName("Stand to Sit") || stateInfo.IsName("Stand to Lie")) // Example
+            {
+                stateEntered = true;
+                break;
+            }
+            yield return null;
+            elapsed += Time.deltaTime;
+            stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        }
+
+        if (!stateEntered)
+        {
+            Debug.LogWarning($"EnterPoseSequence: Animator did not enter pose state within timeout!");
+            if (enableRootMotion)
+            {
+                animator.applyRootMotion = false;
+                player3DMovement.IsInTransitionAnimation = false;
+            }
+            yield break;
+        }
+
+        // Wait for anim length minus buffer
+        float animLength = stateInfo.length;
+        yield return new WaitForSeconds(animLength - 0.05f);
+
+        if (enableRootMotion)
+        {
+            animator.applyRootMotion = false;
+            player3DMovement.IsInTransitionAnimation = false;
+        }
+
+        if (player3DMovement != null)
+        {
+            player3DMovement.SnapToSurface();
+        }
+
+        Debug.Log("Pose enter complete.");
     }
 
+    // Yieldable wait (generalized)
+    public IEnumerator WaitForPoseComplete(bool isEnter)
+    {
+        yield return new WaitForSeconds(0.1f); // Buffer
+        if (isEnter && currentEnterCoroutine != null)
+        {
+            yield return currentEnterCoroutine;
+        }
+        else if (!isEnter && currentExitCoroutine != null)
+        {
+            yield return currentExitCoroutine;
+        }
+        else if (!isEnter)
+        {
+            // For instant exit, brief wait to cover fades
+            yield return new WaitForSeconds(0.3f);
+        }
+        else
+        {
+            yield return null;
+        }
+    }
 }
 

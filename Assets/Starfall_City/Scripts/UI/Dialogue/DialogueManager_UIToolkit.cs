@@ -24,6 +24,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     // Событие для отображения диалоговой строки
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
     public static event DialogueLineDisplayedHandler OnDialogueLineDisplayed;
+    public static System.Action OnDialogueStarted;
     public static System.Action OnDialogueEnded;
 
     // Событие для запуска QTE
@@ -78,6 +79,8 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         uiHandler.ClearHistory();
         uiHandler.ShowPanel();
         ShowDialogue(currentDialogue);
+
+        OnDialogueStarted?.Invoke();
     }
 
     // 3-ARG OVERLOAD: For non-choice advances (e.g., HandleContinueAction)
@@ -219,6 +222,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             }
             currentStartID = null;  // Reset to prevent re-triggering
         }
+
         OnDialogueEnded?.Invoke();
     }
     #endregion
