@@ -96,20 +96,22 @@ public class PlayerAnimation : MonoBehaviour
         // Black screen in
         yield return ScreenFader.Instance.FadeToBlack(duration: 0f, frameWait:0);
 
-        // Hold full black for config duration (realtime)
-        yield return new WaitForSecondsRealtime(config.blackHoldDuration);
-
-        // Immediately stand: No anim, just state change
+        // Immediately start transition out of pose (hidden under black)
         isInPose = false;
-        currentPoseID = null;
-        currentExitTrigger = null;
-        currentConfig = null; // New: Clear config tracking
-        animator.SetBool("isSitting", false); // Trigger transition to idle/stand
+        animator.SetBool("isSitting", false); // Starts blend to standing now
+
+        // Hold full black for config duration (buffer for transition to complete)
+        yield return new WaitForSecondsRealtime(config.blackHoldDuration);
 
         // Re-enable movement
         if (playerMovement != null) playerMovement.controlsEnabled = true;
         if (player3DMovement != null) player3DMovement.controlsEnabled = true;
         if (player3DMovement != null) player3DMovement.SnapToSurface();
+
+        // Clear tracking
+        currentPoseID = null;
+        currentExitTrigger = null;
+        currentConfig = null;
 
         // Black screen out
         yield return ScreenFader.Instance.FadeFromBlack(duration: 0f);
@@ -228,20 +230,23 @@ public class PlayerAnimation : MonoBehaviour
         }
 
         animator.SetTrigger(enterTrigger);
+        animator.Update(0f);  // Force immediate evaluation of transitions (0 deltaTime = next "frame")
+        yield return null;    // One frame for state change to propagate
 
         // Brief wait for transition to start
         yield return new WaitForEndOfFrame();
 
         // Poll for state entry (generic; customize per anim if needed)
-        float maxWaitTime = 0.5f;
+        float maxWaitTime = 1f;
         float elapsed = 0f;
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         bool stateEntered = false;
 
+
         while (elapsed < maxWaitTime)
         {
             // Check for any "enter" state; extend with specific names if multi-pose
-            if (stateInfo.IsName("Stand to Sit") || stateInfo.IsName("Stand to Lie")) // Example
+            if (stateInfo.IsName("Sitting Idle") || stateInfo.IsName("Neutral Idle")) 
             {
                 stateEntered = true;
                 break;
