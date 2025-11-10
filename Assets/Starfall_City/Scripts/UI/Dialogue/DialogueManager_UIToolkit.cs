@@ -139,6 +139,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             if (questSO != null)
             {
                 QuestManager.Instance.StartQuest(questSO);
+                Debug.Log($"Branch action started quest '{questSO.Title}' from dialogue '{currentStartID}' (choice-specific).");
                 AdvanceToDialogue(parts[3]);
             }
             else
@@ -203,24 +204,29 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         currentDeltaPoints = 0;
 
 
-        if (currentStartID.StartsWith("d_branching_"))
-        {  // use a tag/list of branching IDs
-            Debug.Log($"Skipping auto-start for branching dialogue: {currentStartID}");
-            return;  // skip the block
-        }
-
-        // Auto-start quest if this dialogue's start ID matches a quest's StartingDialogueID
-        if (!string.IsNullOrEmpty(currentStartID))
+        if (currentDialogue != null && !currentDialogue.skipAutoStart)
         {
-            QuestSO questToStart = FindQuestByStartingDialogue(currentStartID);
-            if (questToStart != null &&
-                !QuestManager.Instance.IsQuestActive(questToStart) &&
-                !QuestMemory.Instance.IsQuestCompleted(questToStart))
+            // Auto-start quest if this dialogue's start ID matches a quest's StartingDialogueID
+            if (!string.IsNullOrEmpty(currentStartID))
             {
-                QuestManager.Instance.StartQuest(questToStart);
-                Debug.Log($"Auto-started quest '{questToStart.Title}' after dialogue '{currentStartID}' ended.");
+                QuestSO questToStart = FindQuestByStartingDialogue(currentStartID);
+                if (questToStart != null &&
+                    !QuestManager.Instance.IsQuestActive(questToStart) &&
+                    !QuestMemory.Instance.IsQuestCompleted(questToStart))
+                {
+                    QuestManager.Instance.StartQuest(questToStart);
+                    Debug.Log($"Auto-started quest '{questToStart.Title}' after dialogue '{currentStartID}' ended (global auto-trigger).");
+                }
+                else
+                {
+                    Debug.Log($"No auto-start for '{currentStartID}': already active/completed or no matching quest.");
+                }
+                currentStartID = null; // Reset early to prevent re-triggering
             }
-            currentStartID = null;  // Reset to prevent re-triggering
+        }
+        else if (currentDialogue != null)
+        {
+            Debug.Log($"Skipped auto-start for dialogue '{currentStartID}': skipAutoStart={currentDialogue.skipAutoStart}");
         }
 
         OnDialogueEnded?.Invoke();

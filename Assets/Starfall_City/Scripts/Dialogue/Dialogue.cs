@@ -15,6 +15,7 @@ public class Dialogue
     [SerializeField] public string iconPath;
     [SerializeField] public List<Choice> choices;
     [SerializeField] public string effectType;
+    [SerializeField] public bool skipAutoStart = false;
 }
 
 [System.Serializable]

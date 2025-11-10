@@ -58,6 +58,16 @@ public class QuestManager : MonoBehaviour
         quest.StartQuest();
 
         OnQuestStarted?.Invoke(questSO);
+
+        foreach (var objective in questSO.Objectives)
+        {
+            if (objective != null && QuestMemory.Instance.IsObjectiveCompleted(objective.ObjectiveID))
+            {
+                int required = objective.GetDefaultRequiredProgress();
+                ReportObjectiveProgress(objective, required, required);
+                Debug.Log($"Restored completed progress for objective {objective.ObjectiveID} in quest {questSO.name}");
+            }
+        }
     }
 
     public void CompleteQuest(Quest quest)
@@ -78,6 +88,15 @@ public class QuestManager : MonoBehaviour
 
         _activeQuests.Remove(quest);
         _activeQuestSet.Remove(questSO);
+
+        // Mark any unfulfilled objectives as completed (safety net)
+        foreach (var objective in quest.Data.Objectives)
+        {
+            if (objective != null && !QuestMemory.Instance.IsObjectiveCompleted(objective.ObjectiveID))
+            {
+                QuestMemory.Instance.MarkObjectiveCompleted(objective.ObjectiveID);
+            }
+        }
 
         // Удаление отслеживания прогресса для целей этого квеста
         foreach (var objective in questSO.Objectives)
@@ -130,6 +149,11 @@ public class QuestManager : MonoBehaviour
         _objectiveProgress[objective.ObjectiveID] = (current, required);
         OnObjectiveProgressed?.Invoke(objective, current, required);
         Debug.Log($"QuestManager: Reported progress for {objective.ObjectiveID}: {current}/{required}");
+
+        if (current >= required)
+        {
+            QuestMemory.Instance.MarkObjectiveCompleted(objective.ObjectiveID);
+        }
     }
 
     public (int current, int required) GetObjectiveProgress(string objectiveID)

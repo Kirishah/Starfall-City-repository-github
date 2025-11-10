@@ -24,7 +24,4 @@ MonoBehaviour:
   AssociatedScenes: []
   moneyReward: 0
   startingDialogueID: d_boss_intro
-  followUpQuests:
-  - quest: {fileID: 11400000, guid: 5b9a57a92573ea140881243d22773ad2, type: 2}
-    dialogueStartID: 
-    unlockConditions: []
+  followUpQuests: []
