@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using UnityEditor.Overlays;
 using UnityEngine;
 using UnityEngine.Events;
+using QTE;
 
-public class InventoryManager : MonoBehaviour
+public class InventoryManager : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     public static InventoryManager Instance { get; private set; }
 
@@ -17,13 +17,10 @@ public class InventoryManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); 
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); 
-        }
+        Instance = this;
         InitializeSlots();
     }
 

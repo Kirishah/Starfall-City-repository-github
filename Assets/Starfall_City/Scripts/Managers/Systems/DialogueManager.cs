@@ -1,12 +1,13 @@
-using System.Collections;
+using QTE;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Text.RegularExpressions;
-using System.Linq;
 
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     public static DialogueManager Instance { get; private set; }
 
@@ -18,6 +19,8 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private TMP_Text dialogueText;
     [SerializeField] private Transform choiceContainer;
     [SerializeField] private GameObject choiceButtonPrefab;
+    [SerializeField] private TMP_Text descriptionText;
+    [SerializeField] private Image iconImage;
 
     [Header("Audio")]
     [SerializeField] private AudioSource audioSource;
@@ -43,15 +46,12 @@ public class DialogueManager : MonoBehaviour
 
     private void InitializeSingleton()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+        Instance = this;
     }
 
     private void LoadDialogues(string jsonPath)
@@ -213,6 +213,34 @@ public class DialogueManager : MonoBehaviour
         return result;
     }
 
+    private bool EvaluateCharacteristicCondition(string condition)
+    {
+        var parts = condition.Split(':');
+        if (parts.Length != 3)
+        {
+            Debug.LogError($"Invalid characteristic condition format: {condition}");
+            return false;
+        }
+
+        string conditionType = parts[0]; // "Char"
+        string charTypeStr = parts[1];
+        string requiredValueStr = parts[2];
+
+        if (!Enum.TryParse<CharacteristicType>(charTypeStr, out CharacteristicType charType))
+        {
+            Debug.LogError($"Unknown characteristic type: {charTypeStr}");
+            return false;
+        }
+
+        if (!int.TryParse(requiredValueStr, out int requiredValue))
+        {
+            Debug.LogError($"Invalid required value: {requiredValueStr}");
+            return false;
+        }
+
+        return CharacteristicsManager.Instance.CheckRequirement(charType, requiredValue);
+    }
+
     private bool EvaluateSingleCondition(string condition, string fullCondition)
     {
         if (string.IsNullOrWhiteSpace(condition))
@@ -229,6 +257,12 @@ public class DialogueManager : MonoBehaviour
         }
 
         string conditionType = parts[0];
+
+        if (conditionType == "Char")
+        {
+            return EvaluateCharacteristicCondition(condition);
+        }
+
         switch (conditionType)
         {
             case "QuestCompleted":
@@ -318,9 +352,9 @@ public class DialogueManager : MonoBehaviour
             Debug.LogError("Dialogue is null!");
             return false;
         }
-        if (speakerText == null || dialogueText == null)
+        if (speakerText == null || dialogueText == null || descriptionText == null || iconImage == null)
         {
-            Debug.LogError("TMP_Text fields are not assigned in the Inspector!");
+            Debug.LogError("TMP_Text fields or Image are not assigned in the Inspector!");
             return false;
         }
         return true;
@@ -329,7 +363,35 @@ public class DialogueManager : MonoBehaviour
     private void UpdateDialogueUI(Dialogue dialogue)
     {
         speakerText.text = string.IsNullOrEmpty(dialogue.speaker) ? "Unknown" : dialogue.speaker;
-        dialogueText.text = dialogue.text;
+        dialogueText.text = string.IsNullOrEmpty(dialogue.text) ? "" : dialogue.text;
+
+        if (!string.IsNullOrEmpty(dialogue.description))
+        {
+            descriptionText.text = dialogue.description;
+        }
+        else
+        {
+            descriptionText.text = "";
+        }
+
+        if (!string.IsNullOrEmpty(dialogue.iconPath))
+        {
+            Sprite iconSprite = Resources.Load<Sprite>(dialogue.iconPath);
+            if (iconSprite != null)
+            {
+                iconImage.sprite = iconSprite;
+                iconImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning($"Icon sprite not found at path: {dialogue.iconPath}");
+                iconImage.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            iconImage.gameObject.SetActive(false);
+        }
     }
 
     private void DisplayChoices(Dialogue dialogue)

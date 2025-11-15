@@ -1,0 +1,66 @@
+:root {
+}
+
+.hudButton {
+    width: 28%;
+    height: 90%;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    color: rgba(27, 27, 27, 0);
+    transition-property: scale;
+    transition-duration: 0.2s;
+}
+
+.hudButton:hover {
+    scale: 1.1 1.1;
+}
+
+.hudButton:active {
+    scale: 0.9 0.9;
+}
+
+.inventory-btn {
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/HUD/Figma-2.png?fileID=1454034847&guid=e4dfbbe747a66c54f8c2b70bf19fb0fa&type=3#Figma-2_0");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.phone-btn {
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/HUD/Figma-2.png?fileID=-955676041&guid=e4dfbbe747a66c54f8c2b70bf19fb0fa&type=3#Figma-2_1");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.settings-btn {
+    background-image: url("project://database/Assets/Starfall_City/UI/Sprites/HUD/Figma-2.png?fileID=158546433&guid=e4dfbbe747a66c54f8c2b70bf19fb0fa&type=3#Figma-2_2");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.root-notification {
+    position: absolute;
+    left: 2%;
+    top: 50%;
+    width: 30%;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.notification-bar {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    padding: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.notification-bar.visible {
+    opacity: 1;
+}
+
+.notification-text {
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    white-space: normal;
+}

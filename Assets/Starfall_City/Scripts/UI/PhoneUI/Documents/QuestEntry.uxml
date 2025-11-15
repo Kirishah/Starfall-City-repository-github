@@ -1,0 +1,9 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Starfall_City/Scripts/UI/PhoneUI/Documents/QuestEntry.uss?fileID=7433441132597879392&amp;guid=de50a8e25d0aabc45853b1e3a39846fd&amp;type=3#QuestEntry" />
+    <ui:VisualElement name="Root" class="quest-entry">
+        <ui:Label text="Label" name="QuestTitle" style="font-size: 16px; -unity-font-style: bold; color: rgb(238, 238, 238);" />
+        <ui:Label text="Label" name="QuestDescription" style="font-size: 12px; margin-top: 5px; color: rgb(149, 149, 149);" />
+        <ui:Label text="Label" name="RewardsText" style="font-size: 12px; color: rgb(159, 145, 37); margin-top: 10px;" />
+        <ui:VisualElement name="ObjectivesContainer" style="flex-grow: 1; margin-top: 10px;" />
+    </ui:VisualElement>
+</ui:UXML>

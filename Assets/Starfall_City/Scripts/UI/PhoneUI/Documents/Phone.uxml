@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/phone_root.uss?fileID=7433441132597879392&amp;guid=7d937a40cc4fcfc4eb4f2b9821b0b8f2&amp;type=3#phone_root" />
+    <ui:VisualElement name="Root" class="root">
+        <ui:VisualElement name="PhoneWrap" class="phoneWrap">
+            <ui:VisualElement name="Screen" class="screen">
+                <ui:VisualElement name="TopDiv" class="topDiv">
+                    <ui:Label name="SectionTitle" text="Phone" class="phone-title" />
+                    <ui:Button name="CloseButton" text="X" class="close-button" />
+                </ui:VisualElement>
+                <ui:VisualElement name="TabContainer" class="tab-container">
+                    <ui:Button name="QuestsTab" text="Quests" class="nav-tab active" />
+                    <ui:Button name="PersonalityTab" text="Personality" class="nav-tab" />
+                    <ui:Button name="ReputationTab" text="Reputation" class="nav-tab" />
+                    <ui:Button name="CodexTab" text="Codex" class="nav-tab" />
+                </ui:VisualElement>
+                <ui:VisualElement name="ContentArea" class="content-area">
+                    <ui:VisualElement name="QuestsPanel" class="content-panel active" />
+                    <ui:VisualElement name="PersonalityPanel" class="content-panel" />
+                    <ui:VisualElement name="ReputationPanel" class="content-panel" />
+                    <ui:VisualElement name="CodexPanel" class="content-panel" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

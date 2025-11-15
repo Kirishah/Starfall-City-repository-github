@@ -18,16 +18,13 @@ public class QuestManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            InitializePool(10); 
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+        Instance = this;
+        InitializePool(10);
     }
 
     private void InitializePool(int capacity)
@@ -61,6 +58,16 @@ public class QuestManager : MonoBehaviour
         quest.StartQuest();
 
         OnQuestStarted?.Invoke(questSO);
+
+        foreach (var objective in questSO.Objectives)
+        {
+            if (objective != null && QuestMemory.Instance.IsObjectiveCompleted(objective.ObjectiveID))
+            {
+                int required = objective.GetDefaultRequiredProgress();
+                ReportObjectiveProgress(objective, required, required);
+                Debug.Log($"Restored completed progress for objective {objective.ObjectiveID} in quest {questSO.name}");
+            }
+        }
     }
 
     public void CompleteQuest(Quest quest)
@@ -82,6 +89,15 @@ public class QuestManager : MonoBehaviour
         _activeQuests.Remove(quest);
         _activeQuestSet.Remove(questSO);
 
+        // Mark any unfulfilled objectives as completed (safety net)
+        foreach (var objective in quest.Data.Objectives)
+        {
+            if (objective != null && !QuestMemory.Instance.IsObjectiveCompleted(objective.ObjectiveID))
+            {
+                QuestMemory.Instance.MarkObjectiveCompleted(objective.ObjectiveID);
+            }
+        }
+
         // Удаление отслеживания прогресса для целей этого квеста
         foreach (var objective in questSO.Objectives)
         {
@@ -92,15 +108,16 @@ public class QuestManager : MonoBehaviour
         OnQuestCompleted?.Invoke(questSO);
         Debug.Log($"QuestManager: Fired OnQuestCompleted for {questSO.Title}");
 
-        if (CurrencyManager.Instance != null && XPManager.Instance != null)
+        CheckFollowUps(questSO);
+
+        if (CurrencyManager.Instance != null)
         {
-            XPManager.Instance.AddExperience(quest.Data.ExperienceReward);
             CurrencyManager.Instance.AddMoney(quest.Data.MoneyReward);
-            Debug.Log($"Awarded {quest.Data.ExperienceReward} XP and {quest.Data.MoneyReward} Money for completing {quest.Data.Title}");
+            Debug.Log($"Awarded {quest.Data.MoneyReward} Money for completing {quest.Data.Title}");
         }
         else
         {
-            Debug.LogError("Instances are null. Cannot award rewards.");
+            Debug.LogError("Instance is null. Cannot award rewards.");
         }
 
         // Чистка и возвращение в пул
@@ -132,6 +149,11 @@ public class QuestManager : MonoBehaviour
         _objectiveProgress[objective.ObjectiveID] = (current, required);
         OnObjectiveProgressed?.Invoke(objective, current, required);
         Debug.Log($"QuestManager: Reported progress for {objective.ObjectiveID}: {current}/{required}");
+
+        if (current >= required)
+        {
+            QuestMemory.Instance.MarkObjectiveCompleted(objective.ObjectiveID);
+        }
     }
 
     public (int current, int required) GetObjectiveProgress(string objectiveID)
@@ -146,6 +168,52 @@ public class QuestManager : MonoBehaviour
     public Quest FindQuestByObjective(ObjectiveSO objective)
     {
         return _activeQuests.Find(quest => quest.Data.Objectives.Contains(objective));
+    }
+
+    private void CheckFollowUps(QuestSO completedQuest)
+    {
+        if (completedQuest.FollowUpQuests == null || completedQuest.FollowUpQuests.Count == 0)
+        {
+            Debug.Log($"No follow-up quests configured for {completedQuest.Title}");
+            return;
+        }
+
+        foreach (var followUp in completedQuest.FollowUpQuests)
+        {
+            if (followUp.Quest == null)
+            {
+                Debug.LogWarning($"Follow-up quest is null in {completedQuest.Title}");
+                continue;
+            }
+
+            // Evaluate all unlock conditions (empty list evaluates to true)
+            bool allConditionsMet = followUp.UnlockConditions == null || followUp.UnlockConditions.All(condition => condition.Evaluate());
+
+            if (allConditionsMet &&
+                !IsQuestActive(followUp.Quest) &&
+                !QuestMemory.Instance.IsQuestCompleted(followUp.Quest))
+            {
+                StartQuest(followUp.Quest);
+                Debug.Log($"Auto-started follow-up quest: {followUp.Quest.Title} after {completedQuest.Title}");
+
+                // If a DialogueStartID is specified, trigger it after starting the quest
+                // (This assumes the dialogue will handle any further quest progression if needed)
+                if (!string.IsNullOrEmpty(followUp.DialogueStartID))
+                {
+                    // You may need to specify an NPC ID here; adjust based on your setup (e.g., a default NPC or from quest data)
+                    string npcID = followUp.Quest.StartingDialogueID != null ? "default_npc" : ""; // Placeholder; customize as needed
+                    if (DialogueManager_UIToolkit.Instance != null && !string.IsNullOrEmpty(npcID))
+                    {
+                        DialogueManager_UIToolkit.Instance.StartDialogue(followUp.DialogueStartID, npcID);
+                        Debug.Log($"Triggered follow-up dialogue: {followUp.DialogueStartID} for quest {followUp.Quest.Title}");
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log($"Follow-up quest {followUp.Quest.Title} blocked: conditions met={allConditionsMet}, active={IsQuestActive(followUp.Quest)}, completed={QuestMemory.Instance.IsQuestCompleted(followUp.Quest)}");
+            }
+        }
     }
 
     public List<Quest> GetActiveQuests() => _activeQuests;

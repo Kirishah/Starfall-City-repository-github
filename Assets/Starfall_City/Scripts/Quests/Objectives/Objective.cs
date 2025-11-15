@@ -10,6 +10,10 @@ public abstract class Objective
     public string Description { get; private set; }
     public ObjectiveType Type { get; protected set; }
     public bool IsCompleted { get; protected set; }
+    public int CurrentProgress { get; protected set; }
+    public int RequiredProgress { get; protected set; }
+
+
     public Objective(ObjectiveSO data)
     {
         _data = data;
@@ -17,6 +21,8 @@ public abstract class Objective
         Description = data.Description;
         Type = GetObjectiveType();
         IsCompleted = false;
+        CurrentProgress = 0;
+        RequiredProgress = 1; // Default to 1, can be overridden in derived classes
     }
 
 
@@ -29,7 +35,7 @@ public abstract class Objective
     public virtual void Cleanup() { }
     public abstract void CheckProgress(ObjectiveType type, string identifier, string itemID);
 
-    public void Complete()
+    public virtual void Complete()
     {
         if (!IsCompleted)
         {
@@ -40,6 +46,8 @@ public abstract class Objective
     }
     protected void UpdateProgress(int current, int required)
     {
+        CurrentProgress = current;
+        RequiredProgress = required;
         OnProgressChanged?.Invoke(_data, current, required);
         if (current >= required) Complete();
     }

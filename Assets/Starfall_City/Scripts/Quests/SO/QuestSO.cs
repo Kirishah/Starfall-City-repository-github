@@ -11,10 +11,7 @@ public class QuestSO : ScriptableObject
     public string Description;
     public ObjectiveSO[] Objectives;
     public Scene[] AssociatedScenes;
-    [SerializeField] private int experienceReward;
     [SerializeField] private int moneyReward; 
-
-    public int ExperienceReward => experienceReward;
     public int MoneyReward => moneyReward;
 
     [SerializeField] private string startingDialogueID; 
@@ -38,6 +35,7 @@ public class QuestSO : ScriptableObject
         public enum ConditionType
         {
             QuestCompleted,
+            ObjectiveCompleted,
             ItemPossessed,
             GameEventTriggered
         }
@@ -56,6 +54,8 @@ public class QuestSO : ScriptableObject
             {
                 case ConditionType.QuestCompleted:
                     return QuestMemory.Instance.IsQuestCompleted(Resources.Load<QuestSO>("Quests/" + TargetID));
+                case ConditionType.ObjectiveCompleted:
+                    return QuestMemory.Instance.IsObjectiveCompleted(TargetID);
                 case ConditionType.ItemPossessed:
                     Item item = ItemDataBase.Instance.GetItemByID(TargetID);
                     return item != null && InventoryManager.Instance.HasItem(item, RequiredAmount);

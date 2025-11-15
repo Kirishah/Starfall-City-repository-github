@@ -10,7 +10,7 @@ public class QuestSOEditor : Editor
 {
     // Кэширование имен свойств, чтобы избежать поиска строк
     private readonly string[] _mainProperties = { "QuestID", "Title", "Description", "startingDialogueID" };
-    private readonly string[] _rewardProperties = { "experienceReward", "moneyReward" };
+    private readonly string[] _rewardProperties = { "moneyReward" };
     private readonly string[] _sceneProperties = { "AssociatedScenes" };
     public override void OnInspectorGUI()
     {

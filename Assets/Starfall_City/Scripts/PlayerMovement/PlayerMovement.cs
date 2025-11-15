@@ -1,10 +1,8 @@
 using UnityEngine;
-using System.Collections;
 using UnityEngine.AI;
-using Invector.vCharacterController;
-using UnityEngine.EventSystems;
+using QTE;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [Header("References")]
     public NavMeshAgent player;
@@ -14,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 lastPosition;
     private Vector3 velocity;
     private const float DefaultStoppingDistance = 0.1f;
-    private bool isUsingNavMesh = true;
 
     [Header("Destination Indicator")]
     public GameObject destinationIndicatorPrefab; 
@@ -23,15 +20,36 @@ public class PlayerMovement : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private float interactionRange = 1.5f;
 
+    [Header("Controls")]
+    public bool controlsEnabled = true;
+
     private void Start()
     {
        lastPosition = transform.position;
-       player.stoppingDistance = DefaultStoppingDistance; 
+       player.stoppingDistance = DefaultStoppingDistance;
+       player.angularSpeed = 360f; // Increased for smoother, faster turns
+       player.acceleration = 20f; // Increased for quicker speed changes
+
+       DialogueManager_UIToolkit.OnDialogueStarted += PauseControls;
+       DialogueManager_UIToolkit.OnDialogueEnded += ResumeControls;
     }
+
+    private void OnDestroy() 
+    {
+        DialogueManager_UIToolkit.OnDialogueStarted -= PauseControls;
+        DialogueManager_UIToolkit.OnDialogueEnded -= ResumeControls;
+    }
+
+    private void PauseControls() => controlsEnabled = false;
+    private void ResumeControls() => controlsEnabled = true;
 
     void Update()
     {
-        if (QTEGameManager.IsQTEActive) return;
+        if (QTEGameManager.IsQTEActive || !controlsEnabled)
+        {
+            CalculateVelocity(); // Still update velocity for animations
+            return;
+        }
 
         if (player.enabled)
         {
@@ -151,6 +169,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public Vector3 GetVelocity() => velocity;
+
+    public Vector3 GetDesiredDirection()
+    {
+        return player.enabled && player.desiredVelocity.magnitude > 0.01f ? player.desiredVelocity.normalized : Vector3.zero;
+    }
 }
 
     
