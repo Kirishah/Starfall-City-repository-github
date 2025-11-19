@@ -192,6 +192,12 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             audioSource.Stop();
         }
 
+        if (!string.IsNullOrEmpty(currentNPCID))
+        {
+            QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Dialogue, currentNPCID);
+            Debug.Log($"Dialogue ended: NPCID={currentNPCID}");
+        }
+
         // ALWAYS apply effects before any early returns
         string effectType = GetEffectType();
         Debug.Log($"EndDialogue: Applying effects - effectType='{effectType}', totalPoints={currentDeltaPoints}");  

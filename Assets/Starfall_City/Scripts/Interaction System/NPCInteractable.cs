@@ -12,6 +12,12 @@ public class NPCInteractable : Interactable
 
     public override void Interact()
     {
+        if (!_isInteractable)
+        {
+            Debug.LogWarning($"Cannot interact with {gameObject.name}: Conditions not met. Complete prerequisites first.");
+            return;
+        }
+
         // Respect gating conditions (base handles in virtual Interact)
         if (questStarter != null)
         {

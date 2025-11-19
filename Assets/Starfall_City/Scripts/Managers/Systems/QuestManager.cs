@@ -136,7 +136,6 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"QuestManager: Quest {questSO.Title} cleaned up and returned to pool");
     }
 
-    // Другие системы зовут этот метод
     public void HandleObjectiveUpdate(ObjectiveType type, string identifier, string itemID = null)
     {
         Debug.Log($"QuestManager HandleObjectiveUpdate: type={type}, identifier={identifier}," +

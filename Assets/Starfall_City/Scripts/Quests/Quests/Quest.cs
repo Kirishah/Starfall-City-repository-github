@@ -188,7 +188,7 @@ public class Quest
         foreach (Objective objective in _objectives)
         {
             objective.OnProgressChanged -= HandleObjectiveProgress;
-            objective.OnCompleted -= CheckAllObjectivesCompleted;  
+            objective.OnCompleted -= HandleObjectiveCompleted;  
             objective.Cleanup();                                   
         }
         _objectives.Clear();

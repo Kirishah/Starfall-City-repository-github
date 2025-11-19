@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.AI;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.SceneManagement;
+
 
 public class ScriptedEventViewModel : MonoBehaviour
 {
@@ -129,7 +131,12 @@ public class ScriptedEventViewModel : MonoBehaviour
             target = GameObject.FindGameObjectWithTag(cmd.targetTag);
             if (target == null)
             {
-                Debug.LogError($"Target with tag '{cmd.targetTag}' not found!");
+                Debug.LogWarning($"Target with tag '{cmd.targetTag}' not found among active objects!");
+                target = FindGameObjectWithTagIncludingInactive(cmd.targetTag);
+            }
+            if (target == null)
+            {
+                Debug.LogError($"Target with tag '{cmd.targetTag}' not found (even inactive)!");
                 return;
             }
         }
@@ -365,6 +372,24 @@ public class ScriptedEventViewModel : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    private GameObject FindGameObjectWithTagIncludingInactive(string tag)
+    {
+        var scene = SceneManager.GetActiveScene();
+        var rootObjects = scene.GetRootGameObjects();
+
+        foreach (var root in rootObjects)
+        {
+            // Search this root and all children, including inactive
+            var transforms = root.GetComponentsInChildren<Transform>(includeInactive: true);
+            foreach (var t in transforms)
+            {
+                if (t.CompareTag(tag))
+                    return t.gameObject;
+            }
+        }
+        return null;
     }
 
     private async Task AwaitCoroutineAsync(IEnumerator routine)

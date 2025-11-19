@@ -10,51 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e776570af2730874a9c22fcfb33b5110, type: 3}
-  m_Name: PostDialogue
+  m_Name: PostDrinkCooler
   m_EditorClassIdentifier: Assembly-CSharp::ScriptedEvent
-  eventId: PostDialogue
+  eventId: PostDrinkCooler
   actions:
-  - actionType: 5
-    targetTag: Boss
-    targetPosition: {x: 0, y: 0, z: 0}
-    animationName: 
-    paramName: 
-    boolValue: 1
-    dialogueId: 
-    speaker: 
-    delaySeconds: 1
-    parallel: 1
-    tolerance: 0.5
-    positionParamKey: bossInitialPos
-    poseConfig: {fileID: 0}
-    rotationParamKey: 
-    enterMethodName: 
-    customSubType: 0
-    animStartParam: isWalking
-    animStopParam: 
-    poseTargetTag: 
-    exitMethodName: 
-  - actionType: 4
-    targetTag: Player
-    targetPosition: {x: 0, y: 0, z: 0}
-    animationName: 
-    paramName: 
-    boolValue: 1
-    dialogueId: 
-    speaker: 
-    delaySeconds: 1
-    parallel: 1
-    tolerance: 0
-    positionParamKey: 
-    poseConfig: {fileID: 0}
-    rotationParamKey: 
-    enterMethodName: 
-    customSubType: 2
-    animStartParam: 
-    animStopParam: 
-    poseTargetTag: 
-    exitMethodName: 
-  - actionType: 9
+  - actionType: 0
     targetTag: Boss
     targetPosition: {x: 0, y: 0, z: 0}
     animationName: 
@@ -64,8 +24,8 @@ MonoBehaviour:
     speaker: 
     delaySeconds: 0
     parallel: 0
-    tolerance: 0.5
-    positionParamKey: bossInitialPos
+    tolerance: 0
+    positionParamKey: 
     poseConfig: {fileID: 0}
     rotationParamKey: 
     enterMethodName: 
@@ -74,15 +34,35 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
-  - actionType: 1
+  - actionType: 2
     targetTag: Boss
-    targetPosition: {x: 0, y: 0, z: 0}
+    targetPosition: {x: -6.897, y: 0, z: -4.15}
     animationName: 
     paramName: 
     boolValue: 0
     dialogueId: 
     speaker: 
-    delaySeconds: 1
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+  - actionType: 3
+    targetTag: Boss
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: Angry
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
     parallel: 0
     tolerance: 0
     positionParamKey: 

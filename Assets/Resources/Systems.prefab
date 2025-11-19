@@ -2737,6 +2737,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3467bf6d96ef08449920e1c6b436cb2e, type: 2}
   - {fileID: 11400000, guid: 1404ecf6fc97d284cb130576b0822c04, type: 2}
   - {fileID: 11400000, guid: c204f8802d0039648baf38188728dbe4, type: 2}
+  - {fileID: 11400000, guid: 068fa4fec4c40ba4092ef61e309fc3be, type: 2}
   eventSubscriptionConfig: {fileID: 11400000, guid: 38bc616f3df31f6429bf0a8c6b562370, type: 2}
   dialogueManager: {fileID: 5931975876995255804}
 --- !u!1 &2277202813285513179
@@ -4221,7 +4222,7 @@ MonoBehaviour:
   musicPlaylist:
   - {fileID: 8300000, guid: 12c2a5f51c6166c4cbc7308718b49d33, type: 3}
   - {fileID: 8300000, guid: 1e53974a13c5169409210c49fea29fea, type: 3}
-  musicVolume: 0.1
+  musicVolume: 0
   fadeDuration: 1
 --- !u!82 &5832783830432053212
 AudioSource:

@@ -22,3 +22,6 @@ MonoBehaviour:
   - sourceEventType: DialogueEnded:Intro
     targetEventId: PostDialogue
     expectsParams: 1
+  - sourceEventType: SpeakToMichael
+    targetEventId: PostDrinkCooler
+    expectsParams: 0

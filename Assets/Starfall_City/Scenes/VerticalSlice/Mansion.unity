@@ -12416,6 +12416,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Systems
       objectReference: {fileID: 0}
+    - target: {fileID: 804997199042060327, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.0350003
+      objectReference: {fileID: 0}
     - target: {fileID: 1242075226007229308, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.79
@@ -12460,10 +12464,26 @@ PrefabInstance:
       propertyPath: dancerAnimator
       value: 
       objectReference: {fileID: 1876920451}
+    - target: {fileID: 3095295651723590678, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.785
+      objectReference: {fileID: 0}
     - target: {fileID: 4176670672511000870, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
       propertyPath: m_Follow
       value: 
       objectReference: {fileID: 1876920452}
+    - target: {fileID: 4351912103111638457, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -4.3340383
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.107
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.785
+      objectReference: {fileID: 0}
     - target: {fileID: 5860722252724752722, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
       propertyPath: m_Follow
       value: 
@@ -17315,7 +17335,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.24
+      value: -2.196
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_LocalPosition.y
@@ -17650,6 +17670,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1701745338}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1701745339}
   m_SourcePrefab: {fileID: 100100000, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
 --- !u!4 &1701745333 stripped
 Transform:
@@ -17727,11 +17750,32 @@ MonoBehaviour:
   promptOffset: {x: 1, y: 0.8, z: 0}
   unlockConditions:
   - type: 1
-    targetID: obj_44f7
+    targetID: obj44f7
     requiredAmount: 0
   questStarter: {fileID: 0}
   startDialogueID: d_boss_meetingAngry
   npcID: Boss_Michael
+--- !u!135 &1701745339
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701745334}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.9779034
+  m_Center: {x: 3.7736292e-16, y: 0.9015054, z: -0.15155452}
 --- !u!4 &1706979250 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2c26b9925a4ca9a4290c7c5bc9644bbb, type: 3}

@@ -1,6 +1,6 @@
-using UnityEngine;
-using UnityEngine.EventSystems;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 // Base class for all objectives in the quest system
 public abstract class Objective
@@ -40,10 +40,45 @@ public abstract class Objective
         if (!IsCompleted)
         {
             IsCompleted = true;
+
+            if (!string.IsNullOrEmpty(_data.eventOnComplete))
+            {
+                var paramsDict = BuildParamsDictionary(_data);
+                if (paramsDict != null && paramsDict.Count > 0)
+                    EventBus.Instance.Publish(_data.eventOnComplete, paramsDict);
+                else
+                    EventBus.Instance.Publish(_data.eventOnComplete);
+            }
+
             OnCompleted?.Invoke();
             Debug.Log($"Objective {_data.ObjectiveID} completed.");
         }
     }
+
+    private Dictionary<string, object> BuildParamsDictionary(ObjectiveSO data)
+    {
+        if (data.eventParameters == null || data.eventParameters.Count == 0) return null;
+
+        var dict = new Dictionary<string, object>();
+        foreach (var p in data.eventParameters)
+        {
+            switch (p.type)
+            {
+                case ParameterType.String:
+                    dict[p.key] = p.stringValue;
+                    break;
+                case ParameterType.GameObject:
+                    dict[p.key] = p.objectValue;
+                    break;
+                case ParameterType.Vector3:
+                    dict[p.key] = p.vectorValue;
+                    break;
+                    // add more types as needed
+            }
+        }
+        return dict;
+    }
+
     protected void UpdateProgress(int current, int required)
     {
         CurrentProgress = current;
