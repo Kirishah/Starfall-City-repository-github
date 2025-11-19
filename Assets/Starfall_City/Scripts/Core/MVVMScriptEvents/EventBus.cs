@@ -18,11 +18,16 @@ public class EventBus : MonoBehaviour
         Instance = this;
     }
 
-    // Simple publish/subscribe (for triggers without params)
+    // Simple
     public void Subscribe(string eventType, System.Action callback)
     {
         if (!simpleSubscribers.ContainsKey(eventType)) simpleSubscribers[eventType] = callback;
         else simpleSubscribers[eventType] += callback;
+    }
+
+    public void Unsubscribe(string eventType, System.Action callback)
+    {
+        if (simpleSubscribers.TryGetValue(eventType, out var subs)) subs -= callback;
     }
 
     public void Publish(string eventType)
@@ -30,21 +35,23 @@ public class EventBus : MonoBehaviour
         if (simpleSubscribers.TryGetValue(eventType, out System.Action callback)) callback?.Invoke();
     }
 
-    // Parameterized: Publish with overrides (e.g., { "deskPos", Vector3 }, { "bossInitialPos", Vector3 })
-    public void Subscribe<T>(string eventType, System.Action<T> callback) where T : new()
+    // Parameterized (FIXED: Direct Dictionary, no brittle <T>)
+    public void Subscribe(string eventType, System.Action<Dictionary<string, object>> callback)
     {
-        // Simplified: Use Dictionary<string, object> as param type
-        if (!paramSubscribers.ContainsKey(eventType)) paramSubscribers[eventType] = (params) => callback((T)(object)params);
-        else paramSubscribers[eventType] += (params) => callback((T)(object)params);
+        if (!paramSubscribers.ContainsKey(eventType)) paramSubscribers[eventType] = callback;
+        else paramSubscribers[eventType] += callback;
     }
 
-    public void Publish<T>(string eventType, T parameters) where T : new()
+    public void Unsubscribe(string eventType, System.Action<Dictionary<string, object>> callback)
+    {
+        if (paramSubscribers.TryGetValue(eventType, out var subs)) subs -= callback;
+    }
+
+    public void Publish(string eventType, Dictionary<string, object> parameters = null)
     {
         if (paramSubscribers.TryGetValue(eventType, out var callback))
         {
-            var dict = parameters as Dictionary<string, object> ?? new T() as Dictionary<string, object>;
-            callback(dict);
+            callback(parameters ?? new Dictionary<string, object>());
         }
     }
-
 }

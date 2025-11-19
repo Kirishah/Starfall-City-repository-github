@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e776570af2730874a9c22fcfb33b5110, type: 3}
+  m_Name: PostDialogue
+  m_EditorClassIdentifier: Assembly-CSharp::ScriptedEvent
+  eventId: PostDialogue
+  actions:
+  - actionType: 5
+    targetTag: Boss
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 1
+    dialogueId: 
+    speaker: 
+    delaySeconds: 1
+    parallel: 1
+    tolerance: 0.5
+    positionParamKey: bossInitialPos
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: isWalking
+    animStopParam: 
+    poseTargetTag: Player
+    exitMethodName: ExitPose
+  - actionType: 4
+    targetTag: Player
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 1
+    dialogueId: 
+    speaker: 
+    delaySeconds: 1
+    parallel: 1
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 2
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+  - actionType: 9
+    targetTag: Boss
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0.5
+    positionParamKey: bossInitialPos
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+  - actionType: 1
+    targetTag: Boss
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 1
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+  triggerCondition: 

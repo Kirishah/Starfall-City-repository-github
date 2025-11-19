@@ -3502,6 +3502,10 @@ PrefabInstance:
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8578844f82aa458439f790dd588e8d59, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8578844f82aa458439f790dd588e8d59, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 65
       objectReference: {fileID: 0}
@@ -9463,7 +9467,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
   m_SerializedVersion: 0
   m_OverrideArea: 1
-  m_Area: 1
+  m_Area: 0
   m_OverrideGenerateLinks: 0
   m_GenerateLinks: 0
   m_IgnoreFromBuild: 0
@@ -12412,14 +12416,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Systems
       objectReference: {fileID: 0}
-    - target: {fileID: 804997199042060327, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.9419365
-      objectReference: {fileID: 0}
-    - target: {fileID: 804997199042060327, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -3.0350003
-      objectReference: {fileID: 0}
     - target: {fileID: 1242075226007229308, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.79
@@ -12464,34 +12460,10 @@ PrefabInstance:
       propertyPath: dancerAnimator
       value: 
       objectReference: {fileID: 1876920451}
-    - target: {fileID: 3095295651723590678, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -4.107
-      objectReference: {fileID: 0}
-    - target: {fileID: 3095295651723590678, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -6.785
-      objectReference: {fileID: 0}
     - target: {fileID: 4176670672511000870, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
       propertyPath: m_Follow
       value: 
       objectReference: {fileID: 1876920452}
-    - target: {fileID: 4351912103111638457, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.6919365
-      objectReference: {fileID: 0}
-    - target: {fileID: 4351912103111638457, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -4.3340383
-      objectReference: {fileID: 0}
-    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -4.107
-      objectReference: {fileID: 0}
-    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -6.785
-      objectReference: {fileID: 0}
     - target: {fileID: 5860722252724752722, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
       propertyPath: m_Follow
       value: 
@@ -17381,6 +17353,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -8183481454299698827, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -17617,6 +17593,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 41687911e12fe73408d418340bde68b4, type: 2}
+    - target: {fileID: 5866666021909216657, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6240733294840144465, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -17691,7 +17671,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 1.2
+  m_Speed: 1.8
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120

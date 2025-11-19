@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections;
 using UnityEngine;
@@ -38,23 +40,40 @@ public class PosePresenter : MonoBehaviour
 
     public void EnterPose(Vector3 targetPos, float targetYRotation, PoseConfig config)
     {
-        if (config == null || playerAnim == null) return;
+        Debug.Log($"EnterPose called: Pos={targetPos}, YRot={targetYRotation}, Config={config?.name}");
+        if (config == null || playerAnim == null)
+        {
+            Debug.LogError("EnterPose: Config or PlayerAnim null!");
+            return;
+        }
 
         StartCoroutine(PoseTransitionSequence(targetPos, targetYRotation, config, true)); // true = enter
     }
 
-    public void ExitPose(PoseConfig config)
+    public void ExitPose(PoseConfig? config = null, string? skipIfPoseID = null)
     {
-        if (config == null || playerAnim == null) return;
+        Debug.Log($"ExitPose called! Args: config={config?.name ?? "null"}, skipIfPoseID={skipIfPoseID ?? "null"}");
 
-        playerAnim.InstantExitPose(config);
-    }
+        if (playerAnim == null)
+        {
+            Debug.LogError("ExitPose: playerAnim null! (Re-find? Scene reload?)"); 
+            return;
+        }
+        if (!playerAnim.isInPose)
+        {
+            Debug.LogWarning($"ExitPose: !isInPose (current: {playerAnim.isInPose}) - skipping.");
+            return;
+        }
+        if (!string.IsNullOrEmpty(skipIfPoseID) && skipIfPoseID == playerAnim.currentPoseID)
+        {
+            Debug.Log($"Skipping exit for pose: {playerAnim.currentPoseID}");
+            return;
+        }
 
-    // Convenience overload - uses tracked currentConfig (no param needed)
-    public void ExitPose()
-    {
-        if (playerAnim == null || !playerAnim.isInPose) return;
-        playerAnim.InstantExitPose(playerAnim.currentConfig); 
+        Debug.Log("ExitPose: Proceeding to InstantExitPose."); 
+
+        var effectiveConfig = config ?? playerAnim.currentConfig ?? ScriptableObject.CreateInstance<PoseConfig>(); // Temp fallback; customize as needed
+        playerAnim.InstantExitPose(effectiveConfig);
     }
 
     private IEnumerator PoseTransitionSequence(Vector3 targetPos, float targetYRotation, PoseConfig config, bool isEnter)

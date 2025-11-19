@@ -1,15 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class Quest
 {
     private QuestSO _data;
     private bool _isCompleted;
     private bool _isCompleting; // Чтобы не выполнялось несколько раз
-    private List<Objective> _objectives = new List<Objective>();
+    public List<Objective> _objectives = new List<Objective>();
     private int _activeObjectiveIndex;
 
     public QuestSO Data => _data;
@@ -26,6 +24,7 @@ public class Quest
         foreach (ObjectiveSO objectiveSO in questSO.Objectives)
         {
             var objective = objectiveSO.CreateObjective();
+
             objective.OnProgressChanged += HandleObjectiveProgress;
             objective.OnCompleted += HandleObjectiveCompleted;
             _objectives.Add(objective);

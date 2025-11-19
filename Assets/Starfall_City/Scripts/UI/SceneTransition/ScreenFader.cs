@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -82,6 +83,22 @@ public class ScreenFader : MonoBehaviour
         return StartCoroutine(FadeRoutine(false, duration, 0));
     }
 
+    public async Task FadeToBlackAsync(float duration = 0f, int frameWait = 1)
+    {
+        if (blackPanel == null)
+        {
+            Debug.LogWarning("BlackPanel not ready—skipping async fade.");
+            return;
+        }
+        await WaitForCoroutine(FadeRoutine(true, duration, frameWait));
+    }
+
+    public async Task FadeFromBlackAsync(float duration = 0f)
+    {
+        if (blackPanel == null) return;
+        await WaitForCoroutine(FadeRoutine(false, duration, 0));
+    }
+
     private IEnumerator FadeRoutine(bool toBlack, float duration, int frameWait)
     {
         float startAlpha = toBlack ? 0f : 1f;
@@ -127,5 +144,18 @@ public class ScreenFader : MonoBehaviour
             blackPanel.style.display = DisplayStyle.None;
             blackPanel.pickingMode = PickingMode.Ignore;
         }
+    }
+
+    private async Task WaitForCoroutine(IEnumerator routine)
+    {
+        var tcs = new TaskCompletionSource<object>();
+        StartCoroutine(RunRoutine(routine, tcs));
+        await tcs.Task;
+    }
+
+    private IEnumerator RunRoutine(IEnumerator routine, TaskCompletionSource<object> tcs)
+    {
+        yield return routine;
+        tcs.SetResult(null);
     }
 }

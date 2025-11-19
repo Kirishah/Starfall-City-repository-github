@@ -15,5 +15,5 @@ MonoBehaviour:
   poseID: IntroSitting
   useRootMotion: 0
   blackHoldDuration: 2
-  enterTrigger: isSitting
-  exitTrigger: GetUp
+  enterTrigger: Sit
+  exitTrigger: isSitting

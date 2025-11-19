@@ -1,7 +1,9 @@
-﻿using System.Collections;
-using UnityEngine;
-using UnityEngine.AI;
+﻿#nullable enable
+
 using QTE;
+using System;
+using System.Collections;
+using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
@@ -12,11 +14,11 @@ public class PlayerAnimation : MonoBehaviour
 
     [Header("Pose State")]
     public bool isInPose = false; // Replaces isSitting
-    public PoseConfig currentConfig; // Track full config for exit
-    private string currentPoseID; // Track for exit (e.g., "Sit") - used for logging/events
-    private string currentExitTrigger; // Track for generic exit 
-    private Coroutine currentEnterCoroutine;
-    private Coroutine currentExitCoroutine;
+    public PoseConfig? currentConfig; // Track full config for exit
+    public string? currentPoseID; // Track for exit (e.g., "Sit") - used for logging/events
+    public string? currentExitTrigger; // Track for generic exit 
+    private Coroutine? currentEnterCoroutine;
+    private Coroutine? currentExitCoroutine;
 
     private float speedThreshold = 0.1f; 
     private float smoothTime = 0.1f; 
@@ -44,79 +46,19 @@ public class PlayerAnimation : MonoBehaviour
         // Initialize turn tracking
         previousDesired = transform.forward;
         lastTurnTime = -turnCooldown; // Allow immediate turn
-
-        DialogueManager_UIToolkit.OnDialogueEnded += HandleDialogueEnd;
-    }
-
-    private void OnDestroy() 
-    {
-        if (DialogueManager_UIToolkit.Instance != null)
-        {
-            DialogueManager_UIToolkit.OnDialogueEnded -= HandleDialogueEnd;
-        }
     }
 
     // Public setters for tracking (called from PosePresenter)
-    public void SetCurrentPose(string poseID, PoseConfig config)
+    public void SetCurrentPose(string? poseID, PoseConfig? config)
     {
-        currentPoseID = poseID;
-        currentConfig = config; // Store for exit
+        currentPoseID = poseID ?? throw new ArgumentNullException(nameof(poseID));
+        currentConfig = config ?? throw new ArgumentNullException(nameof(config));
         Debug.Log($"Entered pose: {currentPoseID} (using config: {config?.name ?? "null"})");
     }
 
     public void SetCurrentExitTrigger(string exitTrigger)
     {
-        currentExitTrigger = exitTrigger;
-    }
-
-    // uses tracked values with fallback
-    private void HandleDialogueEnd()
-    {
-        if (!isInPose)
-        {
-            return; // Not posed, do nothing
-        }
-
-        PoseConfig configToUse = currentConfig ?? ScriptableObject.CreateInstance<PoseConfig>(); // Fallback instance if null (rare)
-        configToUse.blackHoldDuration = 2f; // Set fallback value after creation
-        Debug.Log($"Dialogue ended while in pose '{currentPoseID}'. Instant exiting with config: {configToUse.name}");
-        InstantExitPose(configToUse);
-    }
-
-    public void InstantExitPose(PoseConfig config)
-    {
-        if (currentExitCoroutine != null) StopCoroutine(currentExitCoroutine);
-        currentExitCoroutine = StartCoroutine(InstantExitSequence(config));
-    }
-
-    private IEnumerator InstantExitSequence(PoseConfig config)
-    {
-        Debug.Log($"Instant exit from pose '{currentPoseID}'.");
-
-        // Black screen in
-        yield return ScreenFader.Instance.FadeToBlack(duration: 0f, frameWait:0);
-
-        // Immediately start transition out of pose (hidden under black)
-        isInPose = false;
-        animator.SetBool("isSitting", false); // Starts blend to standing now
-
-        // Hold full black for config duration (buffer for transition to complete)
-        yield return new WaitForSecondsRealtime(config.blackHoldDuration);
-
-        // Re-enable movement
-        if (playerMovement != null) playerMovement.controlsEnabled = true;
-        if (player3DMovement != null) player3DMovement.controlsEnabled = true;
-        if (player3DMovement != null) player3DMovement.SnapToSurface();
-
-        // Clear tracking
-        currentPoseID = null;
-        currentExitTrigger = null;
-        currentConfig = null;
-
-        // Black screen out
-        yield return ScreenFader.Instance.FadeFromBlack(duration: 0f);
-
-        Debug.Log("Instant pose exit complete: Standing and movement re-enabled.");
+        currentExitTrigger = exitTrigger ?? throw new ArgumentNullException(nameof(exitTrigger));
     }
 
     private void OnAnimatorMove()
@@ -245,8 +187,7 @@ public class PlayerAnimation : MonoBehaviour
 
         while (elapsed < maxWaitTime)
         {
-            // Check for any "enter" state; extend with specific names if multi-pose
-            if (stateInfo.IsName("Sitting Idle") || stateInfo.IsName("Neutral Idle")) 
+            if (stateInfo.IsName("Sitting Idle"))
             {
                 stateEntered = true;
                 break;
@@ -267,7 +208,10 @@ public class PlayerAnimation : MonoBehaviour
             yield break;
         }
 
-        // Wait for anim length minus buffer
+        // Explicitly set Bool after successful state entry to sustain the loop
+        animator.SetBool("isSitting", true);
+        Debug.Log("Entered Sitting Idle - Set isSitting=true");
+
         float animLength = stateInfo.length;
         yield return new WaitForSeconds(animLength - 0.05f);
 
@@ -283,6 +227,41 @@ public class PlayerAnimation : MonoBehaviour
         }
 
         Debug.Log("Pose enter complete.");
+    }
+
+    public void InstantExitPose(PoseConfig? config)
+    {
+        if (currentExitCoroutine != null) StopCoroutine(currentExitCoroutine);
+        currentExitCoroutine = StartCoroutine(InstantExitSequence(config));
+    }
+
+    private IEnumerator InstantExitSequence(PoseConfig? config)
+    {
+        Debug.Log($"Instant exit from pose '{currentPoseID}'.");
+
+        // Black screen in (instant)
+        yield return ScreenFader.Instance.FadeToBlack(duration: 0f, frameWait: 0);
+
+        // Immediately start transition out of pose (hidden under black)
+        isInPose = false;
+        animator.SetBool("isSitting", false); // Starts blend to standing now
+
+        float holdDuration = config?.blackHoldDuration ?? 0.5f; // Quick 0.5s
+        yield return new WaitForSecondsRealtime(holdDuration);
+
+        // Re-enable movement
+        if (playerMovement != null) playerMovement.controlsEnabled = true;
+        if (player3DMovement != null) player3DMovement.controlsEnabled = true;
+
+        // Fade out
+        yield return ScreenFader.Instance.FadeFromBlack(duration: 0f);
+
+        // Reset tracking
+        currentPoseID = null;
+        currentConfig = null;
+        currentExitTrigger = null;
+
+        Debug.Log("Instant exit complete.");
     }
 
     // Yieldable wait (generalized)

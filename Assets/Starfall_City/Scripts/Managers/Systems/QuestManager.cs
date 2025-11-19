@@ -35,7 +35,27 @@ public class QuestManager : MonoBehaviour
             _questPoolQueue.Enqueue(quest);
         }
     }
-    
+
+    // Коллить это в Awake() или после загрузки сохранения
+    public void RestoreCompletedObjectivesFromMemory()
+    {
+        foreach (var quest in _activeQuests)
+        {
+            foreach (var objective in quest.Data.Objectives)
+            {
+                if (QuestMemory.Instance.IsObjectiveCompleted(objective.ObjectiveID))
+                {
+                    // Находим рантаймовый объект цели
+                    var runtimeObjective = quest._objectives.Find(o => o.ObjectiveID == objective.ObjectiveID);
+                    if (runtimeObjective != null)
+                    {
+                        runtimeObjective.Complete();
+                    }
+                }
+            }
+        }
+    }
+
     public bool IsQuestActive(QuestSO questSO)
     {
         return _activeQuestSet.Contains(questSO);
@@ -58,16 +78,6 @@ public class QuestManager : MonoBehaviour
         quest.StartQuest();
 
         OnQuestStarted?.Invoke(questSO);
-
-        foreach (var objective in questSO.Objectives)
-        {
-            if (objective != null && QuestMemory.Instance.IsObjectiveCompleted(objective.ObjectiveID))
-            {
-                int required = objective.GetDefaultRequiredProgress();
-                ReportObjectiveProgress(objective, required, required);
-                Debug.Log($"Restored completed progress for objective {objective.ObjectiveID} in quest {questSO.name}");
-            }
-        }
     }
 
     public void CompleteQuest(Quest quest)
