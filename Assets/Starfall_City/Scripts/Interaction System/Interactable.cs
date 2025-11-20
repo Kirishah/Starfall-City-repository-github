@@ -1,4 +1,4 @@
-using QTE;
+п»їusing QTE;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -14,17 +14,20 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
     public UnityEvent onInteract;
     
     public GameObject promptPrefab; // the UI prompt prefab
-    [SerializeField] public Vector3 promptOffset; // Позиция промпта над объектом
+    [SerializeField] public Vector3 promptOffset; // РџРѕР·РёС†РёСЏ РїСЂРѕРјРїС‚Р° РЅР°Рґ РѕР±СЉРµРєС‚РѕРј
 
     // Gating Conditions (for future-proofing)
     [Header("Interaction Conditions (All Must Be True)")]
     [SerializeField] private List<UnlockCondition> unlockConditions = new List<UnlockCondition>();
 
+    [Header("Debug Settings")]
+    [SerializeField] private bool enableConditionLogging = false;
+
     // state tracking fields
     protected bool _isInProximity;
     protected bool _isHovered;
     protected bool _isInteractable = true;  // Runtime flag: true if conditions met
-    private bool _wasInteractableLastFrame = true;
+    private bool _conditionsEverEvaluated = false;
 
     // Shared prompt field
     protected GameObject currentPrompt;
@@ -32,17 +35,66 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
     public void SetProximity(bool state) => _isInProximity = state;
     public void SetHovered(bool state) => _isHovered = state;
 
+    protected virtual void Start()
+    {
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.OnQuestCompleted += HandleQuestCompleted;
+            QuestManager.OnObjectiveProgressed += HandleObjectiveProgressed;
+        }
+
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnInventoryUpdated += HandleInventoryUpdated;
+        }
+    }
+
+    protected virtual void OnDestroy()
+    {
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.OnQuestCompleted -= HandleQuestCompleted;
+            QuestManager.OnObjectiveProgressed -= HandleObjectiveProgressed;
+        }
+
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnInventoryUpdated -= HandleInventoryUpdated;
+        }
+
+        DestroyPrompt();
+    }
+
+    private void HandleQuestCompleted(QuestSO _) => ForceReevaluation();
+    private void HandleObjectiveProgressed(ObjectiveSO _, int __, int ___) => ForceReevaluation();
+    private void HandleInventoryUpdated() => ForceReevaluation();
+
+    // force re-evaluation only when something relevant changes
+    private void ForceReevaluation()
+    {
+        var tempLogging = enableConditionLogging;
+        enableConditionLogging = true; // <--- THIS IS THE KEY
+
+        Debug.Log($"[DEBUG] ForceReevaluation triggered for {gameObject.name} (from event). Current _isInteractable: {_isInteractable}");
+        bool old = _isInteractable;
+        _isInteractable = EvaluateConditions();
+        _conditionsEverEvaluated = true;
+
+        enableConditionLogging = tempLogging;
+
+        if (_isInteractable && !old)
+            Debug.Log($"[Interactable] Unlocked: {gameObject.name}");
+        else if (!_isInteractable && old)
+            Debug.Log($"[Interactable] Locked: {gameObject.name}");
+    }
+
     protected virtual void Update()
     {
         if (QTEGameManager.IsQTEActive) return;
 
-        // Re-evaluate conditions every frame (or optimize with events later)
-        _isInteractable = EvaluateConditions();
-
-        if (_isInteractable && !_wasInteractableLastFrame)
-        {
-            Debug.Log($"Interaction unlocked for {gameObject.name}: Conditions now met.");
-        }
+        // Initial evaluation the first time player gets near/hovers
+        if (!_conditionsEverEvaluated && (_isInProximity || _isHovered))
+            ForceReevaluation();
 
         if ((_isInProximity || _isHovered) && _isInteractable)
         {
@@ -57,20 +109,33 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
     // Evaluate all conditions (mirrors QuestSO logic)
     protected bool EvaluateConditions()
     {
+        bool forceDebugThisFrame = false;
+
+        bool shouldLog = enableConditionLogging || forceDebugThisFrame || Debug.isDebugBuild;
+
         if (unlockConditions == null || unlockConditions.Count == 0)
         {
-            _wasInteractableLastFrame = true;
-            return true;  // No conditions = always allowed
+            if (enableConditionLogging)
+                Debug.Log($"{name}: No conditions в†’ interactable");
+            return true;
         }
 
-        bool allMet = unlockConditions.All(condition => condition.Evaluate());
-
-        // Log only on transition to gated (not every frame)
-        if (!allMet && _wasInteractableLastFrame)
+        bool allMet = true;
+        for (int i = 0; i < unlockConditions.Count; i++)
         {
-            Debug.Log($"Interaction gated for {gameObject.name}: Conditions not met.");
+            var cond = unlockConditions[i];
+            bool met = cond.Evaluate();
+
+            if (shouldLog)
+            {
+                Debug.Log($"[Conditions] {name}: [{i}] {cond.Type} | Target: '{cond.TargetID}' | Required: {cond.RequiredAmount} в†’ {(met ? "MET" : "NOT MET")}");
+            }
+
+            if (!met) allMet = false;
         }
-        _wasInteractableLastFrame = allMet;
+
+        if (shouldLog && allMet)
+            Debug.Log($"[Conditions] {name}: ALL CONDITIONS NOW MET! Unlocking interaction.");
 
         return allMet;
     }
@@ -132,11 +197,6 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
         DestroyPrompt();
     }
 
-    protected virtual void OnDestroy()
-    {
-        DestroyPrompt();
-    }
-
     protected virtual void DestroyPrompt()
     {
         if (currentPrompt != null)
@@ -162,6 +222,6 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
 
     public virtual string GetIdentifier()
     {
-        return gameObject.name; // По умолчанию имя GameObject, переопределяется в подклассах
+        return gameObject.name; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РёРјСЏ GameObject, РїРµСЂРµРѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РІ РїРѕРґРєР»Р°СЃСЃР°С…
     }
 }

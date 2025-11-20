@@ -50,20 +50,49 @@ public class QuestSO : ScriptableObject
 
         public bool Evaluate()
         {
+            bool result = false;
+
             switch (Type)
             {
                 case ConditionType.QuestCompleted:
-                    return QuestMemory.Instance.IsQuestCompleted(Resources.Load<QuestSO>("Quests/" + TargetID));
+                    QuestSO targetQuest = Resources.Load<QuestSO>("Quests/" + TargetID);
+                    if (targetQuest == null)
+                    {
+                        Debug.LogError($"Condition Evaluation Failed: Quest '{TargetID}' not found in Resources/Quests/");
+                        result = false;
+                    }
+                    else
+                    {
+                        result = QuestMemory.Instance.IsQuestCompleted(targetQuest);
+                        Debug.Log($"QuestCompleted Condition: {TargetID} -> {result}");
+                    }
+                    break;
+
                 case ConditionType.ObjectiveCompleted:
-                    return QuestMemory.Instance.IsObjectiveCompleted(TargetID);
+                    result = QuestMemory.Instance.IsObjectiveCompleted(TargetID);
+                    Debug.Log($"ObjectiveCompleted Condition: {TargetID} -> {result} " +
+                             $"(Completed Objectives: {string.Join(", ", QuestMemory.Instance.GetCompletedObjectiveIDs())})");
+                    break;
+
                 case ConditionType.ItemPossessed:
                     Item item = ItemDataBase.Instance.GetItemByID(TargetID);
-                    return item != null && InventoryManager.Instance.HasItem(item, RequiredAmount);
+                    result = item != null && InventoryManager.Instance.HasItem(item, RequiredAmount);
+                    Debug.Log($"ItemPossessed Condition: {TargetID} x{RequiredAmount} -> {result}");
+                    break;
+
                 case ConditionType.GameEventTriggered:
-                    return GameEventManager.Instance.IsEventTriggered(TargetID);
+                    result = GameEventManager.Instance.IsEventTriggered(TargetID);
+                    Debug.Log($"GameEventTriggered Condition: {TargetID} -> {result}");
+                    break;
+
                 default:
-                    return false;
+                    Debug.LogWarning($"Unknown condition type: {Type}");
+                    result = false;
+                    break;
             }
+
+            Debug.Log($"Condition Evaluation: {Type} '{TargetID}' = {result}");
+            return result;
         }
     }
 

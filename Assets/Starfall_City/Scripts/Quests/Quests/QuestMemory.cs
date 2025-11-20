@@ -21,17 +21,17 @@ public class QuestMemory : MonoBehaviour
 
     public void MarkQuestCompleted(QuestSO quest)
     {
-        if (quest != null && !_completedQuests.Contains(quest.name))
+        if (quest != null && !string.IsNullOrEmpty(quest.QuestID) && !_completedQuests.Contains(quest.QuestID))
         {
-            _completedQuests.Add(quest.name);
+            _completedQuests.Add(quest.QuestID);
             SaveCompletedQuests();
-            Debug.Log($"Marked quest {quest.name} as completed.");
+            Debug.Log($"Marked quest {quest.QuestID} as completed.");
         }
     }
 
     public bool IsQuestCompleted(QuestSO quest)
     {
-        return quest != null && _completedQuests.Contains(quest.name);
+        return quest != null && !string.IsNullOrEmpty(quest.QuestID) && _completedQuests.Contains(quest.QuestID);
     }
 
     public void MarkObjectiveCompleted(string objectiveID)

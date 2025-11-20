@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -36,7 +36,7 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-    // Êîëëèòü ýòî â Awake() èëè ïîñëå çàãðóçêè ñîõðàíåíèÿ
+    // ÐšÐ¾Ð»Ð»Ð¸Ñ‚ÑŒ ÑÑ‚Ð¾ Ð² Awake() Ð¸Ð»Ð¸ Ð¿Ð¾ÑÐ»Ðµ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ¸ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ
     public void RestoreCompletedObjectivesFromMemory()
     {
         foreach (var quest in _activeQuests)
@@ -45,7 +45,7 @@ public class QuestManager : MonoBehaviour
             {
                 if (QuestMemory.Instance.IsObjectiveCompleted(objective.ObjectiveID))
                 {
-                    // Íàõîäèì ðàíòàéìîâûé îáúåêò öåëè
+                    // ÐÐ°Ñ…Ð¾Ð´Ð¸Ð¼ Ñ€Ð°Ð½Ñ‚Ð°Ð¹Ð¼Ð¾Ð²Ñ‹Ð¹ Ð¾Ð±ÑŠÐµÐºÑ‚ Ñ†ÐµÐ»Ð¸
                     var runtimeObjective = quest._objectives.Find(o => o.ObjectiveID == objective.ObjectiveID);
                     if (runtimeObjective != null)
                     {
@@ -108,12 +108,12 @@ public class QuestManager : MonoBehaviour
             }
         }
 
-        // Óäàëåíèå îòñëåæèâàíèÿ ïðîãðåññà äëÿ öåëåé ýòîãî êâåñòà
+        // Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¾Ñ‚ÑÐ»ÐµÐ¶Ð¸Ð²Ð°Ð½Ð¸Ñ Ð¿Ñ€Ð¾Ð³Ñ€ÐµÑÑÐ° Ð´Ð»Ñ Ñ†ÐµÐ»ÐµÐ¹ ÑÑ‚Ð¾Ð³Ð¾ ÐºÐ²ÐµÑÑ‚Ð°
         foreach (var objective in questSO.Objectives)
         {
             _objectiveProgress.Remove(objective.ObjectiveID);
         }
-        // Ïîìåòèòü êàê çàâåðøåííîå è çàäåéñòâîâàòü UI
+        // ÐŸÐ¾Ð¼ÐµÑ‚Ð¸Ñ‚ÑŒ ÐºÐ°Ðº Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð½Ð¾Ðµ Ð¸ Ð·Ð°Ð´ÐµÐ¹ÑÑ‚Ð²Ð¾Ð²Ð°Ñ‚ÑŒ UI
         QuestMemory.Instance.MarkQuestCompleted(quest.Data);
         OnQuestCompleted?.Invoke(questSO);
         Debug.Log($"QuestManager: Fired OnQuestCompleted for {questSO.Title}");
@@ -130,7 +130,7 @@ public class QuestManager : MonoBehaviour
             Debug.LogError("Instance is null. Cannot award rewards.");
         }
 
-        // ×èñòêà è âîçâðàùåíèå â ïóë
+        // Ð§Ð¸ÑÑ‚ÐºÐ° Ð¸ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ðµ Ð² Ð¿ÑƒÐ»
         quest.Cleanup();
         _questPoolQueue.Enqueue(quest);
         Debug.Log($"QuestManager: Quest {questSO.Title} cleaned up and returned to pool");
@@ -156,13 +156,14 @@ public class QuestManager : MonoBehaviour
             return;
         }
         _objectiveProgress[objective.ObjectiveID] = (current, required);
-        OnObjectiveProgressed?.Invoke(objective, current, required);
-        Debug.Log($"QuestManager: Reported progress for {objective.ObjectiveID}: {current}/{required}");
 
         if (current >= required)
         {
             QuestMemory.Instance.MarkObjectiveCompleted(objective.ObjectiveID);
         }
+
+        OnObjectiveProgressed?.Invoke(objective, current, required);
+        Debug.Log($"QuestManager: Reported progress for {objective.ObjectiveID}: {current}/{required}");
     }
 
     public (int current, int required) GetObjectiveProgress(string objectiveID)
