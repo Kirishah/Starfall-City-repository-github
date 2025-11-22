@@ -9,13 +9,13 @@ public class ScriptedEvent : ScriptableObject
     {
         public enum CustomType
         {
-            None, RotateToFace, ExitPose, EnterPose, FadeBlackFlash // Extensible: Add more here
+            None, RotateToFace, ExitPose, EnterPose, FadeBlackFlash, FindClosestObject // Extensible: Add more here
         }
 
         public enum Type
         {
             Activate, Deactivate, Reposition, PlayAnimation, Custom,
-            NavMeshMove, StartDialogue, SetPlayerControls, SetAnimationState, WaitForReach
+            NavMeshMove, StartDialogue, SetPlayerControls, SetAnimationState, WaitForDialogueEnd, WaitForReach
         }
 
         [Tooltip("The primary type of action this command performs. Why: Routes execution to the appropriate logic in the switch statement, enabling a wide range of behaviors from a unified system. Example: NavMeshMove for AI pathfinding to a desk, or StartDialogue for narrative triggers.")]

@@ -1017,6 +1017,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 4152728632070289523, guid: 88a0819a59da0804681860f567cef10f, type: 3}
+      propertyPath: m_TagString
+      value: Toilet
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3194,6 +3198,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
+      propertyPath: m_TagString
+      value: Joe
       objectReference: {fileID: 0}
     - target: {fileID: 1373074475419427701, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer
@@ -5750,6 +5758,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 4152728632070289523, guid: 88a0819a59da0804681860f567cef10f, type: 3}
+      propertyPath: m_TagString
+      value: Toilet
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7734,6 +7746,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
+      propertyPath: m_TagString
+      value: Joe
       objectReference: {fileID: 0}
     - target: {fileID: 1373074475419427701, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer
@@ -12019,6 +12035,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 4152728632070289523, guid: 88a0819a59da0804681860f567cef10f, type: 3}
+      propertyPath: m_TagString
+      value: Toilet
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -14233,6 +14253,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
+      propertyPath: m_TagString
+      value: Joe
       objectReference: {fileID: 0}
     - target: {fileID: 1373074475419427701, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer
@@ -16746,6 +16770,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 4152728632070289523, guid: 88a0819a59da0804681860f567cef10f, type: 3}
+      propertyPath: m_TagString
+      value: Toilet
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17535,6 +17563,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_Layer
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_TagString
@@ -21345,6 +21377,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
+      propertyPath: m_TagString
+      value: Joe
       objectReference: {fileID: 0}
     - target: {fileID: 1373074475419427701, guid: 42e7d8069ac0ab2498f5c2826a85d2f4, type: 3}
       propertyPath: m_Layer

@@ -12,6 +12,8 @@ TagManager:
   - Wall
   - Boss
   - Desk
+  - Joe
+  - Toilet
   layers:
   - Default
   - TransparentFX

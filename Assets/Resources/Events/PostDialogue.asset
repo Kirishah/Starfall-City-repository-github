@@ -46,7 +46,7 @@ MonoBehaviour:
     parallel: 1
     tolerance: 0
     positionParamKey: 
-    poseConfig: {fileID: 0}
+    poseConfig: {fileID: 11400000, guid: e680a04ebf5abd847a38c4cede5fa17f, type: 2}
     rotationParamKey: 
     enterMethodName: 
     customSubType: 2
@@ -54,7 +54,7 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
-  - actionType: 9
+  - actionType: 10
     targetTag: Boss
     targetPosition: {x: 0, y: 0, z: 0}
     animationName: 

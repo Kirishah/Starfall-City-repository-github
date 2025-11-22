@@ -1,4 +1,4 @@
-using core;
+ï»¿using core;
 using QTE;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,16 +18,16 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     private List<Dialogue> dialogues;
     private Dialogue currentDialogue;
     private string currentNPCID;
-    private string currentStartID;
+    public string currentStartID {  get; private set; } 
     private int currentDeltaPoints;
 
-    // Ñîáûòèå äëÿ îòîáðàæåíèÿ äèàëîãîâîé ñòðîêè
+    // Ð¡Ð¾Ð±Ñ‹Ñ‚Ð¸Ðµ Ð´Ð»Ñ Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ñ Ð´Ð¸Ð°Ð»Ð¾Ð³Ð¾Ð²Ð¾Ð¹ ÑÑ‚Ñ€Ð¾ÐºÐ¸
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
     public static event DialogueLineDisplayedHandler OnDialogueLineDisplayed;
     public static System.Action OnDialogueStarted;
     public static System.Action OnDialogueEnded;
 
-    // Ñîáûòèå äëÿ çàïóñêà QTE
+    // Ð¡Ð¾Ð±Ñ‹Ñ‚Ð¸Ðµ Ð´Ð»Ñ Ð·Ð°Ð¿ÑƒÑÐºÐ° QTE
     public delegate void QTETriggerAction();
     public static event QTETriggerAction OnQTETrigger;
 
@@ -83,31 +83,10 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         OnDialogueStarted?.Invoke();
     }
 
-    // 3-ARG OVERLOAD: For non-choice advances (e.g., HandleContinueAction)
+    // Keep the old 3-param overload for Continue button 
     public void SelectChoice(string choiceText, string targetID, bool triggersQTE = false)
     {
-
-        if (triggersQTE)
-        {
-            OnQTETrigger?.Invoke();
-        }
-        if (string.IsNullOrEmpty(targetID))
-        {
-            EndDialogue();
-            return;
-        }
-        if (targetID.StartsWith("action:"))
-        {
-            HandleActionChoice(targetID);
-        }
-        else if (targetID == "-1")
-        {
-            EndDialogue();
-        }
-        else
-        {
-            AdvanceToDialogue(targetID);
-        }
+        SelectChoice(choiceText, targetID, triggersQTE, 0);
     }
 
     // 4-ARG OVERLOAD: For actual choice buttons (with deltaPoints)
@@ -122,8 +101,33 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         // Accumulate points from this choice
         currentDeltaPoints += deltaPoints;
 
-        // Delegate to original logic
-        SelectChoice(choiceText, targetID, triggersQTE);
+        Choice selectedChoice = currentDialogue?.choices?.Find(c =>
+            c.text == choiceText &&
+            (c.targetID ?? "") == (targetID ?? ""));
+
+        if (selectedChoice != null && !string.IsNullOrEmpty(selectedChoice.publishEvent))
+        {
+            var dict = BuildParamsFromChoice(selectedChoice);
+            if (dict?.Count > 0)
+                EventBus.Instance.Publish(selectedChoice.publishEvent, dict);
+            else
+                EventBus.Instance.Publish(selectedChoice.publishEvent);
+
+            Debug.Log($"[Dialogue] Published event from choice: {selectedChoice.publishEvent}");
+        }
+
+        if (triggersQTE) OnQTETrigger?.Invoke();
+
+        if (string.IsNullOrEmpty(targetID) || targetID == "-1")
+        {
+            EndDialogue();
+            return;
+        }
+
+        if (targetID.StartsWith("action:"))
+            HandleActionChoice(targetID);
+        else
+            AdvanceToDialogue(targetID);
     }
 
     private void HandleActionChoice(string targetID)
@@ -139,8 +143,17 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             if (questSO != null)
             {
                 QuestManager.Instance.StartQuest(questSO);
-                Debug.Log($"Branch action started quest '{questSO.Title}' from dialogue '{currentStartID}' (choice-specific).");
-                AdvanceToDialogue(parts[3]);
+                Debug.Log($"Branch action started quest '{questSO.Title}' from dialogue '{currentStartID}' (dialogue node).");
+
+                string nextID = parts[3];
+                if (string.IsNullOrEmpty(nextID) || nextID == "-1")
+                {
+                    EndDialogue();  // Preserves currentDialogue â†’ honors skipAutoStart=true
+                }
+                else
+                {
+                    AdvanceToDialogue(nextID);
+                }
             }
             else
             {
@@ -162,7 +175,14 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         {
             QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.GiveItem, currentNPCID, itemID);
             Debug.Log($"Gave {item.Name} to {currentNPCID}");
-            AdvanceToDialogue(nextDialogueID);
+            if (string.IsNullOrEmpty(nextDialogueID) || nextDialogueID == "-1")
+            {
+                EndDialogue();  // Preserves currentDialogue
+            }
+            else
+            {
+                AdvanceToDialogue(nextDialogueID);
+            }
         }
         else
         {
@@ -205,10 +225,12 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         currentDeltaPoints = 0;
 
 
-        if (currentDialogue != null && !currentDialogue.skipAutoStart)
+        if (!string.IsNullOrEmpty(currentStartID))
         {
-            // Auto-start quest if this dialogue's start ID matches a quest's StartingDialogueID
-            if (!string.IsNullOrEmpty(currentStartID))
+            // Only skip if the CURRENT node (not the start node!) has skipAutoStart = true
+            bool skipThisTime = currentDialogue?.skipAutoStart ?? false;
+
+            if (!skipThisTime)
             {
                 QuestSO questToStart = FindQuestByStartingDialogue(currentStartID);
                 if (questToStart != null &&
@@ -216,21 +238,17 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
                     !QuestMemory.Instance.IsQuestCompleted(questToStart))
                 {
                     QuestManager.Instance.StartQuest(questToStart);
-                    Debug.Log($"Auto-started quest '{questToStart.Title}' after dialogue '{currentStartID}' ended (global auto-trigger).");
+                    Debug.Log($"AUTO-STARTED quest '{questToStart.Title}' from dialogue '{currentStartID}'");
                 }
-                else
-                {
-                    Debug.Log($"No auto-start for '{currentStartID}': already active/completed or no matching quest.");
-                }
-                currentStartID = null; // Reset early to prevent re-triggering
             }
-        }
-        else if (currentDialogue != null)
-        {
-            Debug.Log($"Skipped auto-start for dialogue '{currentStartID}': skipAutoStart={currentDialogue.skipAutoStart}");
+            else
+            {
+                Debug.Log($"skipAutoStart=true on current node â†’ no auto-start this time");
+            }
         }
 
         OnDialogueEnded?.Invoke();
+        currentStartID = null;
     }
     #endregion
 
@@ -238,7 +256,9 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     public void ShowDialogue(Dialogue dialogue)
     {
         if (!ValidateDialogue(dialogue)) return;
+
         uiHandler.UpdateSpeakerAndIcon(dialogue.speaker, dialogue.iconPath);
+
         // Append to history
         if (!string.IsNullOrEmpty(dialogue.description))
         {
@@ -248,13 +268,21 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         {
             uiHandler.AddToHistory(dialogue.speaker, dialogue.text);
         }
+
         OnDialogueLineDisplayed?.Invoke(dialogue.id, currentNPCID);
+
         // Display choices or continue
-        uiHandler.DisplayChoices(dialogue.choices, dialogue, (text, target, qte, delta) => SelectChoice(text, target, qte, delta));
+        uiHandler.DisplayChoices(
+             dialogue.choices,
+             dialogue,
+            (text, target, qte, delta) => SelectChoice(text, target, qte, delta)
+        );
+
         if (dialogue.choices == null || dialogue.choices.Count == 0)
         {
             uiHandler.ShowContinueButton(() => HandleContinueAction(dialogue));
         }
+
         // Audio
         if (!string.IsNullOrEmpty(dialogue.audio))
         {
@@ -282,26 +310,29 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         return true;
     }
 
-    private void HandleContinueAction(Dialogue dialogue) 
+    private void HandleContinueAction(Dialogue d)
     {
-        if (dialogue == null)
+        if (d.targetLocation != 0)
         {
-            SelectChoice("", "-1", false);
+            TransferToLocation(d.targetLocation);
+            EndDialogue();
             return;
         }
-        if (dialogue.targetLocation != 0)
+
+        if (!string.IsNullOrEmpty(d.targetID))
         {
-            TransferToLocation(dialogue.targetLocation);
-            EndDialogue();
+            if (d.targetID.StartsWith("action:"))
+            {
+                HandleActionChoice(d.targetID);
+            }
+            else
+            {
+                AdvanceToDialogue(d.targetID);
+            }
+            return;
         }
-        else if (!string.IsNullOrEmpty(dialogue.targetID))
-        {
-            SelectChoice("", dialogue.targetID, false);
-        }
-        else
-        {
-            SelectChoice("", "-1", false);
-        }
+
+        EndDialogue();
     }
     #endregion
 
@@ -310,8 +341,6 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     {
         return dialogues?.Find(d => d.id == id);
     }
-
-    public Dialogue GetCurrentDialogue() => currentDialogue;
 
     public void TransferToLocation(int targetLocation)
     {
@@ -335,6 +364,30 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     {
         var startDialogue = FindDialogue(currentStartID);
         return startDialogue?.effectType ?? currentDialogue?.effectType ?? "";
+    }
+
+    private Dictionary<string, object> BuildParamsFromChoice(Choice choice)
+    {
+        if (choice.eventParams == null || choice.eventParams.Count == 0)
+            return null;
+
+        var dict = new Dictionary<string, object>();
+        foreach (var p in choice.eventParams)
+        {
+            switch (p.type)
+            {
+                case ParameterType.String:
+                    dict[p.key] = p.stringValue;
+                    break;
+                case ParameterType.GameObject:
+                    dict[p.key] = p.objectValue;
+                    break;
+                case ParameterType.Vector3:
+                    dict[p.key] = p.vectorValue;
+                    break;
+            }
+        }
+        return dict;
     }
     #endregion
 }

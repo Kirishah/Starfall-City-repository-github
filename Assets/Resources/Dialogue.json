@@ -218,6 +218,7 @@
     "text": "Дэнни, после обеда жду отчет по созвону с КиряСтар, это очень крупный клиент, постарайся не облажаться как в прошлый раз!",
     "targetID": "d_thought_entry",
     "description": "Середина рабочего дня. Дэнни сидит в офисе, когда к нему подходит его босс Майкл и дает ему указания:",
+    "skipAutoStart": false,
     "iconPath": "Icons/Shrek"
   },
   {
@@ -241,12 +242,48 @@
       {
         "text": "Джо, чувак, там на парковке кто-то въехал в твою тачку! (аура +1, репутация - 1)",
         "delta_points": 2,
-        "targetID": "d_toilet_dialogue_angryJoe"
+        "publishEvent": "PlayerUseToilet",
+        "targetID": "d_toilet_dialogue_angryJoe",
+        "eventParams": [
+          {
+            "key": "hideTag",
+            "type": "String",
+            "stringValue": "Joe"
+          },
+          {
+            "key": "referenceTag",
+            "type": "String",
+            "stringValue": "Player"
+          },
+          {
+            "key": "poseID",
+            "type": "String",
+            "stringValue": "IntroSitting"
+          }
+        ]
       },
       {
         "text": "[выбить дверь, скинуть коллегу с унитаза и сесть срать] (дурь +1, репутация -1)",
         "delta_points": 1,
-        "targetID": "d_toilet_distraction"
+        "publishEvent": "PlayerUseToilet",
+        "targetID": "d_toilet_distraction",
+        "eventParams": [
+          {
+            "key": "hideTag",
+            "type": "String",
+            "stringValue": "Joe"
+          },
+          {
+            "key": "referenceTag",
+            "type": "String",
+            "stringValue": "Player"
+          },
+          {
+            "key": "poseID",
+            "type": "String",
+            "stringValue": "IntroSitting"
+          }
+        ]
       },
       {
         "text": "[стерпеть и уйти на рабочее место] (репутация + 1, самочувствие - 2)",

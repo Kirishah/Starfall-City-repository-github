@@ -25,3 +25,9 @@ MonoBehaviour:
   - sourceEventType: SpeakToMichael
     targetEventId: PostDrinkCooler
     expectsParams: 0
+  - sourceEventType: PlayerUseToilet
+    targetEventId: eToiletCubicle
+    expectsParams: 1
+  - sourceEventType: reliefT
+    targetEventId: eReliefT
+    expectsParams: 1

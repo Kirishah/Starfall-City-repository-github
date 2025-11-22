@@ -1,7 +1,6 @@
 using core;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -87,7 +86,12 @@ public class DialogueUI_Toolkit : MonoBehaviour
                 {
                     var btn = new Button { text = choice.text };
                     btn.AddToClassList("choice-button");
-                    btn.clicked += () => onChoiceSelected(choice.text, choice.targetID, choice.triggersQTE, choice.deltaPoints);
+                    btn.clicked += () => onChoiceSelected(
+                        choice.text,
+                        choice.targetID ?? "",          // null-safe
+                        choice.triggersQTE,
+                        choice.deltaPoints         
+                    );
                     container.Add(btn);
                 }
             }

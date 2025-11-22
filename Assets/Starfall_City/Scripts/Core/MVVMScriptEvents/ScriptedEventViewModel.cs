@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -147,10 +148,29 @@ public class ScriptedEventViewModel : MonoBehaviour
                 target.SetActive(true);
                 break;
             case ScriptedEvent.ActionCommand.Type.Deactivate:
-                target.SetActive(false);
+                GameObject toDeactivate = target;
+                if (toDeactivate == null && @params != null && @params.TryGetValue("objectToHide", out object obj) && obj is GameObject god)
+                {
+                    toDeactivate = god;
+                }
+                if (toDeactivate != null)
+                {
+                    toDeactivate.SetActive(false);
+                    Debug.Log($"Deactivated: {toDeactivate.name}");
+                }
                 break;
             case ScriptedEvent.ActionCommand.Type.Reposition:
-                target.transform.position = cmd.targetPosition;
+                // Support foundPosition from params if no positionParamKey
+                Vector3 pos = cmd.targetPosition;
+                if (!string.IsNullOrEmpty(cmd.positionParamKey) && @params?.TryGetValue(cmd.positionParamKey, out object globalPosObj) == true)
+                {
+                    pos = (Vector3)globalPosObj;
+                }
+                else if (@params?.TryGetValue("foundPosition", out object foundPosObj) == true)
+                {
+                    pos = (Vector3)foundPosObj;
+                }
+                target.transform.position = pos;
                 break;
             case ScriptedEvent.ActionCommand.Type.PlayAnimation:
                 var animator = target.GetComponent<Animator>();
@@ -165,7 +185,7 @@ public class ScriptedEventViewModel : MonoBehaviour
                     break;
                 }
 
-                // CRITICAL: Ensure agent is enabled AND on NavMesh BEFORE setting destination
+                // Ensure agent is enabled AND on NavMesh BEFORE setting destination
                 if (!agent.isOnNavMesh)
                 {
                     NavMeshHit hit;
@@ -233,14 +253,27 @@ public class ScriptedEventViewModel : MonoBehaviour
                     dialogueManager.StartDialogue(cmd.dialogueId, cmd.speaker);
                 break;
             case ScriptedEvent.ActionCommand.Type.SetPlayerControls:
-                var playerMovement = target.GetComponent<PlayerMovement>();
-                var player3DMovement = target.GetComponent<Player3DMovement>();
-                if (playerMovement != null) playerMovement.controlsEnabled = cmd.boolValue;
-                if (player3DMovement != null) player3DMovement.controlsEnabled = cmd.boolValue;
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player == null)
+                {
+                    Debug.LogError("SetPlayerControls: Player with tag 'Player' not found!");
+                    break;
+                }
+
+                var pm = player.GetComponent<PlayerMovement>();
+                var pm3d = player.GetComponent<Player3DMovement>();
+
+                if (pm != null) pm.controlsEnabled = cmd.boolValue;
+                if (pm3d != null) pm3d.controlsEnabled = cmd.boolValue;
+
+                Debug.Log($"Player controls: {(cmd.boolValue ? "ENABLED" : "DISABLED")}");
                 break;
             case ScriptedEvent.ActionCommand.Type.SetAnimationState:
                 var targetAnim = target.GetComponent<Animator>();
                 if (targetAnim != null) targetAnim.SetBool(cmd.paramName, cmd.boolValue);
+                break;
+            case ScriptedEvent.ActionCommand.Type.WaitForDialogueEnd:
+                await WaitForDialogueEndAsync(cmd.dialogueId);
                 break;
             case ScriptedEvent.ActionCommand.Type.WaitForReach:
                 var waitAgent = target.GetComponent<NavMeshAgent>();
@@ -258,6 +291,39 @@ public class ScriptedEventViewModel : MonoBehaviour
             case ScriptedEvent.ActionCommand.Type.Custom:
                 switch (cmd.customSubType)
                 {
+                    // Find closest object handler (runs only if Custom.FindClosestObject — no effect on other CustomTypes)
+                    case ScriptedEvent.ActionCommand.CustomType.FindClosestObject:
+                        string hideTag = GetParamString(@params, "hideTag");
+                        string refTag = GetParamString(@params, "referenceTag", "Player");
+
+                        if (string.IsNullOrEmpty(hideTag)) break;
+
+                        GameObject reference = GameObject.FindGameObjectWithTag(refTag) ?? GameObject.FindWithTag("Player");
+                        if (reference == null) break;
+
+                        GameObject closest = null;
+                        float bestDist = float.MaxValue;
+
+                        // Важно: ищем ВСЕ, включая неактивные!
+                        var allWithTag = FindGameObjectsWithTagIncludingInactive(hideTag);
+                        foreach (GameObject go in allWithTag)
+                        {
+                            float dist = Vector3.Distance(go.transform.position, reference.transform.position);
+                            if (dist < bestDist)
+                            {
+                                bestDist = dist;
+                                closest = go;
+                            }
+                        }
+
+                        if (closest != null && @params != null)
+                        {
+                            @params["foundPosition"] = closest.transform.position;
+                            @params["foundRotationY"] = closest.transform.eulerAngles.y;
+                            @params["objectToHide"] = closest; // ← теперь можно безопасно деактивировать позже
+                            Debug.Log($"[FindClosestObject] Found: {closest.name} at {closest.transform.position}");
+                        }
+                        break;
                     case ScriptedEvent.ActionCommand.CustomType.RotateToFace:
                         var lookAtTag = string.IsNullOrEmpty(cmd.paramName) ? "Player" : cmd.paramName;
                         var lookAtObject = GameObject.FindGameObjectWithTag(lookAtTag);
@@ -271,24 +337,39 @@ public class ScriptedEventViewModel : MonoBehaviour
                         break;
                     case ScriptedEvent.ActionCommand.CustomType.ExitPose:
                         Debug.Log("ExitPose action triggered!");
-                        var poseTarget = string.IsNullOrEmpty(cmd.poseTargetTag) ? GameObject.FindGameObjectWithTag("Player") : GameObject.FindGameObjectWithTag(cmd.poseTargetTag);
+
+                        var exitPoseTarget = string.IsNullOrEmpty(cmd.poseTargetTag)
+                            ? GameObject.FindGameObjectWithTag("Player")
+                            : GameObject.FindGameObjectWithTag(cmd.poseTargetTag);
+
+                        if (exitPoseTarget == null)
+                        {
+                            Debug.LogError("ExitPose: Player object not found!");
+                            break;
+                        }
+
+                        var playerAnim = exitPoseTarget.GetComponent<PlayerAnimation>();
+
                         if (PosePresenter.Instance != null)
                         {
-                            PosePresenter.Instance.ExitPose();
+                            // Лучший способ: передать текущий конфиг, если он есть
+                            PoseConfig currentConfig = playerAnim?.currentConfig;
+                            PosePresenter.Instance.ExitPose(currentConfig); // ← Совпадение сигнатуры!
+                            Debug.Log($"ExitPose called with config: {currentConfig?.name ?? "null"}");
                         }
                         else
                         {
-                            Debug.LogWarning("ExitPose: PosePresenter.Instance missing!");
+                            Debug.LogError("ExitPose: PosePresenter.Instance is null!");
                         }
-                        var playerAnim = poseTarget?.GetComponent<PlayerAnimation>();
+
+                        // Ждём завершения анимации выхода
                         if (playerAnim != null)
                         {
                             await AwaitCoroutineAsync(playerAnim.WaitForPoseComplete(false));
                         }
                         else
                         {
-                            // Brief fallback wait if no anim component
-                            await Task.Delay(2000);  // ~2s for typical exit
+                            await Task.Delay(2000);
                         }
                         break;
                     case ScriptedEvent.ActionCommand.CustomType.EnterPose:
@@ -296,17 +377,28 @@ public class ScriptedEventViewModel : MonoBehaviour
                         var enterPoseTarget = string.IsNullOrEmpty(cmd.poseTargetTag) ? GameObject.FindGameObjectWithTag("Player") : GameObject.FindGameObjectWithTag(cmd.poseTargetTag);
                         if (PosePresenter.Instance != null && enterPoseTarget != null)
                         {
-                            // Resolve PoseConfig: From asset field or params
+                            // Resolve PoseConfig from poseID in params (if provided)
                             PoseConfig enterConfig = cmd.poseConfig;
-                            if (enterConfig == null && @params != null && @params.TryGetValue("poseConfig", out object configObj))
+                            string poseID = GetParamString(@params, "poseID");
+                            if (!string.IsNullOrEmpty(poseID))
+                            {
+                                enterConfig = Resources.LoadAll<PoseConfig>("PoseConfigs").FirstOrDefault(c => c.poseID == poseID); // Adjust "PoseConfigs" folder if needed
+                                if (enterConfig == null)
+                                {
+                                    Debug.LogWarning($"EnterPose: PoseConfig '{poseID}' not found — using default");
+                                    enterConfig = ScriptableObject.CreateInstance<PoseConfig>();
+                                    enterConfig.poseID = "DefaultPose";
+                                }
+                            }
+                            else if (enterConfig == null && @params != null && @params.TryGetValue("poseConfig", out object configObj))
                             {
                                 enterConfig = configObj as PoseConfig;
                             }
                             if (enterConfig == null)
                             {
-                                enterConfig = ScriptableObject.CreateInstance<PoseConfig>();  // Fallback
+                                enterConfig = ScriptableObject.CreateInstance<PoseConfig>(); // Fallback
                                 enterConfig.poseID = "DefaultEnter";
-                                enterConfig.enterTrigger = "Sit";  // Basic defaults
+                                enterConfig.enterTrigger = "Sit"; // Basic defaults
                                 enterConfig.blackHoldDuration = 2f;
                             }
 
@@ -316,12 +408,15 @@ public class ScriptedEventViewModel : MonoBehaviour
                             {
                                 enterPos = (Vector3)posObj;
                             }
-
-                            // Resolve Y rotation: From cmd (use targetPosition.y if no key) or params
-                            float enterYRot = cmd.targetPosition.y;  // Fallback to pos Y
+                            // Support foundRotationY from params
+                            float enterYRot = cmd.targetPosition.y; // Fallback to pos Y
                             if (!string.IsNullOrEmpty(cmd.rotationParamKey) && @params != null && @params.TryGetValue(cmd.rotationParamKey, out object rotObj))
                             {
                                 enterYRot = (float)rotObj;
+                            }
+                            else if (@params != null && @params.TryGetValue("foundRotationY", out object foundRotObj))
+                            {
+                                enterYRot = (float)foundRotObj;
                             }
 
                             // Use reflection for methodName if dynamic; fallback to direct
@@ -335,18 +430,17 @@ public class ScriptedEventViewModel : MonoBehaviour
                                 PosePresenter.Instance.EnterPose(enterPos, enterYRot, enterConfig);  // Fallback
                             }
 
-                            // Await completion (using existing yieldable wait)
-                            var playerEnterAnim = enterPoseTarget.GetComponent<PlayerAnimation>();
-                            if (playerEnterAnim != null)
+                            // Just wait for the transition to complete (black screen duration)
+                            if (enterConfig != null)
                             {
-                                //Use proper Task wrapper for Coroutine await (avoids invalid StartCoroutine args)
-                                await AwaitCoroutineAsync(playerEnterAnim.WaitForPoseComplete(true));
+                                await Task.Delay((int)(enterConfig.blackHoldDuration * 1000) + 500); // Add small buffer
                             }
                             else
                             {
-                                // Brief fallback wait if no anim component
-                                await Task.Delay(2000);  // ~2s for typical enter
+                                await Task.Delay(2000); // Fallback wait
                             }
+
+                            Debug.Log("EnterPose completed - ready for ExitPose");
                         }
                         else
                         {
@@ -374,6 +468,13 @@ public class ScriptedEventViewModel : MonoBehaviour
         }
     }
 
+    private string GetParamString(Dictionary<string, object> paramsDict, string key, string fallback = "")
+    {
+        if (paramsDict != null && paramsDict.TryGetValue(key, out object val) && val is string str)
+            return str;
+        return fallback;
+    }
+
     private GameObject FindGameObjectWithTagIncludingInactive(string tag)
     {
         var scene = SceneManager.GetActiveScene();
@@ -390,6 +491,24 @@ public class ScriptedEventViewModel : MonoBehaviour
             }
         }
         return null;
+    }
+
+    private GameObject[] FindGameObjectsWithTagIncludingInactive(string tag)
+    {
+        var scene = SceneManager.GetActiveScene();
+        var rootObjects = scene.GetRootGameObjects();
+        var results = new List<GameObject>();
+
+        foreach (var root in rootObjects)
+        {
+            var transforms = root.GetComponentsInChildren<Transform>(includeInactive: true);
+            foreach (var t in transforms)
+            {
+                if (t.CompareTag(tag))
+                    results.Add(t.gameObject);
+            }
+        }
+        return results.ToArray();
     }
 
     private async Task AwaitCoroutineAsync(IEnumerator routine)
@@ -428,6 +547,57 @@ public class ScriptedEventViewModel : MonoBehaviour
             _innerRoutine.MoveNext();
             if (!_tcs.Task.IsCompleted) _tcs.SetResult(null);
         }
+    }
+
+    private Task WaitForDialogueEndAsync(string expectedDialogueId)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        Action handler = null;
+
+        // Local handler to avoid capturing in lambda
+        handler = () =>
+        {
+            bool shouldComplete = string.IsNullOrEmpty(expectedDialogueId) ||
+                              (dialogueManager != null && dialogueManager.currentStartID == expectedDialogueId);
+
+            if (shouldComplete)
+            {
+                DialogueManager_UIToolkit.OnDialogueEnded -= handler;
+                tcs.TrySetResult(true);
+                Debug.Log($"[ScriptedEvent] WaitForDialogueEnd completed for: '{expectedDialogueId}'");
+            }
+        };
+
+        DialogueManager_UIToolkit.OnDialogueEnded += handler;
+
+        // Immediate check in case dialogue already ended
+        if (dialogueManager == null || string.IsNullOrEmpty(dialogueManager.currentStartID))
+        {
+            handler();
+        }
+
+        // Cancelable timeout
+        var cts = new System.Threading.CancellationTokenSource();
+        var timeoutTask = Task.Delay(30000, cts.Token);
+
+        // When timeout fires
+        timeoutTask.ContinueWith(t =>
+        {
+            if (!t.IsCanceled && !tcs.Task.IsCompleted)
+            {
+                DialogueManager_UIToolkit.OnDialogueEnded -= handler;
+                Debug.LogWarning($"[ScriptedEvent] WaitForDialogueEnd TIMED OUT after 30s for dialogue ID: '{expectedDialogueId}'");
+                tcs.TrySetResult(false); // Unblock sequence
+            }
+        }, TaskScheduler.FromCurrentSynchronizationContext());
+
+        // When real event fires → cancel timeout
+        tcs.Task.ContinueWith(t =>
+        {
+            cts.Cancel(); // This prevents the timeout warning from appearing
+        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+        return tcs.Task;
     }
 
     private async Task WaitForNavMeshReach(NavMeshAgent agent, Vector3 destination, float tolerance)

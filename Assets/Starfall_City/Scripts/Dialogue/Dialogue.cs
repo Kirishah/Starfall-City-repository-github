@@ -24,6 +24,8 @@ public class Choice
     public string text;
     public string targetID;
     public string condition;
+    public string publishEvent;
+    public List<EventParameter> eventParams;
     public bool triggersQTE;
     [JsonProperty("delta_points")]
     public int deltaPoints;

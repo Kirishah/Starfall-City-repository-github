@@ -84,6 +84,16 @@ public abstract class Objective
         CurrentProgress = current;
         RequiredProgress = required;
         OnProgressChanged?.Invoke(_data, current, required);
+
+        if (!string.IsNullOrEmpty(_data.eventOnProgress))
+        {
+            var progressParams = BuildParamsDictionary(_data); // reuse same param logic
+            if (progressParams != null && progressParams.Count > 0)
+                EventBus.Instance.Publish(_data.eventOnProgress, progressParams);
+            else
+                EventBus.Instance.Publish(_data.eventOnProgress);
+        }
+
         if (current >= required) Complete();
     }
     protected abstract ObjectiveType GetObjectiveType();

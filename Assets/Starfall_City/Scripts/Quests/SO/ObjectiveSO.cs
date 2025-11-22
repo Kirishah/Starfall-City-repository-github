@@ -11,6 +11,8 @@ public abstract class ObjectiveSO : ScriptableObject
     public string eventOnComplete = "";
     [Tooltip("Optional parameters to send with the event. Key = param name, Value = what to send.")]
     public List<EventParameter> eventParameters = new List<EventParameter>();
+    [Tooltip("Event to publish every time progress is made (e.g., collected 1/5 items).")]
+    public string eventOnProgress = "";
 
     public abstract Objective CreateObjective();
     public virtual int GetDefaultRequiredProgress() => 1;
