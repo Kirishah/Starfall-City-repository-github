@@ -40,8 +40,8 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         DialogueManager_UIToolkit.OnDialogueEnded -= ResumeControls;
     }
 
-    private void PauseControls() => controlsEnabled = false;
-    private void ResumeControls() => controlsEnabled = true;
+    public void PauseControls() => controlsEnabled = false;
+    public void ResumeControls() => controlsEnabled = true;
 
     void Update()
     {

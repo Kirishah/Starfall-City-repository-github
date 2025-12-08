@@ -1,6 +1,7 @@
 using Core;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -24,9 +25,9 @@ namespace QTE
         [SerializeField] private DanceInput danceInput;
 
         private PlayerMovement playerMovement;
-        private Vector3 playerOriginalPosition;
         private int playerOriginalLayer;
         private string mainCameraOriginalTag;
+        private string _currentQTEID;
 
         private AudioListener audioListener;
         private AudioListener audioListenerQTE;
@@ -146,14 +147,14 @@ namespace QTE
 
         private void OnEnable()
         {
-            DialogueManager.OnQTETrigger += StartQTE;
+            DialogueManager_UIToolkit.OnQTETrigger += StartQTE;
             DanceGameManager.OnQTEComplete += EndQTE;
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         private void OnDisable()
         {
-            DialogueManager.OnQTETrigger -= StartQTE;
+            DialogueManager_UIToolkit.OnQTETrigger -= StartQTE;
             DanceGameManager.OnQTEComplete -= EndQTE;
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
@@ -170,8 +171,10 @@ namespace QTE
             }
         }
 
-        public void StartQTE()
+        public void StartQTE(string qteID = "default_qte")
         {
+            _currentQTEID = qteID;
+
             // Safety: Re-init player refs if somehow missing (e.g., scene reload)
             if (playerMovement == null)
             {
@@ -183,7 +186,7 @@ namespace QTE
                 CacheRPGComponents(); // Re-cache if needed
             }
 
-            Debug.Log("QTEGameManager: Starting QTE");
+            Debug.Log($"QTEGameManager: Starting QTE {qteID}");
             IsQTEActive = true;
             IsQTEPaused = false;
             wasRPGPaused = PauseManager.IsPaused;
@@ -210,13 +213,12 @@ namespace QTE
             mainCamera.enabled = false;
             uiCamera.enabled = false;
             audioListener.enabled = false;
-
             qteDance_cam.enabled = true;
             qteDance_cam.tag = mainCameraOriginalTag;
             audioListenerQTE.enabled = true;
 
             // Reset all components 
-            DanceGameManager.Instance.ResetQTE(); // call to centralized reset
+            DanceGameManager.Instance.ResetPlayerState(); // call to centralized reset
 
             qteCanvas.SetActive(true);
 
@@ -230,26 +232,10 @@ namespace QTE
                 Debug.LogError("QTEGameManager: danceGameManager is null!");
             }
 
-            playerOriginalPosition = playerMovement.transform.position;
             playerOriginalLayer = playerMovement.gameObject.layer;
             playerMovement.gameObject.layer = LayerMask.NameToLayer("QTE");
-            NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
-            if (agent != null)
-            {
-                // Stop agent instead of disabling component to avoid state issues
-                agent.isStopped = true;
-                agent.updatePosition = false;
-                agent.updateRotation = false;
-            }
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(playerOriginalPosition, out hit, 10f, NavMesh.AllAreas))
-            {
-                playerMovement.transform.position = hit.position + new Vector3(11.5f, 0, -5); // Align to NavMesh floor
-            }
-            else
-            {
-                playerMovement.transform.position = new Vector3(11.5f, 0, 1);
-            }
+            NavMeshAgent playerAgent = playerMovement.GetComponent<NavMeshAgent>();
+            playerAgent?.EnterCinematicMode();
 
             Time.timeScale = 1f; // Ensure normal time for QTE
         }
@@ -269,30 +255,9 @@ namespace QTE
 
             // Restore player
             playerMovement.gameObject.layer = playerOriginalLayer;
-            NavMeshAgent agent = playerMovement.GetComponent<NavMeshAgent>();
-            if (agent != null)
-            {
-                // Re-sample original position and warp agent to valid NavMesh spot
-                NavMeshHit hit;
-                if (NavMesh.SamplePosition(playerOriginalPosition, out hit, 10f, NavMesh.AllAreas))
-                {
-                    agent.Warp(hit.position);
-                    Debug.Log("QTEGameManager: Warped player to valid NavMesh position.");
-                }
-                else
-                {
-                    agent.Warp(playerOriginalPosition);
-                    Debug.LogWarning("QTEGameManager: Failed to sample NavMesh for restore—using original position.");
-                }
-                // Resume agent instead of re-enabling component
-                agent.updatePosition = true;
-                agent.updateRotation = true;
-                agent.isStopped = false;
-            }
-            else
-            {
-                playerMovement.transform.position = playerOriginalPosition;
-            }
+            FindObjectsByType<NavMeshAgent>(FindObjectsSortMode.None)
+                .ToList()
+                .ForEach(a => a.ExitCinematicMode());
 
             // Switch cameras
             mainCamera.enabled = true;
@@ -305,7 +270,16 @@ namespace QTE
             qteCanvas.SetActive(false);
 
             danceInput.DisableInput();
-            DanceGameManager.Instance.ResetQTE();
+            DanceGameManager.Instance.ResetPlayerState();
+
+            // Report QTE success to QuestManager if won
+            if (success && QuestManager.Instance != null && !string.IsNullOrEmpty(_currentQTEID))
+            {
+                QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.QTE, _currentQTEID);
+                Debug.Log($"QTE Objective progress reported for ID: {_currentQTEID}");
+            }
+            _currentQTEID = ""; // Reset
+
             ResumeRPG();
         }
 

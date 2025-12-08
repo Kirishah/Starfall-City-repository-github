@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using core;
 
 [CreateAssetMenu(menuName = "Quests/Objectives/Objective")]
 public abstract class ObjectiveSO : ScriptableObject

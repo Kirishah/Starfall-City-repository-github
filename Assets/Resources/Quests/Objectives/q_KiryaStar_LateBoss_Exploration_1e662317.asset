@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6298a662ef1537459bab2f6ef847bcb, type: 3}
   m_Name: q_KiryaStar_LateBoss_Exploration_1e662317
   m_EditorClassIdentifier: Assembly-CSharp::ExplorationSO
-  ObjectiveID: obj_2fec
-  Description: New Objective
-  eventOnComplete: 
+  ObjectiveID: obj2fec
+  Description: "\u0418\u0434\u0438 \u043D\u0430 \u0440\u0430\u0431\u043E\u0447\u0435\u0435
+    \u043C\u0435\u0441\u0442\u043E"
+  eventOnComplete: SpeakToMichael
   eventParameters: []
   eventOnProgress: 
-  LocationID: 
+  LocationID: lavatory_0

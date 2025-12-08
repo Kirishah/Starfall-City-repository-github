@@ -1,9 +1,10 @@
-using Cinemachine;
+﻿using Cinemachine;
 using Core;
 using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using core;
 
 namespace QTE
 {
@@ -13,10 +14,15 @@ namespace QTE
 
         [Header("References")]
         [SerializeField] private QTEConfig config;
-        public Animator dancerAnimator;
+        [SerializeField] private PersistentReference dancer;
+
+        private GameObject _dancerGO;
+        private Animator _dancerAnimator;
+
         public AudioSource musicTrack;
         public AudioClip hitSFX, missSFX, comboBreakSFX;
         public TextMeshProUGUI scoreText, comboText;
+
         public CinemachineVirtualCamera wideCam, closeUpCam, dynamicCam;
         [SerializeField] private Camera qteDance_cam;
         [SerializeField] private DanceArrowPool pool;
@@ -56,6 +62,38 @@ namespace QTE
             musicTrack.ignoreListenerPause = true;
 
             InitializeAudioSourcePool();
+        }
+
+        private void Start()
+        {
+            ResolvePlayerDancer();
+        }
+
+        private bool ResolvePlayerDancer()
+        {
+            // Resolve Player Dancer
+            if (dancer == null || !dancer.IsValid)
+            {
+                Debug.LogError("DanceGameManager: Player dancer PersistentReference is missing or invalid!");
+                return false;
+            }
+
+            _dancerGO = dancer.Get<GameObject>();
+            if (_dancerGO == null)
+            {
+                Debug.LogError("DanceGameManager: Failed to resolve dancer GameObject — check PersistentRegistry fix!");
+                return false;
+            }
+
+            _dancerAnimator = _dancerGO.GetComponent<Animator>();
+            if (_dancerAnimator == null)
+            {
+                Debug.LogError($"DanceGameManager: No Animator on dancer {_dancerGO.name}!");
+                return false;
+            }
+
+            Debug.Log($"DanceGameManager: Player dancer resolved → {_dancerGO.name}");
+            return true;
         }
 
         private void OnDestroy()
@@ -107,13 +145,9 @@ namespace QTE
 
         public void StartQTE()
         {
-            ResetQTE();
-
-            currentScore = 0;
-            currentCombo = 0;
-            timer = 0;
+            ResetPlayerState();
             isQTEActive = true;
-            UpdateUI();
+            timer = 0f;
 
             if (musicTrack != null)
             {
@@ -151,50 +185,48 @@ namespace QTE
             timer += Time.deltaTime;
             if (timer >= config.qteDuration)
             {
-                isQTEActive = false;
-                if (musicTrack != null) musicTrack.Stop();
-
-                ResetQTE();
-                
-                if (qteDance_cam != null) qteDance_cam.tag = "Untagged";
-                ResetAnimatorTriggers();
-                if (dancerAnimator != null)
-                {
-                    dancerAnimator.SetTrigger("stop_dance");
-                }
-
-                OnQTEComplete?.Invoke(currentScore > 1000);
-                CleanupAudioSources();
+                EndQTE();
             }
         }
 
-        public void ResetQTE()
+        private void EndQTE()
         {
-            ArrowSpawner spawner = GetComponent<ArrowSpawner>();
-            if (spawner != null)
-            {
-                spawner.ResetSpawner();
-            }
-            if (pool != null)
-            {
-                pool.ResetAllArrows();
-            }
-            if (DanceInput.Instance != null)
-            {
-                DanceInput.Instance.ClearRegisteredArrows();
-            }
-            Debug.Log("DanceGameManager: Full QTE reset complete");
+            isQTEActive = false;
+            musicTrack?.Stop();
+
+            // Let RivalDancer report its own score
+            var rival = FindFirstObjectByType<RivalDancer>();
+            bool playerWon = currentScore >= (rival?.FinalScore ?? 0);
+
+            Debug.Log($"DANCE RESULT → Player: {currentScore} | Rival: {rival?.FinalScore ?? 0} → " +
+                      (currentScore > (rival?.FinalScore ?? 0) ? "PLAYER WINS" :
+                       currentScore < (rival?.FinalScore ?? 0) ? "RIVAL WINS" : "TIE"));
+
+            _dancerAnimator?.SetTrigger("stop_dance");
+            ResetPlayerState();
+            OnQTEComplete?.Invoke(playerWon);
+            CleanupAudioSources();
+        }
+
+        public void ResetPlayerState()
+        {
+            currentScore = 0;
+            currentCombo = 0;
+            UpdateUI();
+            GetComponent<ArrowSpawner>()?.ResetSpawner();
+            pool?.ResetAllArrows();
+            DanceInput.Instance?.ClearRegisteredArrows();
         }
 
         private void ResetAnimatorTriggers()
         {
-            if (dancerAnimator == null) return;
-
-            // List all known triggers used in the Animator
-            string[] triggers = new[] { "dance_Up", "dance_Down", "dance_Left", "dance_Right"};
-            foreach (string trigger in triggers)
+            if (_dancerAnimator != null)
             {
-                dancerAnimator.ResetTrigger(trigger);
+                string[] triggers = { "dance_Up", "dance_Down", "dance_Left", "dance_Right" };
+                foreach (string t in triggers)
+                {
+                    _dancerAnimator?.ResetTrigger(t);
+                }
             }
             Debug.Log("Reset all Animator triggers");
         }
@@ -208,11 +240,7 @@ namespace QTE
                 return;
             }
 
-            if (dancerAnimator != null)
-            {
-                Debug.Log($"DanceGameManager: Triggering animation dance_{direction}");
-                dancerAnimator.SetTrigger($"dance_{direction}");
-            }
+            _dancerAnimator.SetTrigger($"dance_{direction}");
 
             currentCombo++;
             currentScore += Mathf.RoundToInt(config.basePoints * (1 + currentCombo * config.comboMultiplier));

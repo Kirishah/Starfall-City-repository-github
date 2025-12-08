@@ -54,4 +54,44 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
+  - actionType: 4
+    targetTag: 
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: foundPosition
+    poseConfig: {fileID: 11400000, guid: e680a04ebf5abd847a38c4cede5fa17f, type: 2}
+    rotationParamKey: 
+    enterMethodName: EnterPose
+    customSubType: 3
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: Player
+    exitMethodName: 
+  - actionType: 4
+    targetTag: Player
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 2
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
   triggerCondition: 

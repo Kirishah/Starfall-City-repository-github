@@ -2,7 +2,6 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using System.IO;
-using System.Collections.Generic;
 
 #if UNITY_EDITOR
 [CustomEditor(typeof(QuestSO))]

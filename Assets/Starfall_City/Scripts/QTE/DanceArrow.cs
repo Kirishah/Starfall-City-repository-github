@@ -2,6 +2,7 @@ using UnityEngine;
 using DanceInputActions;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using System;
 
 namespace QTE
 {
@@ -20,7 +21,10 @@ namespace QTE
         private Vector2 startPosition;
 
         public bool IsInHitZone { get; private set; }
-        private bool hasPassedHitZone;
+        public bool hasPassedHitZone { get; private set; }
+
+        // Event fired when arrow enters hit zone (for rival AI)
+        public static event Action<DanceArrow> OnArrowEnteredHitZone;
 
         // Visual elements
         [SerializeField] private GameObject singleClickVisual; // Basic arrow
@@ -91,6 +95,8 @@ namespace QTE
         {
             if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || rectTransform == null) return;
 
+            bool wasInHitZone = IsInHitZone;
+
             // Move arrow leftward (adjust axis based on your UI setup)
             if (!DanceInput.IsHolding) // Only move when not holding
             {
@@ -104,6 +110,11 @@ namespace QTE
             float hitZoneStart = canvas != null ? canvas.GetComponent<RectTransform>().rect.width * config.hitZoneRange.x / 1920f : config.hitZoneRange.x;
             float hitZoneEnd = config.hitZoneRange.y;
             IsInHitZone = xPos <= hitZoneEnd && xPos >= hitZoneStart;
+
+            if (!wasInHitZone && IsInHitZone)
+            {
+                OnArrowEnteredHitZone?.Invoke(this);
+            }
 
             // Check if arrow has passed the hit zone
             if (xPos < hitZoneStart && !hasPassedHitZone)

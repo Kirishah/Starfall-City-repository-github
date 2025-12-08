@@ -34,6 +34,12 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
   - actionType: 4
     targetTag: Player
     targetPosition: {x: 0, y: 0, z: 0}
@@ -54,6 +60,12 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
   - actionType: 10
     targetTag: Boss
     targetPosition: {x: 0, y: 0, z: 0}
@@ -74,24 +86,10 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
-  - actionType: 1
-    targetTag: Boss
-    targetPosition: {x: 0, y: 0, z: 0}
-    animationName: 
-    paramName: 
-    boolValue: 0
-    dialogueId: 
-    speaker: 
-    delaySeconds: 1
-    parallel: 0
-    tolerance: 0
-    positionParamKey: 
-    poseConfig: {fileID: 0}
-    rotationParamKey: 
-    enterMethodName: 
-    customSubType: 0
-    animStartParam: 
-    animStopParam: 
-    poseTargetTag: 
-    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
   triggerCondition: 

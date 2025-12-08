@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static Quest;
+using Core;
 
 public class QuestManager : MonoBehaviour
 {
@@ -197,7 +198,9 @@ public class QuestManager : MonoBehaviour
             }
 
             // Evaluate all unlock conditions (empty list evaluates to true)
-            bool allConditionsMet = followUp.UnlockConditions == null || followUp.UnlockConditions.All(condition => condition.Evaluate());
+            bool allConditionsMet = followUp.UnlockConditions == null ||
+                        followUp.UnlockConditions.Count == 0 ||
+                        core.ConditionEvaluator.EvaluateUnlockConditions(followUp.UnlockConditions);
 
             if (allConditionsMet &&
                 !IsQuestActive(followUp.Quest) &&

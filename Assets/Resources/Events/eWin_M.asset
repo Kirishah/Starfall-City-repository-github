@@ -1,0 +1,277 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e776570af2730874a9c22fcfb33b5110, type: 3}
+  m_Name: eWin_M
+  m_EditorClassIdentifier: Assembly-CSharp::core.ScriptedEvent
+  eventId: eWin_M
+  actions:
+  - actionType: 13
+    targetTag: Player
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: player_a_fight
+    spawnYRotation: 0
+  - actionType: 13
+    targetTag: Boss
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: boss_a_fight
+    spawnYRotation: 0
+  - actionType: 11
+    targetTag: 
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: Mansion
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 2
+    targetTag: Martha
+    targetPosition: {x: -11, y: 0, z: 1.54}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 3
+    targetTag: Martha
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: DancingTwerk
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 2
+    targetTag: Louise
+    targetPosition: {x: -11, y: 0, z: 2}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 3
+    targetTag: Louise
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: Counting
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 3
+    targetTag: Player
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: NeutralIdle
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 3
+    targetTag: Boss
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: WrithingInPain
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 1
+    targetTag: phone
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  triggerCondition: 

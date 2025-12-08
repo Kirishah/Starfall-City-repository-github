@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
+using core;
 
 [System.Serializable]
 public class Dialogue
@@ -9,6 +10,7 @@ public class Dialogue
     [SerializeField] public int targetLocation;
     [SerializeField] public string speaker;
     [SerializeField] public string targetID;
+    [SerializeField] public string qteID;
     [SerializeField] public string text;
     [SerializeField] public string audio;
     [SerializeField] public string description;
@@ -27,6 +29,7 @@ public class Choice
     public string publishEvent;
     public List<EventParameter> eventParams;
     public bool triggersQTE;
+    public string qteID;
     [JsonProperty("delta_points")]
     public int deltaPoints;
 }

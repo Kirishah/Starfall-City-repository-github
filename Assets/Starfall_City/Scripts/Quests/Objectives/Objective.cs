@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using core;
 
 // Base class for all objectives in the quest system
 public abstract class Objective

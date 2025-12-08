@@ -31,3 +31,6 @@ MonoBehaviour:
   - sourceEventType: reliefT
     targetEventId: eReliefT
     expectsParams: 1
+  - sourceEventType: letTheFightBegin
+    targetEventId: eFightM
+    expectsParams: 0

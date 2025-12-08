@@ -1,109 +1,117 @@
-using System.Linq;
+п»їusing System.Linq;
 using UnityEngine;
+using core;
 
 public class QuestStarter : MonoBehaviour
 {
-    [SerializeField] private QuestSO _initialQuest; // Начальный квест в цепочке
+    [SerializeField] private QuestSO _initialQuest; // РќР°С‡Р°Р»СЊРЅС‹Р№ РєРІРµСЃС‚ РІ С†РµРїРѕС‡РєРµ
     [SerializeField] private string _npcID;
-    [SerializeField] private string _defaultDialogueStartID; // Диалог по умолчанию, если квест недоступен
-    [SerializeField] private string _postQuestDialogueStartID; // Диалог после завершения квеста
+    [SerializeField] private string _defaultDialogueStartID; // Р”РёР°Р»РѕРі РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, РµСЃР»Рё РєРІРµСЃС‚ РЅРµРґРѕСЃС‚СѓРїРµРЅ
+    [SerializeField] private string _postQuestDialogueStartID; // Р”РёР°Р»РѕРі РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ РєРІРµСЃС‚Р°
 
-    private bool _hasStartedQuest;
-    private QuestSO _currentQuest; // Текущий квест, который предлагается 
-    private string _currentDialogueStartID; // Диалог, связанный с текущим квестом
+    private QuestSO _currentQuest; // РўРµРєСѓС‰РёР№ РєРІРµСЃС‚, РєРѕС‚РѕСЂС‹Р№ РїСЂРµРґР»Р°РіР°РµС‚СЃСЏ 
+    private string _currentDialogueStartID; // Р”РёР°Р»РѕРі, СЃРІСЏР·Р°РЅРЅС‹Р№ СЃ С‚РµРєСѓС‰РёРј РєРІРµСЃС‚РѕРј
 
     public void StartDialogue()
     {
         DetermineCurrentQuestAndDialogue();
-        if (DialogueManager.Instance != null)
+
+        if (DialogueManager.Instance == null)
         {
-            if (string.IsNullOrEmpty(_currentDialogueStartID))
-            {
-                Debug.LogError($"Cannot start dialogue: _currentDialogueStartID is empty on GameObject {gameObject.name}. Check QuestSO or DefaultDialogueStartID.");
-                return;
-            }
-            Debug.Log($"Attempting to start dialogue with _currentDialogueStartID={_currentDialogueStartID}, _npcID={_npcID}");
-            DialogueManager.Instance.StartDialogue(_currentDialogueStartID, _npcID);
+            Debug.LogError("DialogueManager.Instance is null!");
+            return;
         }
-        else
+
+        if (string.IsNullOrEmpty(_currentDialogueStartID))
         {
-            Debug.LogError("DialogueManager.Instance is null when trying to start dialogue.");
+            Debug.LogError($"No dialogue ID resolved for QuestStarter on {gameObject.name}. Check assignments.");
+            return;
         }
+
+        Debug.Log($"[QuestStarter] Starting dialogue '{_currentDialogueStartID}' (NPC: {_npcID})");
+        DialogueManager.Instance.StartDialogue(_currentDialogueStartID, _npcID);
     }
 
     private void DetermineCurrentQuestAndDialogue()
     {
-        // Сброс текущего квеста и диалога
+        // Reset
         _currentQuest = null;
         _currentDialogueStartID = _defaultDialogueStartID;
 
         if (QuestMemory.Instance == null)
         {
-            Debug.LogError("QuestMemory.Instance is null. Ensure a QuestMemory GameObject exists.");
+            Debug.LogError("QuestMemory.Instance is missing in the scene!");
             return;
         }
+
         if (_initialQuest == null)
         {
-            Debug.LogError($"_initialQuest is not assigned in QuestStarter on GameObject {gameObject.name}. Please assign a QuestSO in the Inspector.");
+            Debug.LogError($"_initialQuest not assigned on {name}");
             return;
         }
 
-        // Start with the initial quest
-        QuestSO questToCheck = _initialQuest;
-        bool initialQuestCompleted = QuestMemory.Instance.IsQuestCompleted(_initialQuest);
-
-        if (!initialQuestCompleted)
+        // -------------------------------------------------
+        // 1. Is the very first quest still available?
+        // -------------------------------------------------
+        if (!QuestMemory.Instance.IsQuestCompleted(_initialQuest))
         {
             _currentQuest = _initialQuest;
-            _currentDialogueStartID = _initialQuest.StartingDialogueID;
-            if (string.IsNullOrEmpty(_currentDialogueStartID))
-            {
-                Debug.LogWarning($"StartingDialogueID is empty for quest {_initialQuest.Title}. Using DefaultDialogueStartID: {_defaultDialogueStartID}");
-                _currentDialogueStartID = _defaultDialogueStartID;
-            }
-            Debug.Log($"Offering initial quest: {_currentQuest.Title} with dialogue: {_currentDialogueStartID}");
+            _currentDialogueStartID = GetStartingDialogueOrFallback(_initialQuest);
+            Debug.Log($"[QuestStarter] Offering initial quest: {_currentQuest.Title}");
             return;
         }
 
-        // Пробежка по цепочке квестов, чтобы найти следующий доступный квест
+        // -------------------------------------------------
+        // 2. Walk the follow-up chain until we find an available quest
+        // -------------------------------------------------
+        QuestSO questToCheck = _initialQuest;
+
         while (questToCheck != null)
         {
-            if (!QuestMemory.Instance.IsQuestCompleted(questToCheck))
+            // Look for the first follow-up whose unlock conditions are satisfied
+            var validFollowUp = questToCheck.FollowUpQuests
+                .FirstOrDefault(fu =>
+                    fu.Quest != null &&
+                    !QuestMemory.Instance.IsQuestCompleted(fu.Quest) &&
+                    (fu.UnlockConditions == null ||
+                     fu.UnlockConditions.Count == 0 ||
+                     ConditionEvaluator.EvaluateUnlockConditions(fu.UnlockConditions))); // <-- NEW OR-SUPPORT!
+
+            if (validFollowUp != null)
             {
-                _currentQuest = questToCheck;
-                _currentDialogueStartID = questToCheck.StartingDialogueID;
-                if (string.IsNullOrEmpty(_currentDialogueStartID))
-                {
-                    Debug.LogWarning($"StartingDialogueID is empty for quest {_currentQuest.Title}. Using DefaultDialogueStartID: {_defaultDialogueStartID}");
-                    _currentDialogueStartID = _defaultDialogueStartID;
-                }
-                Debug.Log($"Offering quest: {_currentQuest.Title} with dialogue: {_currentDialogueStartID}");
+                _currentQuest = validFollowUp.Quest;
+                _currentDialogueStartID = !string.IsNullOrEmpty(validFollowUp.DialogueStartID)
+                    ? validFollowUp.DialogueStartID
+                    : GetStartingDialogueOrFallback(_currentQuest);
+
+                Debug.Log($"[QuestStarter] Offering follow-up quest: {_currentQuest.Title} " +
+                          $"(triggered by {questToCheck.Title})");
                 return;
             }
 
-            // Чек последующих квестов
-            QuestSO nextQuest = null;
-            foreach (var followUp in questToCheck.FollowUpQuests)
-            {
-                if (followUp.UnlockConditions.All(condition => condition.Evaluate()))
-                {
-                    nextQuest = followUp.Quest;
-                    _currentDialogueStartID = followUp.DialogueStartID;
-                    Debug.Log($"Selected follow-up quest: {nextQuest.Title}, DialogueStartID: {_currentDialogueStartID}");
-                    break;
-                }
-            }
-
-            questToCheck = nextQuest;
+            // No valid follow-up в†’ move to the next quest in chain that would have been started
+            // (we have to find which one *was* started as the actual next step)
+            questToCheck = questToCheck.FollowUpQuests
+                .Select(fu => fu.Quest)
+                .FirstOrDefault(q => q != null && QuestMemory.Instance.IsQuestCompleted(q));
         }
 
-        // Если все квесты завершены, используем PostQuestDialogueStartID
-        _currentDialogueStartID = _postQuestDialogueStartID;
-        if (string.IsNullOrEmpty(_currentDialogueStartID))
-        {
-            Debug.LogWarning($"PostQuestDialogueStartID is empty on GameObject {gameObject.name}. Falling back to DefaultDialogueStartID: {_defaultDialogueStartID}");
-            _currentDialogueStartID = _defaultDialogueStartID;
-        }
-        Debug.Log($"No new quests available in the chain. Using PostQuestDialogueStartID: {_currentDialogueStartID}");
+        // -------------------------------------------------
+        // 3. Whole chain completed в†’ post-quest dialogue
+        // -------------------------------------------------
+        _currentDialogueStartID = !string.IsNullOrEmpty(_postQuestDialogueStartID)
+            ? _postQuestDialogueStartID
+            : _defaultDialogueStartID;
+
+        Debug.Log("[QuestStarter] All quests in chain completed в†’ using post-quest dialogue.");
+    }
+
+    private string GetStartingDialogueOrFallback(QuestSO quest)
+    {
+        if (!string.IsNullOrEmpty(quest.StartingDialogueID))
+            return quest.StartingDialogueID;
+
+        Debug.LogWarning($"Quest '{quest.Title}' has no StartingDialogueID в†’ falling back to default.");
+        return _defaultDialogueStartID;
     }
 }

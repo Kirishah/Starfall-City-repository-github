@@ -6,7 +6,7 @@ public class PersistentSystems : MonoBehaviour
     private static PersistentSystems _instance;
 
     // Scenes where the systems should persist
-    [SerializeField] private string[] _persistentInScenes = { "Apartment", "Mansion" };
+    [SerializeField] private string[] _persistentInScenes = { "Apartment", "Mansion", "DemoScene" };
 
     private void Awake()
     {
@@ -27,6 +27,7 @@ public class PersistentSystems : MonoBehaviour
         if (!ShouldPersistInScene(scene.name))
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            Debug.Log("Sytems object has been deleted.");
             Destroy(gameObject);
         }
     }

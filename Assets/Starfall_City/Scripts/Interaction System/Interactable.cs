@@ -1,6 +1,6 @@
-﻿using QTE;
+﻿using Core;
+using QTE;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -109,10 +109,6 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
     // Evaluate all conditions (mirrors QuestSO logic)
     protected bool EvaluateConditions()
     {
-        bool forceDebugThisFrame = false;
-
-        bool shouldLog = enableConditionLogging || forceDebugThisFrame || Debug.isDebugBuild;
-
         if (unlockConditions == null || unlockConditions.Count == 0)
         {
             if (enableConditionLogging)
@@ -120,22 +116,38 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
             return true;
         }
 
-        bool allMet = true;
-        for (int i = 0; i < unlockConditions.Count; i++)
+        bool allMet = core.ConditionEvaluator.EvaluateUnlockConditions(unlockConditions);
+
+        if (enableConditionLogging || Debug.isDebugBuild)
         {
-            var cond = unlockConditions[i];
-            bool met = cond.Evaluate();
-
-            if (shouldLog)
+            Debug.Log($"[Conditions] {name}: Final evaluation result = {allMet}");
+            for (int i = 0; i < unlockConditions.Count; i++)
             {
-                Debug.Log($"[Conditions] {name}: [{i}] {cond.Type} | Target: '{cond.TargetID}' | Required: {cond.RequiredAmount} → {(met ? "MET" : "NOT MET")}");
+                var cond = unlockConditions[i];
+                bool met = false;
+                // Re-evaluate individually just for logging
+                switch (cond.Type)
+                {
+                    case ConditionType.QuestCompleted:
+                        var q = Resources.Load<QuestSO>("Quests/" + cond.TargetID);
+                        met = q != null && QuestMemory.Instance.IsQuestCompleted(q);
+                        break;
+                    case ConditionType.ObjectiveCompleted:
+                        met = QuestMemory.Instance.IsObjectiveCompleted(cond.TargetID);
+                        break;
+                    case ConditionType.ItemPossessed:
+                        var item = ItemDataBase.Instance.GetItemByID(cond.TargetID);
+                        met = item != null && InventoryManager.Instance.HasItem(item, cond.RequiredAmount);
+                        break;
+                    case ConditionType.GameEventTriggered:
+                        met = GameEventManager.Instance.IsEventTriggered(cond.TargetID);
+                        break;
+                }
+
+                string op = (i < unlockConditions.Count - 1) ? cond.NextOperator.ToString() : "";
+                Debug.Log($"[Conditions] {name}: [{i}] {cond.Type} '{cond.TargetID}' → {(met ? "TRUE" : "FALSE")} {op}");
             }
-
-            if (!met) allMet = false;
         }
-
-        if (shouldLog && allMet)
-            Debug.Log($"[Conditions] {name}: ALL CONDITIONS NOW MET! Unlocking interaction.");
 
         return allMet;
     }

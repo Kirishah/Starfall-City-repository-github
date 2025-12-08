@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -105,6 +106,76 @@ namespace core
                 return false;
             }
             return CharacteristicsManager.Instance.CheckRequirement(charType, requiredValue);
+        }
+
+        public static bool EvaluateUnlockConditions(List<QuestSO.UnlockCondition> conditions)
+        {
+            if (conditions == null || conditions.Count == 0)
+                return true;
+
+            bool result = EvaluateSingleUnlockCondition(conditions[0]);
+
+            if (conditions.Count == 1)
+                return result; // Early exit for single condition
+
+            // Now process from the second condition onward
+            for (int i = 1; i < conditions.Count; i++)
+            {
+                var currentCondition = conditions[i];
+                bool currentResult = EvaluateSingleUnlockCondition(currentCondition);
+
+                // The operator that connects (i-1) → i is stored on the PREVIOUS condition
+                var previousOperator = conditions[i - 1].NextOperator;
+
+                if (previousOperator == QuestSO.UnlockCondition.LogicOperator.OR)
+                {
+                    result = result || currentResult;
+                }
+                else // AND
+                {
+                    result = result && currentResult;
+                }
+            }
+
+            return result;
+        }
+
+        private static bool EvaluateSingleUnlockCondition(QuestSO.UnlockCondition cond)
+        {
+            switch (cond.Type)
+            {
+                case QuestSO.UnlockCondition.ConditionType.QuestCompleted:
+                    QuestSO targetQuest = Resources.Load<QuestSO>("Quests/" + cond.TargetID);
+                    if (targetQuest == null)
+                    {
+                        Debug.LogError($"Condition Evaluation Failed: Quest '{cond.TargetID}' not found in Resources/Quests/");
+                        return false;
+                    }
+                    bool questCompleted = QuestMemory.Instance.IsQuestCompleted(targetQuest);
+                    Debug.Log($"QuestCompleted Condition: {cond.TargetID} -> {questCompleted}");
+                    return questCompleted;
+
+                case QuestSO.UnlockCondition.ConditionType.ObjectiveCompleted:
+                    bool objCompleted = QuestMemory.Instance.IsObjectiveCompleted(cond.TargetID);
+                    Debug.Log($"ObjectiveCompleted Condition: {cond.TargetID} -> {objCompleted} " +
+                             $"(Completed: {string.Join(", ", QuestMemory.Instance.GetCompletedObjectiveIDs())})");
+                    return objCompleted;
+
+                case QuestSO.UnlockCondition.ConditionType.ItemPossessed:
+                    Item item = ItemDataBase.Instance.GetItemByID(cond.TargetID);
+                    bool hasItem = item != null && InventoryManager.Instance.HasItem(item, cond.RequiredAmount);
+                    Debug.Log($"ItemPossessed Condition: {cond.TargetID} x{cond.RequiredAmount} -> {hasItem}");
+                    return hasItem;
+
+                case QuestSO.UnlockCondition.ConditionType.GameEventTriggered:
+                    bool triggered = GameEventManager.Instance.IsEventTriggered(cond.TargetID);
+                    Debug.Log($"GameEventTriggered Condition: {cond.TargetID} -> {triggered}");
+                    return triggered;
+
+                default:
+                    Debug.LogWarning($"Unknown unlock condition type: {cond.Type}");
+                    return false;
+            }
         }
 
         private static bool IsQuestObjectiveActive(string npcID, string itemID)

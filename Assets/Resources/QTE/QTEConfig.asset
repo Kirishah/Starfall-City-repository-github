@@ -17,7 +17,13 @@ MonoBehaviour:
   doubleClickThreshold: 0.2
   beatInterval: 0.8
   holdDuration: 2
+  initialSpawnDelay: 2
   basePoints: 100
   comboMultiplier: 0.1
   qteDuration: 30
   audioSourcePoolSize: 100
+  enableRival: 1
+  rivalAccuracy: 0.95
+  rivalReactionDelay: 0.08
+  rivalIntentionalMissChance: 0.1
+  rivalComboAggression: 1.2

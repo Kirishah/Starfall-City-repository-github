@@ -28,7 +28,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     public static System.Action OnDialogueEnded;
 
     // Событие для запуска QTE
-    public delegate void QTETriggerAction();
+    public delegate void QTETriggerAction(string qteID);
     public static event QTETriggerAction OnQTETrigger;
 
     #region Initialization
@@ -116,7 +116,12 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             Debug.Log($"[Dialogue] Published event from choice: {selectedChoice.publishEvent}");
         }
 
-        if (triggersQTE) OnQTETrigger?.Invoke();
+        if (triggersQTE)
+        {
+            string qteID = currentDialogue?.qteID ?? "default_dance_battle";
+            OnQTETrigger?.Invoke(qteID);
+            Debug.Log($"[Dialogue] Triggered QTE with ID: {qteID}");
+        }
 
         if (string.IsNullOrEmpty(targetID) || targetID == "-1")
         {
@@ -246,7 +251,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
                 Debug.Log($"skipAutoStart=true on current node → no auto-start this time");
             }
         }
-
+        string completedDialogueId = currentStartID;
         OnDialogueEnded?.Invoke();
         currentStartID = null;
     }

@@ -1,3 +1,5 @@
+using core;
+using Core;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -40,60 +42,21 @@ public class QuestSO : ScriptableObject
             GameEventTriggered
         }
 
+        public enum LogicOperator
+        {
+            AND,
+            OR
+        }
+
         [SerializeField] private ConditionType type;
         [SerializeField] private string targetID;
-        [SerializeField] private int requiredAmount;
+        [SerializeField] private int requiredAmount = 1;
+        [SerializeField] private LogicOperator nextOperator = LogicOperator.AND;
 
         public ConditionType Type => type;
         public string TargetID => targetID;
         public int RequiredAmount => requiredAmount;
-
-        public bool Evaluate()
-        {
-            bool result = false;
-
-            switch (Type)
-            {
-                case ConditionType.QuestCompleted:
-                    QuestSO targetQuest = Resources.Load<QuestSO>("Quests/" + TargetID);
-                    if (targetQuest == null)
-                    {
-                        Debug.LogError($"Condition Evaluation Failed: Quest '{TargetID}' not found in Resources/Quests/");
-                        result = false;
-                    }
-                    else
-                    {
-                        result = QuestMemory.Instance.IsQuestCompleted(targetQuest);
-                        Debug.Log($"QuestCompleted Condition: {TargetID} -> {result}");
-                    }
-                    break;
-
-                case ConditionType.ObjectiveCompleted:
-                    result = QuestMemory.Instance.IsObjectiveCompleted(TargetID);
-                    Debug.Log($"ObjectiveCompleted Condition: {TargetID} -> {result} " +
-                             $"(Completed Objectives: {string.Join(", ", QuestMemory.Instance.GetCompletedObjectiveIDs())})");
-                    break;
-
-                case ConditionType.ItemPossessed:
-                    Item item = ItemDataBase.Instance.GetItemByID(TargetID);
-                    result = item != null && InventoryManager.Instance.HasItem(item, RequiredAmount);
-                    Debug.Log($"ItemPossessed Condition: {TargetID} x{RequiredAmount} -> {result}");
-                    break;
-
-                case ConditionType.GameEventTriggered:
-                    result = GameEventManager.Instance.IsEventTriggered(TargetID);
-                    Debug.Log($"GameEventTriggered Condition: {TargetID} -> {result}");
-                    break;
-
-                default:
-                    Debug.LogWarning($"Unknown condition type: {Type}");
-                    result = false;
-                    break;
-            }
-
-            Debug.Log($"Condition Evaluation: {Type} '{TargetID}' = {result}");
-            return result;
-        }
+        public LogicOperator NextOperator => nextOperator;
     }
 
     [SerializeField]

@@ -585,6 +585,7 @@
       {
         "text": "Да пошел ты НА*УЙ!» [уе*ать ему с размаху] (+1 ауры, + 1 дури, - 2000 баксов из зарплаты)",
         "delta_points": 1,
+        "publishEvent": "letTheFightBegin",
         "targetID": "d_boss_fight"
       }
     ]

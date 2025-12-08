@@ -21,6 +21,9 @@ namespace QTE
         [SerializeField, Tooltip("Duration required to hold an arrow to succeed (seconds).")]
         public float holdDuration = 2f;
 
+        [SerializeField, Tooltip("Time in seconds before first arrow spawns")]
+        [Min(0f)] public float initialSpawnDelay = 2.0f;
+
         [Header("Scoring")]
         [SerializeField, Tooltip("Base points awarded for a successful QTE input.")]
         [Min(0)] public int basePoints = 100;
@@ -31,12 +34,26 @@ namespace QTE
         [Header("QTE Timing")]
         [SerializeField, Tooltip("Total duration of the QTE (seconds).")]
         [Min(0f)] public float qteDuration = 90f;
-        [SerializeField, Tooltip("Time in seconds before first arrow spawns")]
-        [Min(0f)] public float initialSpawnDelay = 2.0f; 
 
         [Header("Audio")]
         [SerializeField, Tooltip("Number of AudioSource components in the pool for one-shot sounds.")]
         [Min(1)] public int audioSourcePoolSize = 10;
+
+        [Header("NPC Rival AI")]
+        [Tooltip("Enable NPC rival dancer in this QTE.")]
+        public bool enableRival = true;
+
+        [Tooltip("NPC reaction accuracy: 1.0 = perfect, 0.9 = misses 10% of inputs.")]
+        [Range(0.7f, 1.0f)] public float rivalAccuracy = 0.95f;
+
+        [Tooltip("NPC reaction delay in seconds (simulates human-like delay).")]
+        [Range(0.0f, 0.3f)] public float rivalReactionDelay = 0.08f;
+
+        [Tooltip("Chance (0–1) that NPC intentionally misses a Hold or Double arrow to feel human.")]
+        [Range(0f, 0.3f)] public float rivalIntentionalMissChance = 0.1f;
+
+        [Tooltip("NPC combo streak bonus scaling (higher = more aggressive comeback).")]
+        [Range(0.5f, 2f)] public float rivalComboAggression = 1.2f;
 
         private void OnValidate()
         {
@@ -90,6 +107,9 @@ namespace QTE
                 Debug.LogWarning("AudioSourcePoolSize should be at least 1.", this);
                 audioSourcePoolSize = 1;
             }
+            rivalAccuracy = Mathf.Clamp01(rivalAccuracy);
+            rivalReactionDelay = Mathf.Clamp(rivalReactionDelay, 0f, 0.3f);
+            rivalIntentionalMissChance = Mathf.Clamp01(rivalIntentionalMissChance);
         }
     } 
 }
