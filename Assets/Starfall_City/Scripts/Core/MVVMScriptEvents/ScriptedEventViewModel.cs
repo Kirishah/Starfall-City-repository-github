@@ -689,9 +689,24 @@ namespace core
                 var agent = obj.GetComponent<NavMeshAgent>();
                 agent?.EnterCinematicMode();
 
-                Debug.Log($"Transferred: {obj.name} → {spawnId}");
+                // === CRITICAL: Remove DDOL state AFTER deduplication has had a chance to run ===
+                var ddolTag = obj.GetComponent<DontDestroyOnLoadTag>();
+                if (ddolTag != null)
+                {
+                    // Delay just one frame to ensure Awake()/deduplication has run in new scene
+                    obj.GetComponent<MonoBehaviour>().StartCoroutine(RemoveDDOLNextFrame(ddolTag));
+                }
+
+                Debug.Log($"Transferred & deduplicated: {obj.name} → {spawnId}");
             }
             _pendingTransfers.Clear();
+        }
+
+        private static IEnumerator RemoveDDOLNextFrame(DontDestroyOnLoadTag tag)
+        {
+            yield return null; // Wait one frame → ensures all Awake() calls (including deduplication) have run
+            if (tag != null && tag.gameObject != null)
+                tag.MakeNormalAgain();
         }
 
         private async Task AwaitCoroutineAsync(IEnumerator routine)

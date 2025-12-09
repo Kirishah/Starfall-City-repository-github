@@ -108,7 +108,7 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
     {
         if (menuTweaker != null)
         {
-            menuTweaker.ToggleMenuBar();
+            menuTweaker.ToggleInGameMenu();
         }
         else
         {

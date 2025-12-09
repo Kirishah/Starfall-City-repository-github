@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PersistentSystems : MonoBehaviour
@@ -10,15 +10,24 @@ public class PersistentSystems : MonoBehaviour
 
     private void Awake()
     {
-        if (_instance != null)
+        if (_instance != null && _instance != this)
         {
-            Destroy(gameObject); // Prevent duplicates
+            Destroy(gameObject);
             return;
         }
 
         _instance = this;
-        SceneManager.sceneLoaded += OnSceneLoaded;
         DontDestroyOnLoad(gameObject);
+
+        // Check immediately (important when Systems are created in a non-persistent scene)
+        if (!ShouldPersistInScene(SceneManager.GetActiveScene().name))
+        {
+            Debug.Log($"PersistentSystems: Current scene '{SceneManager.GetActiveScene().name}' is not persistent → destroying Systems.");
+            Destroy(gameObject);
+            return;
+        }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

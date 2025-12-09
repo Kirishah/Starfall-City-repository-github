@@ -25,8 +25,21 @@ namespace QTE
 
         private void Start()
         {
-            ResolveRivalDancer();
             if (config == null) Debug.LogError("QTEConfig missing on RivalDancer!", this);
+        }
+
+        private void TryResolveDancer()
+        {
+            PersistentRegistry.OnReady -= TryResolveDancer; // Unsubscribe immediately
+
+            if (ResolveRivalDancer())
+            {
+                Debug.Log("RivalDancer: Dancer resolved successfully");
+            }
+            else
+            {
+                Debug.LogError($"{name}: FAILED to resolve dancer even after registry ready!");
+            }
         }
 
         private bool ResolveRivalDancer()
@@ -34,36 +47,38 @@ namespace QTE
             // Resolve Player Dancer
             if (dancer == null || !dancer.IsValid)
             {
-                Debug.LogError("DanceGameManager: Player dancer PersistentReference is missing or invalid!");
+                Debug.LogError("RivalDancer: Player dancer PersistentReference is missing or invalid!");
                 return false;
             }
 
             _dancerGO = dancer.Get<GameObject>();
             if (_dancerGO == null)
             {
-                Debug.LogError("DanceGameManager: Failed to resolve dancer GameObject — check PersistentRegistry fix!");
+                Debug.LogError("RivalDancer: Failed to resolve dancer GameObject — check PersistentRegistry fix!");
                 return false;
             }
 
             _dancerAnimator = _dancerGO.GetComponent<Animator>();
             if (_dancerAnimator == null)
             {
-                Debug.LogError($"DanceGameManager: No Animator on dancer {_dancerGO.name}!");
+                Debug.LogError($"RivalDancer: No Animator on dancer {_dancerGO.name}!");
                 return false;
             }
 
-            Debug.Log($"DanceGameManager: Player dancer resolved → {_dancerGO.name}");
+            Debug.Log($"RivalDancer: Player dancer resolved → {_dancerGO.name}");
             return true;
         }
 
         private void OnEnable()
         {
+            PersistentRegistry.OnReady += TryResolveDancer;
             DanceArrow.OnArrowEnteredHitZone += OnArrowHittable;
             DanceGameManager.OnQTEComplete += OnQTEEnded;
         }
 
         private void OnDisable()
         {
+            PersistentRegistry.OnReady -= TryResolveDancer;
             DanceArrow.OnArrowEnteredHitZone -= OnArrowHittable;
             DanceGameManager.OnQTEComplete -= OnQTEEnded;
         }

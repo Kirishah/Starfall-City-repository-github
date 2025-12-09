@@ -94,7 +94,7 @@ MonoBehaviour:
     spawnYRotation: 0
   - actionType: 2
     targetTag: Martha
-    targetPosition: {x: -11, y: 0, z: 1.54}
+    targetPosition: {x: -11.5, y: 0, z: 1.6}
     animationName: 
     paramName: 
     boolValue: 0
@@ -146,7 +146,7 @@ MonoBehaviour:
     spawnYRotation: 0
   - actionType: 2
     targetTag: Louise
-    targetPosition: {x: -11, y: 0, z: 2}
+    targetPosition: {x: -11.3, y: 0, z: -1}
     animationName: 
     paramName: 
     boolValue: 0

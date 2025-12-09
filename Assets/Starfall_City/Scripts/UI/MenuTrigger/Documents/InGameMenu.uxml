@@ -1,9 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ui:UXML
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ui="UnityEngine.UIElements"
-    xmlns:uie="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
->
-    
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Starfall_City/Scripts/UI/MenuTrigger/Documents/InGameMenu.uss?fileID=7433441132597879392&amp;guid=5e128caa5bad63d4eabc240f02000acf&amp;type=3#InGameMenu"/>
+    <ui:VisualElement name="Root" style="flex-grow: 1; justify-content: flex-start; align-items: auto; align-content: auto; align-self: auto;">
+        <ui:VisualElement name="MenuBar" class="menuBar">
+            <ui:Button text="Button" name="Continue" class="button" style="background-image: url(&quot;project://database/Assets/Starfall_City/UI/Sprites/SettingsButtons/Settings_Tab.PNG?fileID=1585799031&amp;guid=de0044a799dd1db4d874c4675b944d00&amp;type=3#Settings_Tab_0&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
+            <ui:Button text="Button" name="Save" class="button" style="background-image: url(&quot;project://database/Assets/Starfall_City/UI/Sprites/SettingsButtons/Settings_Tab.PNG?fileID=987302754&amp;guid=de0044a799dd1db4d874c4675b944d00&amp;type=3#Settings_Tab_1&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
+            <ui:Button text="Button" name="Load" class="button" style="background-image: url(&quot;project://database/Assets/Starfall_City/UI/Sprites/SettingsButtons/Settings_Tab.PNG?fileID=1383735962&amp;guid=de0044a799dd1db4d874c4675b944d00&amp;type=3#Settings_Tab_2&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
+            <ui:Button text="Button" name="Options" class="button" style="background-image: url(&quot;project://database/Assets/Starfall_City/UI/Sprites/SettingsButtons/Settings_Tab.PNG?fileID=-1634313045&amp;guid=de0044a799dd1db4d874c4675b944d00&amp;type=3#Settings_Tab_5&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
+            <ui:VisualElement name="ExitContainer" class="exitContainer">
+                <ui:Button text="Button" name="ExitToMainMenu" class="exit-button" style="background-image: url(&quot;project://database/Assets/Starfall_City/UI/Sprites/SettingsButtons/Settings_Tab.PNG?fileID=461461262&amp;guid=de0044a799dd1db4d874c4675b944d00&amp;type=3#Settings_Tab_3&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
+                <ui:Button text="Button" name="Exit" class="exit-button" style="background-image: url(&quot;project://database/Assets/Starfall_City/UI/Sprites/SettingsButtons/Settings_Tab.PNG?fileID=975298535&amp;guid=de0044a799dd1db4d874c4675b944d00&amp;type=3#Settings_Tab_4&quot;); background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

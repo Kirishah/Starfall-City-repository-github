@@ -4,11 +4,16 @@ using QTE;
 
 public class CameraMovement : MonoBehaviour
 {
-    private Transform target;
-    [SerializeField] private Vector3 offset = new Vector3(-3, 5, -3);
-    [SerializeField] private float smoothTime = 0.1f;
-    [SerializeField] private float edgeMoveSpeed = 5f;
-    [SerializeField] private float borderThickness = 50f;
+    [Header("Target")]
+    [SerializeField] private Transform target;                   // Drag player here or auto-find
+
+    [Header("Isometric Follow")]
+    [SerializeField] private Vector3 offset = new Vector3(-3f, 5f, -3f);  // Your perfect isometric offset
+    [SerializeField] private float smoothTime = 0.12f;                     // Slight smoothing feels great
+
+    [Header("Free Movement (Edge Scroll)")]
+    [SerializeField] private float edgeMoveSpeed = 18f;
+    [SerializeField] private float borderThickness = 40f;
 
     [Header("Wall Transparency")]
     [SerializeField] private Material transparentMaterial;  // Assign your semi-transparent wall material here
@@ -18,19 +23,27 @@ public class CameraMovement : MonoBehaviour
 
     private Vector3 velocity = Vector3.zero;
     private bool isFollowing = true;
-    private Vector3 originalOffset;
-    private float fixedYPosition;  // начальное положение по оси Y
+    private Vector3 initialOffset;          // Stores the original fixed offset
+    private float fixedY;                   // Locked Y position (isometric must stay level)
+
+    // Wall transparency tracking
     private MeshRenderer currentWall;  // Tracks the obstructing wall
     private Collider currentWallCollider;  // Tracks the obstructing wall's collider
     private Material originalWallMaterial;  // Stores the original shared material for the current wall
     private bool isObstructed = false;
     private float unobstructedTime = 0f;
 
+
+    private void Awake()
+    {
+        initialOffset = offset;
+        fixedY = transform.position.y;  // Lock height from the start
+    }
+
     void Start()
     {
-        originalOffset = offset;
-        fixedYPosition = transform.position.y;  
-        StartCoroutine(FindPlayer());
+        if (target == null)
+            StartCoroutine(FindPlayer());
     }
 
     void Update()
@@ -39,8 +52,7 @@ public class CameraMovement : MonoBehaviour
         // Переключение режима камеры с помощью клавиши F
         if (Input.GetKeyDown(KeyCode.F))
         {
-            isFollowing = !isFollowing;
-            if (isFollowing) offset = originalOffset;  
+            isFollowing = !isFollowing; 
         }
 
         // Перемещение камеры мышкой по краям экрана
@@ -52,24 +64,30 @@ public class CameraMovement : MonoBehaviour
 
     void LateUpdate()
     {
-        if (isFollowing && target != null)
+        if (target == null) return;
+
+        if (isFollowing)
         {
-            // Плавное следование с исходным смещением
-            Vector3 targetPosition = target.position + offset;
-            targetPosition.y = fixedYPosition;  
-            transform.position = Vector3.SmoothDamp(
-                transform.position,
-                targetPosition,
-                ref velocity,
-                smoothTime
-            );
+            FollowPlayerIsometric();
         }
 
-        // Always handle wall transparency if player exists (works in both modes)
-        if (target != null)
-        {
-            HandleWallTransparency();
-        }
+        HandleWallTransparency();
+    }
+
+    private void FollowPlayerIsometric()
+    {
+        Vector3 targetPosition = target.position + initialOffset;
+        targetPosition.y = fixedY; // Enforce fixed height — essential for isometric
+
+        transform.position = Vector3.SmoothDamp(
+            transform.position,
+            targetPosition,
+            ref velocity,
+            smoothTime
+        );
+
+        // Optional: force exact rotation every frame (prevents any drift)
+        transform.rotation = Quaternion.Euler(45f, 45f, 0f);
     }
 
     void HandleWallTransparency()
@@ -181,57 +199,44 @@ public class CameraMovement : MonoBehaviour
         Debug.Log("Reverting back to the shared material and activating collider");
     }
 
-    void HandleEdgeMovement()
+    private void HandleEdgeMovement()
     {
-        Vector3 mousePos = Input.mousePosition;
-        Vector3 movement = Vector3.zero;
+        Vector3 move = Vector3.zero;
+        Vector2 mouse = Input.mousePosition;
 
-        // Получение относительных направлений камеры (только в плоскости XZ)
+        // Use camera's own forward/right projected on XZ plane (isometric-friendly)
         Vector3 forward = transform.forward;
-        forward.y = 0;
-        forward.Normalize();
+        forward.y = 0; forward.Normalize();
 
         Vector3 right = transform.right;
-        right.y = 0;
-        right.Normalize();
+        right.y = 0; right.Normalize();
 
-        // Чек краев экрана
-        if (mousePos.y >= Screen.height - borderThickness)
-            movement += forward;
-        if (mousePos.y <= borderThickness)
-            movement -= forward;
-        if (mousePos.x >= Screen.width - borderThickness)
-            movement += right;
-        if (mousePos.x <= borderThickness)
-            movement -= right;
+        if (mouse.y >= Screen.height - borderThickness) move += forward;
+        if (mouse.y <= borderThickness) move -= forward;
+        if (mouse.x >= Screen.width - borderThickness) move += right;
+        if (mouse.x <= borderThickness) move -= right;
 
-        // Движение без изменения вектора Y
-        Vector3 newPosition = transform.position + movement.normalized * edgeMoveSpeed * Time.deltaTime;
-        newPosition.y = fixedYPosition;  // Keep original height
-        transform.position = newPosition;
+        if (move != Vector3.zero)
+        {
+            Vector3 delta = move.normalized * edgeMoveSpeed * Time.deltaTime;
+            delta.y = 0;
+            transform.position += delta;
+        }
     }
 
-    IEnumerator FindPlayer()
+    private IEnumerator FindPlayer()
     {
         yield return new WaitForSeconds(0.1f);
-
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
             target = player.transform;
-            offset = new Vector3(
-                transform.position.x - target.position.x,
-                0,  // Ignore Y difference
-                transform.position.z - target.position.z
-            );
-            originalOffset = offset;
-            fixedYPosition = transform.position.y;  // Set initial height
         }
         else
         {
-            Debug.LogError("Player not found! Retrying...");
+            Debug.LogWarning("Player not found, retrying...");
             yield return new WaitForSeconds(0.5f);
-            StartCoroutine(FindPlayer()); // Retry if player not found
+            StartCoroutine(FindPlayer());
         }
     }
 }

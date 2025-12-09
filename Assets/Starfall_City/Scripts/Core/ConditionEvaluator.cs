@@ -145,6 +145,7 @@ namespace core
             switch (cond.Type)
             {
                 case QuestSO.UnlockCondition.ConditionType.QuestCompleted:
+                    if (QuestMemory.Instance == null) return false;
                     QuestSO targetQuest = Resources.Load<QuestSO>("Quests/" + cond.TargetID);
                     if (targetQuest == null)
                     {
@@ -156,18 +157,21 @@ namespace core
                     return questCompleted;
 
                 case QuestSO.UnlockCondition.ConditionType.ObjectiveCompleted:
+                    if (QuestMemory.Instance == null) return false;
                     bool objCompleted = QuestMemory.Instance.IsObjectiveCompleted(cond.TargetID);
                     Debug.Log($"ObjectiveCompleted Condition: {cond.TargetID} -> {objCompleted} " +
                              $"(Completed: {string.Join(", ", QuestMemory.Instance.GetCompletedObjectiveIDs())})");
                     return objCompleted;
 
                 case QuestSO.UnlockCondition.ConditionType.ItemPossessed:
+                    if (QuestMemory.Instance == null) return false;
                     Item item = ItemDataBase.Instance.GetItemByID(cond.TargetID);
                     bool hasItem = item != null && InventoryManager.Instance.HasItem(item, cond.RequiredAmount);
                     Debug.Log($"ItemPossessed Condition: {cond.TargetID} x{cond.RequiredAmount} -> {hasItem}");
                     return hasItem;
 
                 case QuestSO.UnlockCondition.ConditionType.GameEventTriggered:
+                    if (QuestMemory.Instance == null) return false;
                     bool triggered = GameEventManager.Instance.IsEventTriggered(cond.TargetID);
                     Debug.Log($"GameEventTriggered Condition: {cond.TargetID} -> {triggered}");
                     return triggered;

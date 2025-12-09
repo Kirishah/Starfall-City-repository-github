@@ -19,16 +19,22 @@ public class DontDestroyOnLoadTag : MonoBehaviour
     // Call this when transfer is complete (optional!)
     public void MakeNormalAgain()
     {
-        SceneManager.MoveGameObjectToScene(gameObject, originalScene);
-
-        // If the original scene is already unloaded, move to current active scene
-        if (!originalScene.isLoaded)
+        // Optional: only do this if we're in a real scene (not DDOL)
+        if (gameObject.scene.buildIndex == -1) // DDOL scene
         {
-            Scene activeScene = SceneManager.GetActiveScene();
-            if (activeScene.isLoaded)
-                SceneManager.MoveGameObjectToScene(gameObject, activeScene);
+            Scene targetScene = SceneManager.GetActiveScene();
+            if (targetScene.isLoaded)
+                SceneManager.MoveGameObjectToScene(gameObject, targetScene);
+        }
+        else
+        {
+            // Already in a real scene
+            SceneManager.MoveGameObjectToScene(gameObject, gameObject.scene);
         }
 
-        Destroy(this); // Remove the component
+        // Remove the tag component
+        Destroy(this);
+
+        Debug.Log($"[DontDestroyOnLoadTag] Made normal again: {gameObject.name}");
     }
 }

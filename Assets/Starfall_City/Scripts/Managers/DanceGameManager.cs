@@ -1,10 +1,9 @@
 ﻿using Cinemachine;
-using Core;
-using System;
+using core;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using core;
 
 namespace QTE
 {
@@ -40,12 +39,15 @@ namespace QTE
 
         void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else if (Instance != this)
             {
                 Destroy(gameObject);
                 return;
             }
-            Instance = this;
 
             audioSourcePool = new List<AudioSource>();
             availableAudioSources = new Queue<AudioSource>();
@@ -64,9 +66,18 @@ namespace QTE
             InitializeAudioSourcePool();
         }
 
-        private void Start()
+        private void TryResolveDancer()
         {
-            ResolvePlayerDancer();
+            PersistentRegistry.OnReady -= TryResolveDancer; // Only once
+
+            if (ResolvePlayerDancer())
+            {
+                Debug.Log("DanceGameManager: Dancer resolved successfully via PersistentRegistry.OnReady");
+            }
+            else
+            {
+                Debug.LogError("DanceGameManager: FAILED to resolve dancer even after registry ready!");
+            }
         }
 
         private bool ResolvePlayerDancer()
@@ -118,11 +129,13 @@ namespace QTE
 
         private void OnEnable()
         {
+            PersistentRegistry.OnReady += TryResolveDancer;
             DanceInput.OnArrowEvent += HandleArrowEvent;
         }
 
         private void OnDisable()
         {
+            PersistentRegistry.OnReady -= TryResolveDancer;
             DanceInput.OnArrowEvent -= HandleArrowEvent;
         }
 

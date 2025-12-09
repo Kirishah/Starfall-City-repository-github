@@ -10,6 +10,8 @@ namespace core
 
         private readonly Dictionary<string, Object> _registry = new();
 
+        public static event System.Action OnReady;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -29,6 +31,13 @@ namespace core
                 // In edit mode, allow temporary existence
                 hideFlags = HideFlags.HideAndDontSave;
             }
+
+            Debug.Log("PersistentRegistry: READY — all references can now be safely resolved");
+        }
+
+        private void Start()
+        {
+            OnReady?.Invoke();
         }
 
         public void Register(IPersistentId obj)

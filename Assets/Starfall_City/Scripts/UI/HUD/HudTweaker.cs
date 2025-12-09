@@ -17,8 +17,4 @@ public class HudTweaker : MonoBehaviour
         phoneController.TogglePhone();
     }
 
-    public void MenuOpen()
-    {
-        menuTweaker.ToggleMenuBar();
-    }
 }

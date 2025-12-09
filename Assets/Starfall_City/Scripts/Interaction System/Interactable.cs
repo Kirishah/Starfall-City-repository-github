@@ -90,7 +90,7 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
 
     protected virtual void Update()
     {
-        if (QTEGameManager.IsQTEActive) return;
+        if (QTEGameManager.IsQTEActive || !GameSystems.IsReady) return;
 
         // Initial evaluation the first time player gets near/hovers
         if (!_conditionsEverEvaluated && (_isInProximity || _isHovered))
@@ -129,17 +129,21 @@ public abstract class Interactable : MonoBehaviour, QTEGameManager.IRPGComponent
                 switch (cond.Type)
                 {
                     case ConditionType.QuestCompleted:
+                        if (QuestMemory.Instance == null) return false;
                         var q = Resources.Load<QuestSO>("Quests/" + cond.TargetID);
                         met = q != null && QuestMemory.Instance.IsQuestCompleted(q);
                         break;
                     case ConditionType.ObjectiveCompleted:
+                        if (QuestMemory.Instance == null) return false;
                         met = QuestMemory.Instance.IsObjectiveCompleted(cond.TargetID);
                         break;
                     case ConditionType.ItemPossessed:
+                        if (QuestMemory.Instance == null) return false;
                         var item = ItemDataBase.Instance.GetItemByID(cond.TargetID);
                         met = item != null && InventoryManager.Instance.HasItem(item, cond.RequiredAmount);
                         break;
                     case ConditionType.GameEventTriggered:
+                        if (QuestMemory.Instance == null) return false;
                         met = GameEventManager.Instance.IsEventTriggered(cond.TargetID);
                         break;
                 }

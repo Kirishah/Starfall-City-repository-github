@@ -17,7 +17,7 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void Update()
     {
-        if (QTEGameManager.IsQTEActive) return;
+        if (QTEGameManager.IsQTEActive || !GameSystems.IsReady) return;
 
         DetectProximityInteractables();
         DetectHoverInteractable();
@@ -54,6 +54,7 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void DetectHoverInteractable()
     {
+        if (Camera.main == null) return;
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit, Mathf.Infinity, interactableLayer))
         {
