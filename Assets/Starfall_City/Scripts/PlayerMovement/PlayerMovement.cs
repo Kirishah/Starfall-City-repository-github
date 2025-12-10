@@ -1,102 +1,178 @@
 using UnityEngine;
-using System.Collections;
 using UnityEngine.AI;
-using Invector.vCharacterController;
-using UnityEngine.EventSystems;
+using QTE;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [Header("References")]
-    private Camera cam;
     public NavMeshAgent player;
+    private Interactable _currentTargetInteractable;
 
     [Header("Movement Settings")]
     private Vector3 lastPosition;
     private Vector3 velocity;
-    // private const bool V = false;
+    private const float DefaultStoppingDistance = 0.1f;
 
     [Header("Destination Indicator")]
     public GameObject destinationIndicatorPrefab; 
     private GameObject destinationIndicator;
 
-    private void Awake()
-    {
-        cam = GetComponent<Camera>();
-    }
+    [Header("Interaction")]
+    [SerializeField] private float interactionRange = 1.5f;
+
+    [Header("Controls")]
+    public bool controlsEnabled = true;
+
     private void Start()
     {
-       // player.updateRotation = V;
+       lastPosition = transform.position;
+       player.stoppingDistance = DefaultStoppingDistance;
+       player.angularSpeed = 360f; // Increased for smoother, faster turns
+       player.acceleration = 20f; // Increased for quicker speed changes
 
-        lastPosition = transform.position;
+       DialogueManager_UIToolkit.OnDialogueStarted += PauseControls;
+       DialogueManager_UIToolkit.OnDialogueEnded += ResumeControls;
     }
+
+    private void OnDestroy() 
+    {
+        DialogueManager_UIToolkit.OnDialogueStarted -= PauseControls;
+        DialogueManager_UIToolkit.OnDialogueEnded -= ResumeControls;
+    }
+
+    public void PauseControls() => controlsEnabled = false;
+    public void ResumeControls() => controlsEnabled = true;
 
     void Update()
     {
-        if (Input.GetMouseButton(1)) // Right mouse button
+        if (QTEGameManager.IsQTEActive || !controlsEnabled)
         {
-            MovePlayer();
+            CalculateVelocity(); // Still update velocity for animations
+            return;
+        }
+
+        if (player.enabled)
+        {
+            if (Input.GetMouseButtonDown(1))
+            {
+                HandleMovementInput();
+            }
+            CheckIfReachedDestination();
         }
         CalculateVelocity();
-        CheckIfReachedDestination();
     }
 
-    void MovePlayer()
+    void HandleMovementInput()
     {
-        // Get the mouse position in the world
+        // Early exit if NavMeshAgent isn't active
+        if (!player.enabled) return;
+        // Clear previous interaction target immediately
+        _currentTargetInteractable = null;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hitPoint;
+        if (!Physics.Raycast(ray, out RaycastHit hit)) return;
 
-        if (Physics.Raycast(ray, out hitPoint))
+        // Check if we clicked an interactable
+        Interactable interactable = hit.collider.GetComponent<Interactable>();
+        if (interactable != null)
         {
-            // Set the destination for the NavMeshAgent
-            player.SetDestination(hitPoint.point);
-
-            // Calculate the movement direction
-            Vector3 targetPosition = hitPoint.point;
-            targetPosition.y = transform.position.y; // Keep the y position the same to avoid vertical 
-
-            if (destinationIndicator == null)
-            {
-                destinationIndicator = Instantiate(destinationIndicatorPrefab, hitPoint.point, Quaternion.identity);
-            }
-            else
-            {
-                destinationIndicator.transform.position = hitPoint.point;
-            }
+            SetInteractableTarget(interactable, hit.point);
         }
         else
         {
-            Debug.Log("Raycast did not hit any collider."); // Log if nothing was hit
+            SetRegularMovement(hit.point);
+        }
+
+        UpdateDestinationIndicator(hit.point);
+    }
+
+    void SetInteractableTarget(Interactable interactable, Vector3 targetPosition)
+    {
+        _currentTargetInteractable = interactable;
+        player.stoppingDistance = interactionRange;
+        player.SetDestination(targetPosition);
+    }
+
+    void SetRegularMovement(Vector3 targetPosition)
+    {
+        _currentTargetInteractable = null;
+        player.stoppingDistance = DefaultStoppingDistance;
+        player.SetDestination(targetPosition);
+    }
+
+    void UpdateDestinationIndicator(Vector3 position)
+    {
+        if (destinationIndicator == null)
+        {
+            destinationIndicator = Instantiate(destinationIndicatorPrefab, position, Quaternion.identity);
+        }
+        else
+        {
+            destinationIndicator.SetActive(true);
+            destinationIndicator.transform.position = position;
         }
     }
 
     void CheckIfReachedDestination()
     {
-        
-        if (player.remainingDistance <= player.stoppingDistance)
+        if (!player.enabled) return;
+
+        if (player.hasPath && !player.pathPending &&
+            player.remainingDistance <= player.stoppingDistance)
         {
-            
-            if (destinationIndicator != null)
-            {
-                Destroy(destinationIndicator);
-                destinationIndicator = null;
-            }
+            ClearDestinationIndicator();
+            TryInteractWithTarget();
+        }
+
+        // Clear target if it becomes invalid
+        if (_currentTargetInteractable != null &&
+            !_currentTargetInteractable.gameObject.activeInHierarchy)
+        {
+            _currentTargetInteractable = null;
+            player.ResetPath();
+            ClearDestinationIndicator();
+        }
+    }
+
+    void TryInteractWithTarget()
+    {
+        if (_currentTargetInteractable == null) return;
+
+        if (_currentTargetInteractable.gameObject.activeInHierarchy)
+        {
+            _currentTargetInteractable.Interact();
+        }
+        _currentTargetInteractable = null;
+    }
+
+    public void ClearDestinationIndicator()
+    {
+        if (destinationIndicator != null)
+        {
+            destinationIndicator.SetActive(false);
         }
     }
 
     protected void CalculateVelocity()
     {
         // Calculate the velocity based on the change in position over time
-        velocity = (transform.position - lastPosition) / Time.deltaTime;
-
+        if (player.enabled)
+        {
+            velocity = (player.velocity); // Use NavMeshAgent's velocity
+        }
+        else 
+        {
+            velocity = (transform.position - lastPosition) / Time.deltaTime;
+        }
         // Update last position for the next frame
         lastPosition = transform.position;
     }
 
-    public Vector3 GetVelocity()
+    public Vector3 GetVelocity() => velocity;
+
+    public Vector3 GetDesiredDirection()
     {
-        
-        return velocity;
+        return player.enabled && player.desiredVelocity.magnitude > 0.01f ? player.desiredVelocity.normalized : Vector3.zero;
     }
 }
 

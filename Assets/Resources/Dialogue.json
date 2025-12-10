@@ -1,23 +1,617 @@
+/*
+  QuestCompleted:<QuestID>
+  HasItem:<ItemID>:<Amount>
+  IsQuestObjectiveActive:<NPCID>:<ItemID>
+  GameEventTriggered:<EventID>
+*/
 [
   {
-    "id": 1,
+    "id": "d_bouncer_1",
     "speaker": "Вышибала: ",
     "text": "Покажите свое приглашение.",
+    "audio": "Audio/DialogueLines/d_bouncer_1",
     "choices": [
       {
         "text": "[Дать приглашение]",
-        "targetID": 2
+        "triggersQTE": false,
+        "targetID": "d_bouncer_2"
       },
       {
         "text": "Уйти.",
-        "targetID": -1
+        "triggersQTE": false,
+        "targetID": "-1"
       }
     ]
   },
   {
-    "id": 2,
+    "id": "d_bouncer_2",
     "speaker": "Вышибала: ",
     "text": "Хорошего вечера, господин Гетсби ждет вас.",
+    "audio": "Audio/DialogueLines/d_bouncer_2",
     "targetLocation": 2
+  },
+  {
+    "id": "ChristinaInitialDialogue",
+    "speaker": "Кристина: ",
+    "text": "Эй, ты не видел здесь мой iPhone??",
+    "audio": "Audio/DialogueLines/Cr_Init_D",
+    "choices": [
+      {
+        "text": "Нет, но я могу помочь найти его.",
+        "targetID": "action:StartQuest:Ipad_find:ChristinaPhoneQuestStart_1"
+      },
+      {
+        "text": "Прости, я не видел.",
+        "targetID": "-1"
+      },
+      {
+        "text": "Я нашел твой iPhone! Вот он.",
+        "targetID": "action:GiveItem:i_ipad:ChristinaPhoneGiven",
+        "condition": "IsQuestObjectiveActive:Christina:i_ipad && HasItem:i_ipad:1"
+      }
+    ]
+  },
+  {
+    "id": "ChristinaPhoneQuestStart_1",
+    "speaker": "Кристина: ",
+    "text": "Отлично, сначала проверь около входа в особняк.",
+    "audio": "Audio/DialogueLines/ChristinaPhoneQuestStart_1",
+    "targetID": "-1"
+  },
+  {
+    "id": "ChristinaPhoneGiven",
+    "speaker": "Кристина: ",
+    "text": "Спасибо тебе большое! Ты просто спаситель!",
+    "audio": "Audio/DialogueLines/ChristinaPhoneGiven",
+    "targetID": "-1"
+  },
+  {
+    "id": "ChristinaFollowUpQuestOffer",
+    "speaker": "Кристина: ",
+    "text": "Да, у меня есть еще одно задание для тебя. Ты готов?",
+    "audio": "Audio/DialogueLines/ChristinaFollowUpQuestOffer",
+    "choices": [
+      {
+        "text": "Конечно, что нужно сделать?",
+        "targetID": "action:StartQuest:go_mansion:ChristinaFollowUpQuestStarted"
+      },
+      {
+        "text": "Приду позже.",
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "ChristinaFollowUpQuestStarted",
+    "speaker": "Кристина: ",
+    "text": "Мне нужно, чтобы ты передал сообщение моему другу.",
+    "audio": "Audio/DialogueLines/ChristinaFollowUpQuestStarted",
+    "targetID": "-1"
+  },
+  {
+    "id": "ChristinaNeutralDialogue",
+    "speaker": "Кристина: ",
+    "text": "Любимый, увижу тебя в особняке. Чмоки-чмоки.",
+    "audio": "Audio/DialogueLines/ChristinaNeutralDialogue",
+    "choices": [
+      {
+        "text": "Я могу еще чем-то помочь?",
+        "targetID": "ChristinaFollowUpQuestOffer",
+        "condition": "QuestCompleted:Ipad_find"
+      },
+      {
+        "text": "Уйти.",
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "lola_start",
+    "speaker": "Лола: ",
+    "text": "Потанцуем?",
+    "audio": "Audio/DialogueLines/lola_start",
+    "description": "Лола хочет танцевать",
+    "iconPath": "Icons/Female_Icon_1",
+    "choices": [
+      {
+        "text": "Погнали.",
+        "triggersQTE": false,
+        "targetID": "lola_dance"
+      },
+      {
+        "text": "Уйти.",
+        "triggersQTE": false,
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "lola_dance",
+    "speaker": "Лола: ",
+    "iconPath": "Icons/Female_Icon_1",
+    "text": "Окееей, лееетс гоооу.",
+    "choices": [
+      {
+        "text": "Продолжить.",
+        "triggersQTE": true,
+        "targetID": "-1"
+      },
+      {
+        "text": "Я передумал. [Уйти]",
+        "triggersQTE": false,
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "MarthaInitialDialogue",
+    "speaker": "Марта: ",
+    "text": "Дэнни, не мог бы ты подать мне кофе?",
+    "choices": [
+      {
+        "text": "Да, сейчас принесу.",
+        "targetID": "action:StartQuest:test_1:MarthaCoffeeQuestStart_1"
+      },
+      {
+        "text": "Да пошла ты на*уй.",
+        "targetID": "-1"
+      },
+      {
+        "text": "[Отдать кофе].",
+        "targetID": "action:GiveItem:coffee_cup:MarthaCoffeeGiven",
+        "condition": "IsQuestObjectiveActive:Martha:coffee_cup && HasItem:coffee_cup:1"
+      }
+    ]
+  },
+  {
+    "id": "MarthaCoffeeQuestStart_1",
+    "speaker": "Марта: ",
+    "text": "Отлично, скорее всего я оставила его за своим рабочим местом.",
+    "targetID": "-1"
+  },
+  {
+    "id": "MarthaCoffeeGiven",
+    "speaker": "Марта: ",
+    "text": "Спасибо тебе большое! Ты просто спаситель!",
+    "targetID": "-1"
+  },
+  {
+    "id": "MarthaFollowUpQuestOffer",
+    "speaker": "Марта: ",
+    "text": "Дэнни, сегодня день танцев. Ты готов?",
+    "choices": [
+      {
+        "text": "Всегда готов!",
+        "targetID": "action:StartQuest:qte_dance1:MarthaFollowUpQuestStarted"
+      },
+      {
+        "text": "Приду позже.",
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "MarthaFollowUpQuestStarted",
+    "speaker": "Марта: ",
+    "text": "Мне нужно, чтобы ты танцевал как бог.",
+    "targetID": "-1"
+  },
+  {
+    "id": "MarthaNeutralDialogue",
+    "speaker": "Марта: ",
+    "text": "Дэнни?",
+    "choices": [
+      {
+        "text": "Что-то еще?",
+        "targetID": "MarthaFollowUpQuestOffer",
+        "condition": "QuestCompleted:test_1"
+      },
+      {
+        "text": "Уйти.",
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "d_boss_intro",
+    "speaker": "Майкл",
+    "text": "Дэнни, после обеда жду отчет по созвону с КиряСтар, это очень крупный клиент, постарайся не облажаться как в прошлый раз!",
+    "targetID": "d_thought_entry",
+    "description": "Середина рабочего дня. Дэнни сидит в офисе, когда к нему подходит его босс Майкл и дает ему указания:",
+    "skipAutoStart": false,
+    "iconPath": "Icons/Shrek"
+  },
+  {
+    "id": "d_thought_entry",
+    "speaker": "Дэнни",
+    "text": "",
+    "audio": "",
+    "description": "*Как я устал... Бл*! Как же срать хочется.* (твои мысли)",
+    "iconPath": "Icons/Danny",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_branching_toilet_dialogue_start",
+    "effectType": "toiletTalk",
+    "speaker": "Джо",
+    "text": "Бл*дь. Тут занято на*уй!",
+    "description": "Джо, коллега Дэнни, немного в а*уе, что кто-то рвется к нему в кабинку",
+    "iconPath": "Icons/Male_Icon_1",
+    "skipAutoStart": false,
+    "choices": [
+      {
+        "text": "Джо, чувак, там на парковке кто-то въехал в твою тачку! (аура +1, репутация - 1)",
+        "delta_points": 2,
+        "publishEvent": "PlayerUseToilet",
+        "targetID": "d_toilet_dialogue_angryJoe",
+        "eventParams": [
+          {
+            "key": "hideTag",
+            "type": "String",
+            "stringValue": "Joe"
+          },
+          {
+            "key": "referenceTag",
+            "type": "String",
+            "stringValue": "Player"
+          },
+          {
+            "key": "poseID",
+            "type": "String",
+            "stringValue": "IntroSitting"
+          }
+        ]
+      },
+      {
+        "text": "[выбить дверь, скинуть коллегу с унитаза и сесть срать] (дурь +1, репутация -1)",
+        "delta_points": 1,
+        "publishEvent": "PlayerUseToilet",
+        "targetID": "d_toilet_distraction",
+        "eventParams": [
+          {
+            "key": "hideTag",
+            "type": "String",
+            "stringValue": "Joe"
+          },
+          {
+            "key": "referenceTag",
+            "type": "String",
+            "stringValue": "Player"
+          },
+          {
+            "key": "poseID",
+            "type": "String",
+            "stringValue": "IntroSitting"
+          }
+        ]
+      },
+      {
+        "text": "[стерпеть и уйти на рабочее место] (репутация + 1, самочувствие - 2)",
+        "delta_points": -1,
+        "targetID": "-1"
+      }
+    ]
+  },
+  {
+    "id": "d_toilet_dialogue_angryJoe",
+    "speaker": "Джо",
+    "text": "Вот с*ки, сейчас бегу!",
+    "targetID": "action:StartQuest:q_KiryaStar_Late:-1",
+    "description": "Джо, не вытерев ж*пу, вылетает из кабинки и бежит в сторону выхода.",
+    "skipAutoStart": true,
+    "iconPath": "Icons/Male_Icon_1"
+  },
+  {
+    "id": "d_toilet_distraction",
+    "speaker": "Джо",
+    "text": "Что за х*йня?! Ты с ума сошел?!",
+    "targetID": "action:StartQuest:q_KiryaStar_Late:-1",
+    "description": "Джо в шоке, вылетает из кабинки, а Дэнни занимает место. Но время уходит... Звонок уже начался.",
+    "skipAutoStart": true,
+    "iconPath": "Icons/Male_Icon_1"
+  },
+  {
+    "id": "d_Kirya_Star_Company_onTime",
+    "effectType": "kiryaStar",
+    "speaker": "Дэнни",
+    "text": "Добрый день, коллеги!",
+    "description": "Дэнни потеет во время разговора, слегка сжимая кулаки. (Внутренний голос: Боже, почему сейчас? Просто держись...)",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_1"
+  },
+  {
+    "id": "d_Kirya_Star_Company_1",
+    "speaker": "Клиент",
+    "text": "Добрый день, давайте оперативно начнем, у нас с вами есть всего пол часа.",
+    "description": "",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "d_Kirya_Star_Company_2"
+  },
+  {
+    "id": "d_Kirya_Star_Company_2",
+    "speaker": "Дэнни",
+    "text": "Эм... Да, я думаю, мы можем начать встречу",
+    "description": "",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_3"
+  },
+  {
+    "id": "d_Kirya_Star_Company_3",
+    "speaker": "Дэнни",
+    "text": "На чем мы остановились в прошлый раз?",
+    "description": "Неловкая пауза, Дэнни ерзает на стуле...",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_4"
+  },
+  {
+    "id": "d_Kirya_Star_Company_4",
+    "speaker": "Клиент",
+    "text": "Вы спрашиваете меня?",
+    "description": "",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Да, а что?",
+        "delta_points": 0,
+        "targetID": "d_client_um_proposal"
+      },
+      {
+        "text": "Извините, я плохо себя чувствую... [завершить звонок]",
+        "delta_points": 1,
+        "targetID": "d_client_end_sick"
+      },
+      {
+        "text": "Да, конечно. По поводу нашего совместного проекта, я думаю, это полная чушь.",
+        "delta_points": 1,
+        "targetID": "d_client_excuse_me_rude"
+      },
+      {
+        "text": "Да, мы обсудили это с командой, и проект должен начаться с интеграции блокчейна в CRM для отслеживания кофе-бобов в реальном времени.",
+        "delta_points": 0,
+        "targetID": "d_client_nonsense_react"
+      }
+    ]
+  },
+  {
+    "id": "d_client_um_proposal",
+    "speaker": "Клиент",
+    "text": "Эм… разве вы не должны были подготовить предложение по нашему совместному проекту?",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Его нет. Не было времени...",
+        "delta_points": 0,
+        "targetID": "d_client_end_wasted"
+      },
+      {
+        "text": "Да, конечно. По поводу проекта, это полная чушь.",
+        "delta_points": 1,
+        "targetID": "d_client_excuse_me_rude"
+      }
+    ]
+  },
+  {
+    "id": "d_client_excuse_me_rude",
+    "speaker": "Клиент",
+    "text": "Что? Простите?",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Честно говоря, мы не хотим работать с вами, потому что ваш продукт - чушь.",
+        "delta_points": 1,
+        "targetID": "d_client_end_rude_full"
+      },
+      {
+        "text": "Извините, это не то, что я хотел сказать.",
+        "delta_points": -1,
+        "targetID": "d_client_end_backtrack"
+      }
+    ]
+  },
+  {
+    "id": "d_client_nonsense_react",
+    "speaker": "Клиент",
+    "text": "Блокчейн для кофе? Это звучит... необычно.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Это была шутка, конечно.",
+        "delta_points": 0,
+        "targetID": "d_client_end_bad"
+      },
+      {
+        "text": "Точно! Это революция в кофейной индустрии! Каждый боб будет токенизирован как NFT.",
+        "delta_points": 1,
+        "targetID": "d_client_hmm_more"
+      }
+    ]
+  },
+  {
+    "id": "d_client_hmm_more",
+    "speaker": "Клиент",
+    "text": "Хм, расскажите подробнее.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "На самом деле, я передумал.",
+        "delta_points": 0,
+        "targetID": "d_client_end_bad"
+      },
+      {
+        "text": "Конечно! Клиенты смогут торговать своими NFT-кофе на вторичном рынке!",
+        "delta_points": 1,
+        "targetID": "d_client_still_skeptical"
+      }
+    ]
+  },
+  {
+    "id": "d_client_still_skeptical",
+    "speaker": "Клиент",
+    "text": "Звучит безумно, но... интригующе. А как это поможет нашему бизнесу?",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Эээ, ну, повысит продажи... наверное.",
+        "delta_points": 0,
+        "targetID": "d_client_end_half"
+      },
+      {
+        "text": "Это позволит персонализировать кофе на основе блокчейн-данных о предпочтениях, увеличивая лояльность на 300%!",
+        "delta_points": 1,
+        "targetID": "d_client_end_convinced"
+      }
+    ]
+  },
+  {
+    "id": "d_client_end_wasted",
+    "speaker": "Клиент",
+    "text": "Да, я знал, что не стоило тратить на вас время. Всего доброго.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_rude_full",
+    "speaker": "Клиент",
+    "text": "Как вы смеете! Считайте контракт разорванным!",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_backtrack",
+    "speaker": "Клиент",
+    "text": "Ладно, но это было странно. Давайте отложим встречу.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_bad",
+    "speaker": "Клиент",
+    "text": "Я не уверен, что это хорошая идея. Позвоним вам позже... наверное.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_sick",
+    "speaker": "Клиент",
+    "text": "Ох, поправляйтесь. Свяжемся позже.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_half",
+    "speaker": "Клиент",
+    "text": "Хм, давайте вернемся к реальности. У вас есть нормальное предложение? К сожалению, уже нет времени разбираться. Давайте отложим встречу",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_client_end_convinced",
+    "speaker": "Клиент",
+    "text": "Звучит странно... Дайте нам подумать об этом... Встреча окончена.",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "-1"
+  },
+  {
+    "id": "d_Kirya_Star_Company_late",
+    "effectType": "kiryaStar",
+    "speaker": "Дэнни",
+    "text": "Эээ... Добрый день? Извините за опоздание, небольшая... авария на парковке.",
+    "description": "Дэнни влетает в звонок, весь вспотевший и растрепанный. Клиенты уже раздражены, а босс Майкл сверлит взглядом со своего офиса.",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_late_1"
+  },
+  {
+    "id": "d_Kirya_Star_Company_late_1",
+    "speaker": "Клиент",
+    "text": "Опоздание на 10 минут? Это неуважение к нашему времени.",
+    "description": "",
+    "iconPath": "Icons/KiryaStar_employees",
+    "targetID": "d_Kirya_Star_Company_late_2"
+  },
+  {
+    "id": "d_Kirya_Star_Company_late_2",
+    "speaker": "Дэнни",
+    "text": "Простите, это не повторится. Давайте быстрее к делу. На чем мы остановились в прошлый раз?",
+    "description": "Дэнни пытается собраться, но нервы на пределе.",
+    "iconPath": "Icons/Danny",
+    "targetID": "d_Kirya_Star_Company_late_3"
+  },
+  {
+    "id": "d_Kirya_Star_Company_late_3",
+    "speaker": "Клиент",
+    "text": "У нас осталось всего 20 минут. Вы меня спрашиваете на чем мы остановились?",
+    "description": "",
+    "iconPath": "Icons/KiryaStar_employees",
+    "choices": [
+      {
+        "text": "Да, а что?",
+        "delta_points": 0,
+        "targetID": "d_client_um_proposal"
+      },
+      {
+        "text": "Извините, я плохо себя чувствую... [завершить звонок]",
+        "delta_points": 1,
+        "targetID": "d_client_end_sick"
+      },
+      {
+        "text": "Да, конечно. По поводу нашего совместного проекта, я думаю, это полная чушь.",
+        "delta_points": 1,
+        "targetID": "d_client_excuse_me_rude"
+      },
+      {
+        "text": "Да, мы обсудили это с командой, и проект должен начаться с интеграции блокчейна в CRM для отслеживания кофе-бобов в реальном времени.",
+        "delta_points": 0,
+        "targetID": "d_client_nonsense_react"
+      }
+    ]
+  },
+  {
+    "id": "d_boss_meetingAngry",
+    "speaker": "Майкл",
+    "text": "Дэнни, какого х*я ты натворил?! Я так и знал бл*дь что тебе нельзя доверить крупных клиентов! Мистер Брехов уже мне перезвонил и всё рассказал. Ты никчемный болван, скажи спасибо, что мы с ним в хороших отношениях, и я спас нашу задницу. Короче, ты оштрафован на половину оклада, пока её не отработаешь, понял меня?",
+    "description": "Майкл красный от злости, стоит над тобой, размахивая руками.",
+    "iconPath": "Icons/Shrek",
+    "choices": [
+      {
+        "text": "Да.. наверное я облажался, простите» [начать оправдываться] (-1 аура, -1 дурь, сохраняет деньги)",
+        "delta_points": 0,
+        "targetID": "d_boss_excuses"
+      },
+      {
+        "text": "Я.. я не знаю, вроде нормально всё прошло, что он вам сказал? [прикинуться дебилом] (-1 репутация, -1 дурь, - 1000 баксов из зарплаты)",
+        "delta_points": 1,
+        "targetID": "d_boss_idiot"
+      },
+      {
+        "text": "Да пошел ты НА*УЙ!» [уе*ать ему с размаху] (+1 ауры, + 1 дури, - 2000 баксов из зарплаты)",
+        "delta_points": 1,
+        "publishEvent": "letTheFightBegin",
+        "targetID": "d_boss_fight"
+      }
+    ]
+  },
+  {
+    "id": "d_boss_excuses",
+    "speaker": "Майкл",
+    "text": "Хватит. Просто... иди домой. Финансовый ущерб пока что, похоже, является достаточным наказанием. Соберись бл*дь уже, выясни чего ты хочешь в жизни, тогда приходи в офис.",
+    "description": "Майкл слушает бессвязные оправдания Дэнни с выражением глубокого разочарования на лице.",
+    "targetID": "-1",
+    "iconPath": "Icons/Shrek"
+  },
+  {
+    "id": "d_boss_idiot",
+    "speaker": "Майкл",
+    "text": "Не прикидывайся дурачком. Это оскорбление для нас обоих. Оскорбление на тысячу долларов, если быть точным. Считай это «налогом на глупость». А теперь убирайся с моих глаз, выясни чего, бл*дь, ты хочешь в жизни, тогда приходи в офис.",
+    "description": "Глаза Майкла сужаются до предела",
+    "targetID": "-1",
+    "iconPath": "Icons/Shrek"
+  },
+  {
+    "id": "d_boss_fight",
+    "speaker": "Майкл",
+    "text": "Что?! Ну всё! Ты уволен!!! Хочешь драться? Иди сюда на*уй!",
+    "description": "Майкл лежит на полу. На его лбу пульсирует вена. На секунду он теряет дар речи. Затем он встает, вытирая кровь с лица.",
+    "targetID": "-1",
+    "iconPath": "Icons/Shrek"
   }
 ]

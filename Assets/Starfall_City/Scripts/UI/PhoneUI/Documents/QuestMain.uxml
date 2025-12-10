@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Starfall_City/Scripts/UI/PhoneUI/Documents/Phone.uss?fileID=7433441132597879392&amp;guid=2f1c3e8b30ba85e4d9070eba4b388bf1&amp;type=3#Phone" />
+    <ui:VisualElement name="Root" style="flex-grow: 1; width: 100%; height: 100%;">
+        <ui:VisualElement name="QuestLog" class="quest-ui-root">
+            <ui:ScrollView name="ActiveQuestsContainer" style="flex-grow: 1; width: 100%; height: 100%;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="NotificationBar" style="position: absolute; left: 2%; bottom: 5%; display: none; background-color: rgba(0, 0, 0, 0.8); width: auto; z-index: 10;">
+            <ui:Label name="NotificationText" style="color: white; padding: 10px; -unity-text-align: middle-center;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

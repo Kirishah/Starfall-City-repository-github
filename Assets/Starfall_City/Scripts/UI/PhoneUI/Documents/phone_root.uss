@@ -1,0 +1,92 @@
+.root {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.phoneWrap {
+    width: 30%;
+    height: 80%;
+    background: linear-gradient(135deg, rgb(44, 62, 80), rgb(52, 73, 94));
+    border-radius: 20px;
+    border: 2px solid rgb(236, 240, 241);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.screen {
+    flex: 1;
+    margin: 10px;
+    background-color: rgb(26, 26, 26);
+    border-radius: 10px;
+    flex-direction: column;
+}
+
+.topDiv {
+    height: 50px;
+    background-color: rgb(44, 62, 80);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    flex-direction: row;
+}
+
+.phone-title {
+    color: rgb(236, 240, 241);
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.close-button {
+    width: 30px;
+    height: 30px;
+    background-color: rgb(231, 76, 60);
+    color: white;
+    border-radius: 50%;
+    border: none;
+}
+
+.tab-container {
+    height: 40px;
+    background-color: rgb(52, 73, 94);
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+.nav-tab {
+    flex: 1;
+    height: 100%;
+    background-color: transparent;
+    color: rgb(189, 195, 199);
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tab.active {
+    color: rgb(52, 152, 219);
+    border-bottom: 2px solid rgb(52, 152, 219);
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.content-area {
+    flex: 1;
+}
+
+.content-panel {
+    flex: 1;
+    display: none;
+}
+
+.content-panel.active {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}

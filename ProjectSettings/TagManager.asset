@@ -3,7 +3,20 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - InventoryPanel
+  - qteDance_cam
+  - QTEDance_cam
+  - iNamePanel
+  - HUD
+  - Wall
+  - Boss
+  - Desk
+  - Joe
+  - Toilet
+  - Martha
+  - Louise
+  - phone
   layers:
   - Default
   - TransparentFX
@@ -13,7 +26,7 @@ TagManager:
   - UI
   - Floor 2
   - Interactable
-  - 
+  - QTE
   - 
   - Furniture
   - Props

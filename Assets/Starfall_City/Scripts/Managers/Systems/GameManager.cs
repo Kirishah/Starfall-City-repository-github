@@ -5,34 +5,34 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    public static GameManager Instance { get; private set; }
 
     [Header("Persistent Data")]
-    public PlayerData PlayerData { get; private set; }
-    public Inventory Inventory { get; private set; }
-
-    // В случае компаньонов: public List<CompanionData> Companions { get; private set; }
-
-    public GameObject playerPrefab;
+    public SaveData PlayerData { get; private set; }
 
     void Awake()
     {
-        if (Instance == null)
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // Persist across scenes
-            InitializeData();
+            Destroy(gameObject);
+            return;
         }
-        else
+        Instance = this;
+        InitializeData();
+    }
+
+    void Start()
+    {
+        // Optional: Validate Player exists on start
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
         {
-            Destroy(gameObject); // Prevent duplicates
+            Debug.LogWarning("GameManager: Player not found on scene start -- will retry on save.");
         }
     }
     void InitializeData()
     {
-        PlayerData = new PlayerData();
-        Inventory = new Inventory();
-       // Если будут компаньоны: Companions = new List<CompanionData>();
+        PlayerData = new SaveData();
     }
 
     public void LoadSceneWithTransition(int targetLocation)
@@ -55,53 +55,54 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        // Scene is fully loaded here
-        LoadAfterSceneTransition();
+        
     }
 
     public void SaveBeforeSceneTransition()
     {
         // Save player position/rotation
+        StartCoroutine(SavePlayerDataCoroutine());
+    }
+
+    private IEnumerator SavePlayerDataCoroutine()
+    {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
+        int retries = 0;
+        while (player == null && retries < 5)
+        {
+            yield return null; // Wait a frame
+            player = GameObject.FindGameObjectWithTag("Player");
+            retries++;
+        }
+
         if (player != null)
         {
             PlayerData.Position = player.transform.position;
             PlayerData.Rotation = player.transform.rotation;
+            Debug.Log("GameManager: Saved player data.");
         }
         else
         {
-            Debug.LogError("Player object not found!");
+            Debug.LogError("GameManager: Player object not found after retries!");
         }
-        // Если будут companions:
-        /* Companions.Clear();
-        foreach (GameObject companion in GameObject.FindGameObjectsWithTag("Companion"))
-        {
-            Companions.Add(new CompanionData
-            {
-                Position = companion.transform.position,
-                Rotation = companion.transform.rotation,
-                // ... other fields
-            });
-        }
-        */
     }
-    public void LoadAfterSceneTransition()
-    {
-        // Load player
-        if (playerPrefab != null)
-        {
-            Instantiate(playerPrefab, PlayerData.Position, PlayerData.Rotation);
-        }
-        else
-        {
-            Debug.LogError("Player prefab not assigned!");
-        }
 
-        /* Load companions
-        foreach (CompanionData data in Companions)
-        {
-            Instantiate(companionPrefab, data.Position, data.Rotation);
-        }
-        */
+    // For scene reloads (refresh data if needed)
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Optional: Restore saved position if loading saved scene
+        // GameObject player = GameObject.FindGameObjectWithTag("Player");
+        // if (player != null) { player.transform.SetPositionAndRotation(PlayerData.Position, PlayerData.Rotation); }
+        Debug.Log("GameManager: Scene loaded -- persistent data ready.");
     }
 }

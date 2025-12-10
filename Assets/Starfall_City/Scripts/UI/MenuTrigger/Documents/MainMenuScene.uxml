@@ -1,0 +1,12 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Starfall_City/Scripts/UI/MenuTrigger/Documents/MainMenuScene.uss?fileID=7433441132597879392&amp;guid=b142d328fcf8a504a855d820552a4174&amp;type=3#MainMenuScene"/>
+    <ui:VisualElement name="Root" style="flex-grow: 1; width: 100%; height: 100%; align-content: auto; justify-content: flex-start; align-items: stretch; background-image: url(&quot;project://database/Assets/Starfall_City/UI/Sprites/Danny/Danny-Portrait.png?fileID=2800000&amp;guid=f433f9756ccd9924f8b15ac43657b489&amp;type=3#Danny-Portrait&quot;);">
+        <ui:VisualElement name="Container" class="container">
+            <ui:Button text="Continue" name="Continue" class="button"/>
+            <ui:Button text="New Game" name="NewGame" class="button"/>
+            <ui:Button text="Load Game" name="Load" class="button"/>
+            <ui:Button text="Credits" name="Credits" class="button"/>
+            <ui:Button text="Exit" name="Exit" class="button"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
