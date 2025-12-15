@@ -9904,13 +9904,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5832783830432053212, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_PlayOnAwake
-      value: 0
+    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -9.107
       objectReference: {fileID: 0}
-    - target: {fileID: 6344328660217425454, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: musicVolume
-      value: 0.1
+    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.074
+      objectReference: {fileID: 0}
+    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.7850001
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

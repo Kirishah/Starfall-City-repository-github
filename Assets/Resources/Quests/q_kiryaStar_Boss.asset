@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: q_kiryaStar_Boss
   m_EditorClassIdentifier: Assembly-CSharp::QuestSO
   QuestID: q_kiryaStar_Boss
-  Title: "\u0415*\u0430\u043D\u0430\u044F \u0436\u0438\u0437\u043D\u044C"
-  Description: "\u0412\u0441\u0442\u0440\u0435\u0447\u0430 \u043F\u0440\u043E\u0448\u043B\u0430
-    \u043D\u0435 \u043E\u0447\u0435\u043D\u044C \u0443\u0441\u043F\u0435\u0448\u043D\u043E,
-    \u043D\u0430\u0432\u0435\u0440\u043D\u043E\u0435..."
+  Title: F*cked up life
+  Description: The meeting didn't go very well, I guess...
   Objectives:
   - {fileID: 11400000, guid: 4aea1e2120008c14cb8fd4aa3f352d47, type: 2}
   - {fileID: 11400000, guid: 0876cca1abf7c464f807c0f9b96d1eaa, type: 2}

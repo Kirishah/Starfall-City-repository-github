@@ -87,6 +87,9 @@ namespace core
             [Tooltip("For LoadScene: Whether to load additively or single (default: Single).")]
             public bool loadAdditively = false;
 
+            [Tooltip("For StartQTE: The ID of the QTE configuration to use. If empty, uses the default config in QTEGameManager.")]
+            public string qteConfigId = "";
+
             [Tooltip("For StartQTE: Optional success/failure event IDs to trigger after QTE ends.")]
             public string onQTESuccessEventId;
             public string onQTEFailureEventId;

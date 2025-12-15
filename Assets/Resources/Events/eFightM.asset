@@ -36,6 +36,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: 
     loadAdditively: 0
+    qteConfigId: 
     onQTESuccessEventId: 
     onQTEFailureEventId: 
     targetSpawnId: 
@@ -62,6 +63,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: 
     loadAdditively: 0
+    qteConfigId: 
     onQTESuccessEventId: 
     onQTEFailureEventId: 
     targetSpawnId: 
@@ -88,6 +90,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: 
     loadAdditively: 0
+    qteConfigId: 
     onQTESuccessEventId: 
     onQTEFailureEventId: 
     targetSpawnId: 
@@ -114,6 +117,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: 
     loadAdditively: 0
+    qteConfigId: 
     onQTESuccessEventId: 
     onQTEFailureEventId: 
     targetSpawnId: Player_Dance
@@ -140,6 +144,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: 
     loadAdditively: 0
+    qteConfigId: 
     onQTESuccessEventId: 
     onQTEFailureEventId: 
     targetSpawnId: Boss_Dance
@@ -166,6 +171,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: DemoScene
     loadAdditively: 0
+    qteConfigId: 
     onQTESuccessEventId: 
     onQTEFailureEventId: 
     targetSpawnId: 
@@ -192,6 +198,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: 
     loadAdditively: 0
+    qteConfigId: 
     onQTESuccessEventId: 
     onQTEFailureEventId: 
     targetSpawnId: 
@@ -218,6 +225,7 @@ MonoBehaviour:
     exitMethodName: 
     sceneName: 
     loadAdditively: 0
+    qteConfigId: Intro
     onQTESuccessEventId: eWin_M
     onQTEFailureEventId: eDef_M
     targetSpawnId: 

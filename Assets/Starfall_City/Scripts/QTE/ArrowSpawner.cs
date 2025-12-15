@@ -14,6 +14,12 @@ namespace QTE
         private bool isSpawning = false;
         private bool hasStartedSpawning = false;
 
+        public QTEConfig Config
+        {
+            get => config;
+            set => config = value;
+        }
+
         private void Start()
         {
             if (arrowPool == null)

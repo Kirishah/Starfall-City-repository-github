@@ -12,6 +12,114 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e776570af2730874a9c22fcfb33b5110, type: 3}
   m_Name: eDelJoe
   m_EditorClassIdentifier: Assembly-CSharp::core.ScriptedEvent
-  eventId: 
-  actions: []
+  eventId: eDelJoe
+  actions:
+  - actionType: 1
+    targetTag: Joe
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    qteConfigId: 
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 1
+    targetTag: Joe
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    qteConfigId: 
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 1
+    targetTag: Joe
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    qteConfigId: 
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
+  - actionType: 1
+    targetTag: Joe
+    targetPosition: {x: 0, y: 0, z: 0}
+    animationName: 
+    paramName: 
+    boolValue: 0
+    dialogueId: 
+    speaker: 
+    delaySeconds: 0
+    parallel: 0
+    tolerance: 0
+    positionParamKey: 
+    poseConfig: {fileID: 0}
+    rotationParamKey: 
+    enterMethodName: 
+    customSubType: 0
+    animStartParam: 
+    animStopParam: 
+    poseTargetTag: 
+    exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    qteConfigId: 
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
   triggerCondition: 

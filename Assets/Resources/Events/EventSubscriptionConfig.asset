@@ -34,3 +34,6 @@ MonoBehaviour:
   - sourceEventType: letTheFightBegin
     targetEventId: eFightM
     expectsParams: 0
+  - sourceEventType: eDelJoe
+    targetEventId: eDelJoe
+    expectsParams: 0

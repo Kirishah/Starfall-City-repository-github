@@ -140,7 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 173104812, guid: 05e0567213a58c840a3ea79a4409bdfd, type: 3}
+  m_Sprite: {fileID: -767216509, guid: 132358e9bf26b60458b731bf001e31db, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -322,4 +322,3 @@ MonoBehaviour:
   singleClickVisual: {fileID: 4200100882103889483}
   holdVisual: {fileID: 6451352008195523265}
   doubleClickVisual: {fileID: 706277372680325424}
-  holdProgressBar: {fileID: 672752558859913028, guid: bd6b16ebae3e748678b90a25cb354102, type: 3}

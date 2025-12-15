@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: q_KiryaStar_Late_Dialogue_52fe6c2e
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
   ObjectiveID: obj_2b7c
-  Description: "\u041F\u0440\u043E\u0432\u0435\u0441\u0442\u0438 \u0432\u0441\u0442\u0440\u0435\u0447\u0443"
+  Description: Hold a meeting
+  eventOnComplete: eDelJoe
+  eventParameters: []
+  eventOnProgress: 
   TargetNPCID: d_Kirya_Star_Company_late

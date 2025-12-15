@@ -141,6 +141,23 @@ namespace QTE
             UpdateUI();
         }
 
+        public void SetAIParameters(float accuracy, float reactionDelay, float intentionalMissChance, float comboAggression)
+        {
+            if (config == null)
+            {
+                Debug.LogError("RivalDancer config is null when trying to apply AI parameters!", this);
+                return;
+            }
+
+            // We mutate the serialized config directly — it's fine because it's a runtime instance
+            config.rivalAccuracy = accuracy;
+            config.rivalReactionDelay = reactionDelay;
+            config.rivalIntentionalMissChance = intentionalMissChance;
+            config.rivalComboAggression = comboAggression;
+
+            Debug.Log($"RivalDancer AI updated → Acc:{accuracy:F2} Delay:{reactionDelay:F2}s Miss%:{intentionalMissChance:P0}");
+        }
+
         private void UpdateUI()
         {
             if (rivalScoreText) rivalScoreText.text = $"Rival: {currentScore}";

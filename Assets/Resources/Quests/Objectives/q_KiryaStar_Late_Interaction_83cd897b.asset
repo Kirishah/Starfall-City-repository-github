@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: q_KiryaStar_Late_Interaction_83cd897b
   m_EditorClassIdentifier: Assembly-CSharp::InteractionSO
   ObjectiveID: obj_fc1d
-  Description: "\u0421\u0435\u0441\u0442\u044C \u0437\u0430 \u043A\u0440\u0435\u0441\u043B\u043E"
+  Description: Sit down in the chair
+  eventOnComplete: 
+  eventParameters: []
+  eventOnProgress: 
   ObjectID: chair_Danny
   RequiredInteractions: 1
   PostInteractionDialogueID: d_Kirya_Star_Company_late

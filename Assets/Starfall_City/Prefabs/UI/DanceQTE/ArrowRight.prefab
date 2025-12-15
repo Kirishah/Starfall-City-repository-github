@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 479905756, guid: 05e0567213a58c840a3ea79a4409bdfd, type: 3}
+  m_Sprite: {fileID: -1344412181, guid: 847f3e08157367e458aec63415b2d664, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -172,7 +172,6 @@ MonoBehaviour:
   singleClickVisual: {fileID: 1790582311791628694}
   holdVisual: {fileID: 313312273351676159}
   doubleClickVisual: {fileID: 7529575016688810482}
-  holdProgressBar: {fileID: 672752558859913028, guid: bd6b16ebae3e748678b90a25cb354102, type: 3}
 --- !u!1 &1790582311791628694
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,7 +237,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1726838794, guid: 05e0567213a58c840a3ea79a4409bdfd, type: 3}
+  m_Sprite: {fileID: 1502802138, guid: 132358e9bf26b60458b731bf001e31db, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

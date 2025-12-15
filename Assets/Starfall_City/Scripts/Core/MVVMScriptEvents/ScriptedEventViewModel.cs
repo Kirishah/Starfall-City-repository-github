@@ -250,7 +250,8 @@ namespace core
                     }
 
                     DanceGameManager.OnQTEComplete += OnQTEFinished;
-                    QTEGameManager.Instance.StartQTE();
+                    string configId = string.IsNullOrEmpty(cmd.qteConfigId) ? "default" : cmd.qteConfigId;
+                    QTEGameManager.Instance.StartQTE(configId);
                     break;
                 case ScriptedEvent.ActionCommand.Type.Reposition:
                     // Support foundPosition from params if no positionParamKey
