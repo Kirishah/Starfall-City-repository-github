@@ -177,6 +177,16 @@ namespace Core
 
         private void Update()
         {
+            // Don't process music if game is paused (Time.timeScale = 0)
+            if (Time.timeScale == 0f)
+            {
+                if (musicSource.isPlaying)
+                {
+                    musicSource.Pause();
+                    Debug.Log("BackgroundMusicManager: Paused due to Time.timeScale = 0");
+                }
+                return;
+            }
             // Only process music if the application has focus
             if (!applicationHasFocus) return;
 

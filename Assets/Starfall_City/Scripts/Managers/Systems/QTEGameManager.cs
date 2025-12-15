@@ -24,6 +24,12 @@ namespace QTE
         [SerializeField] private Camera qteDance_cam;
         [SerializeField] private DanceInput danceInput;
 
+        [Header("QTE Configurations")]
+        [SerializeField] private QTEConfig defaultConfig;                    // fallback
+        [SerializeField] private TutorialBanner tutorialBanner;           // optional reference
+
+        private QTEConfig activeConfig;
+
         private PlayerMovement playerMovement;
         private int playerOriginalLayer;
         private string mainCameraOriginalTag;
@@ -171,9 +177,19 @@ namespace QTE
             }
         }
 
-        public void StartQTE(string qteID = "default_qte")
+        public void StartQTE(string qteId = "default")
         {
-            _currentQTEID = qteID;
+            activeConfig = Resources.LoadAll<QTEConfig>("QTE")
+                              .FirstOrDefault(c => c.qteId == qteId) ?? defaultConfig;
+
+            if (activeConfig == null)
+            {
+                Debug.LogWarning($"No QTEConfig found with ID '{qteId}'! Using default.");
+                activeConfig = defaultConfig;
+            }
+
+            ApplyConfig(activeConfig);
+            _currentQTEID = qteId;
 
             // Safety: Re-init player refs if somehow missing (e.g., scene reload)
             if (playerMovement == null)
@@ -186,7 +202,7 @@ namespace QTE
                 CacheRPGComponents(); // Re-cache if needed
             }
 
-            Debug.Log($"QTEGameManager: Starting QTE {qteID}");
+            Debug.Log($"QTEGameManager: Starting QTE {qteId}");
             IsQTEActive = true;
             IsQTEPaused = false;
             wasRPGPaused = PauseManager.IsPaused;
@@ -238,6 +254,52 @@ namespace QTE
             playerAgent?.EnterCinematicMode();
 
             Time.timeScale = 1f; // Ensure normal time for QTE
+
+            if (activeConfig.showTutorialBanner)
+            {
+                ShowTutorialBanner();
+            }
+        }
+
+        private void ApplyConfig(QTEConfig config)
+        {
+            var spawner = GetComponent<ArrowSpawner>();
+            if (spawner) spawner.Config = config;
+
+            if (danceGameManager != null)
+            {
+                // Apply music override
+                if (config.musicTrack != null && danceGameManager.musicTrack != null)
+                    danceGameManager.musicTrack.clip = config.musicTrack;
+
+                // You can extend DanceGameManager to expose ApplyConfig() if you want more overrides
+            }
+
+            var rival = FindFirstObjectByType<RivalDancer>();
+            if (rival != null && config.enableRival)
+            {
+                rival.SetAIParameters(
+                    config.rivalAccuracy,
+                    config.rivalReactionDelay,
+                    config.rivalIntentionalMissChance,
+                    config.rivalComboAggression
+                );
+            }
+        }
+
+        private void ShowTutorialBanner()
+        {
+            if (tutorialBanner != null)
+            {
+                if (activeConfig.tutorialBannerAsset != null)
+                    tutorialBanner.uiDocument.visualTreeAsset = activeConfig.tutorialBannerAsset;
+
+                tutorialBanner.Show();
+            }
+            else
+            {
+                Debug.LogWarning("Tutorial banner requested but QTETutorialBanner component missing!");
+            }
         }
 
         public void EndQTE(bool success)

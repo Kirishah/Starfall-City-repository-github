@@ -1,0 +1,47 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Starfall_City/Scripts/UI/TutorialBanner/Documents/TutorialBanner.uss?fileID=7433441132597879392&amp;guid=ee716786e6f743b409d07f48b4c91ce6&amp;type=3#TutorialBanner"/>
+    <ui:VisualElement name="TutorialContainer" class="tutorial-container">
+        <ui:VisualElement name="Backdrop" class="backdrop"/>
+        <ui:VisualElement name="TutorialCard" class="tutorial-card">
+            <ui:Label text="DANCE BATTLE TUTORIAL" class="tutorial-title"/>
+            <ui:Label text="Master the rhythm to win!" class="tutorial-subtitle"/>
+            <ui:VisualElement name="TutorialContent" class="tutorial-content">
+                <ui:VisualElement name="TutorialRowSimple" class="tutorial-row">
+                    <ui:VisualElement name="IconContainer" class="icon-container">
+                        <ui:VisualElement name="IconUp" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/BrightIcons.png?fileID=699413217&amp;guid=132358e9bf26b60458b731bf001e31db&amp;type=3#Up_Bright&quot;);"/>
+                        <ui:VisualElement name="IconDown" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/BrightIcons.png?fileID=-640786540&amp;guid=132358e9bf26b60458b731bf001e31db&amp;type=3#Down_Bright&quot;);"/>
+                        <ui:VisualElement name="IconRight" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/BrightIcons.png?fileID=1502802138&amp;guid=132358e9bf26b60458b731bf001e31db&amp;type=3#Right_Bright&quot;);"/>
+                        <ui:VisualElement name="IconLeft" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/BrightIcons.png?fileID=-767216509&amp;guid=132358e9bf26b60458b731bf001e31db&amp;type=3#Left_Bright&quot;);"/>
+                    </ui:VisualElement>
+                    <ui:Label text="Tap arrow when it enters the hit zone" class="tutorial-text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="TutorialRowHold" class="tutorial-row">
+                    <ui:VisualElement name="IconContainer" class="icon-container">
+                        <ui:VisualElement name="IconUp" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/DarkBackground.png?fileID=2109003976&amp;guid=a5129965d9f7c604cb1842f6662f7e07&amp;type=3#Up_DarkBG&quot;);"/>
+                        <ui:VisualElement name="IconDown" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/DarkBackground.png?fileID=1299271282&amp;guid=a5129965d9f7c604cb1842f6662f7e07&amp;type=3#Down_DarkBG&quot;);"/>
+                        <ui:VisualElement name="IconRight" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/DarkIcons.png?fileID=-1344412181&amp;guid=847f3e08157367e458aec63415b2d664&amp;type=3#Right_Dark&quot;);"/>
+                        <ui:VisualElement name="IconLeft" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/00_Atlas/DarkBackground.png?fileID=365313234&amp;guid=a5129965d9f7c604cb1842f6662f7e07&amp;type=3#Left_DarkBG&quot;);"/>
+                    </ui:VisualElement>
+                    <ui:Label text="Hold glowing arrows for 2 seconds" class="tutorial-text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="TutorialRowDouble" class="tutorial-row">
+                    <ui:VisualElement name="IconContainer" class="icon-container">
+                        <ui:VisualElement name="IconUp" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/BrightBackground.png?fileID=1691551243&amp;guid=05e0567213a58c840a3ea79a4409bdfd&amp;type=3#Up02_BrightBG&quot;);"/>
+                        <ui:VisualElement name="IconDown" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/BrightBackground.png?fileID=-1307059962&amp;guid=05e0567213a58c840a3ea79a4409bdfd&amp;type=3#Down02_BrightBG&quot;);"/>
+                        <ui:VisualElement name="IconRight" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/BrightBackground.png?fileID=-1273248914&amp;guid=05e0567213a58c840a3ea79a4409bdfd&amp;type=3#Skip_BrightBG&quot;);"/>
+                        <ui:VisualElement name="IconLeft" class="icon-arrow" style="background-image: url(&quot;project://database/Assets/Modern%20GDR%20-%20Free%20icons%20pack/BrightBackground.png?fileID=-236887718&amp;guid=05e0567213a58c840a3ea79a4409bdfd&amp;type=3#Rewind_BrightBG&quot;);"/>
+                    </ui:VisualElement>
+                    <ui:Label text="Double-tap arrows quickly" class="tutorial-text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="TutorialRowCombo" class="tutorial-row">
+                    <ui:Label text="Build combos higher combo massive score!" class="tutorial-text"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="TutorialRowRival" class="tutorial-row">
+                    <ui:Label text="Beat the rival&#39;s score before time runs out" class="tutorial-text"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label text="Perfect timing gives bonus points and camera flair!" class="tutorial-protip"/>
+            <ui:Button text="Ready" name="CloseButton" class="tutorial-close-button"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

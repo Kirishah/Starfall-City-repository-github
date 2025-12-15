@@ -15,6 +15,11 @@ public class QuestMemory : MonoBehaviour
             return;
         }
         Instance = this;
+
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        Debug.Log("!!! PLAYERPREFS WIPED !!!");
+
         LoadCompletedQuests();
         LoadCompletedObjectives();
     }

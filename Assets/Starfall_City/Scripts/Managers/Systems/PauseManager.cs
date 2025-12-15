@@ -19,7 +19,6 @@ namespace Core
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Persist across scenes
             pauseAction.performed += _ => TogglePause();
         }
 

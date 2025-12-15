@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: q_toilet
   m_EditorClassIdentifier: Assembly-CSharp::QuestSO
   QuestID: q_toilet
-  Title: "\u0421\u0440\u043E\u0447\u043D\u043E \u0432 \u0443\u0431\u043E\u0440\u043D\u0443\u044E!"
-  Description: "\u0423 \u0414\u044D\u043D\u043D\u0438 \u043F\u0440\u0438\u0434\u0430\u0432\u0438\u043B\u043E
-    \u043A\u043B\u0430\u043F\u0430\u043D, \u043D\u0443\u0436\u043D\u043E \u0441\u0440\u043E\u0447\u043D\u043E
-    \u043E\u0442\u043B\u043E\u0436\u0438\u0442\u044C \u043B\u0438\u0447\u0438\u043D\u043A\u0443."
+  Title: Quick, to the bathroom!
+  Description: Danny urgently needs to go to the toilet.
   Objectives:
   - {fileID: 11400000, guid: 805b45574d212e54e8c3d2e0a586f285, type: 2}
   - {fileID: 11400000, guid: 5486cc86b58da7848b6500fcc792a7f6, type: 2}

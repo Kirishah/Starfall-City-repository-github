@@ -1,10 +1,21 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace QTE
 {
     [CreateAssetMenu(fileName = "QTEConfig", menuName = "QTE/QTEConfig")]
     public class QTEConfig : ScriptableObject
     {
+        [Tooltip("Unique identifier for this QTE configuration. Used by ScriptedEvent and QuestManager.")]
+        public string qteId = "default";
+
+        [Header("Tutorial")]
+        [Tooltip("If true, a tutorial banner will be shown at the very start of this QTE. Player must press the close button to continue.")]
+        public bool showTutorialBanner = false;
+
+        [Tooltip("Optional reference to a custom UIToolkit VisualTreeAsset that will be displayed as the tutorial banner. If null, the default one from QTEGameManager will be used.")]
+        public VisualTreeAsset tutorialBannerAsset;
+
         [Header("Arrow Movement")]
         [SerializeField, Tooltip("Speed at which arrows move across the screen (pixels per second).")]
         public float arrowMoveSpeed = 200f;
@@ -38,6 +49,10 @@ namespace QTE
         [Header("Audio")]
         [SerializeField, Tooltip("Number of AudioSource components in the pool for one-shot sounds.")]
         [Min(1)] public int audioSourcePoolSize = 10;
+
+        [Header("Music")]
+        [Tooltip("Music track played during this specific QTE. Overrides DanceGameManager default if assigned.")]
+        public AudioClip musicTrack;
 
         [Header("NPC Rival AI")]
         [Tooltip("Enable NPC rival dancer in this QTE.")]

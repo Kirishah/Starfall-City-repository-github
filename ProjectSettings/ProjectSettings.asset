@@ -886,8 +886,8 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Neigbour's calls
-  metroPackageVersion: 
+  metroPackageName: Neigbourscalls
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
@@ -895,7 +895,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: Neigbour's calls
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: Neigbour's calls
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0

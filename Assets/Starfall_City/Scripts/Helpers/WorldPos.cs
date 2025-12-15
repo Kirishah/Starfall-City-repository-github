@@ -1,6 +1,8 @@
+
+
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-
 
 [CustomEditor(typeof(Transform))]
 public class WorldPos : Editor
@@ -14,3 +16,4 @@ public class WorldPos : Editor
         EditorGUILayout.LabelField("World Position", transform.position.ToString());
     }
 }
+#endif
