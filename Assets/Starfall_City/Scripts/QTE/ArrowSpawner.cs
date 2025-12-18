@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections;
-using DanceInputActions;
 using System;
 using System.Linq;
 
@@ -10,15 +8,16 @@ namespace QTE
     {
         [SerializeField] private QTEConfig config; // Centralized config
         [SerializeField] private DanceArrowPool arrowPool;
-        private float spawnTimer;
-        private bool isSpawning = false;
-        private bool hasStartedSpawning = false;
 
-        public QTEConfig Config
-        {
-            get => config;
-            set => config = value;
-        }
+        private bool isSpawning = false;
+
+        private double _musicStartDSP;
+        private int _currentBeatIndex = 0;
+        private double _nextBeatDSPTime;
+        private double _avgBeatDuration;
+        private const double _beatTolerance = 0.001;
+
+        public QTEConfig Config { get => config; set => config = value; }
 
         private void Start()
         {
@@ -33,56 +32,79 @@ namespace QTE
             }
         }
 
-        public void StartSpawning()
+        public void StartSpawning(double musicStartDSPTime)
         {
-            hasStartedSpawning = false;
-            spawnTimer = 0f;
             isSpawning = true;
+            _musicStartDSP = musicStartDSPTime;
+            _currentBeatIndex = 0;
 
-            // Start a coroutine to handle the initial delay
-            StartCoroutine(StartSpawningAfterDelay());
+            _avgBeatDuration = 60.0 / config.bpm;
+
+            if (config.beatSpawnTimes.Count > 0)
+            {
+                ScheduleNextBeatmapBeat();
+            }
+            else
+            {
+                double initialDelay = config.initialSpawnDelay + config.beatOffset;
+                _nextBeatDSPTime = _musicStartDSP + initialDelay;
+            }
+
+            Debug.Log($"ArrowSpawner: Beatmap mode: {(config.beatSpawnTimes.Count > 0 ? "ON (" + config.beatSpawnTimes.Count + " beats)" : "Uniform BPM")}");
         }
 
-        private IEnumerator StartSpawningAfterDelay()
+        private void ScheduleNextBeatmapBeat()
         {
-            yield return new WaitForSeconds(config.initialSpawnDelay);
-            hasStartedSpawning = true;
-            spawnTimer = config.beatInterval; // Start the timer so first arrow spawns immediately after delay
+            if (_currentBeatIndex >= config.beatSpawnTimes.Count)
+            {
+                _nextBeatDSPTime = double.MaxValue; 
+                return;
+            }
+
+            _nextBeatDSPTime = _musicStartDSP + config.beatSpawnTimes[_currentBeatIndex];
+            _currentBeatIndex++;
         }
 
         public void StopSpawning()
         {
             isSpawning = false;
-            spawnTimer = 0f;
         }
 
         private void Update()
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused) return;
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !isSpawning) return;
 
-            if (isSpawning && !DanceInput.IsHolding && DanceGameManager.Instance != null && hasStartedSpawning)
+            double currentDSP = AudioSettings.dspTime;
+
+            // Spawn arrows on every beat
+            if (currentDSP + _beatTolerance >= _nextBeatDSPTime)
             {
-                spawnTimer += Time.deltaTime;
-                if (spawnTimer >= config.beatInterval)
+                SpawnArrow();
+
+                if (config.beatSpawnTimes.Count > 0)
                 {
-                    SpawnArrow();
-                    spawnTimer = 0f;
+                    ScheduleNextBeatmapBeat();
+                }
+                else
+                {
+                    _nextBeatDSPTime += _avgBeatDuration;
                 }
             }
         }
+
         private void SpawnArrow()
         {
             ArrowDirection[] directions = Enum.GetValues(typeof(ArrowDirection)).Cast<ArrowDirection>().ToArray();
             ArrowDirection randomDir = directions[UnityEngine.Random.Range(0, directions.Length)];
 
-            // Weighted probabilities: Single (70%), Hold (15%), Double (15%)
+            // Weighted probabilities: Single (80%), Hold (5%), Double (15%)
             float rand = UnityEngine.Random.value;
             DanceArrow.ArrowType arrowType;
-            if (rand < 0.70f)
+            if (rand < 0.80f)  // 80% Single
                 arrowType = DanceArrow.ArrowType.Single;
-            else if (rand < 0.85f)
+            else if (rand < 0.85f)  // 5% Hold
                 arrowType = DanceArrow.ArrowType.Hold;
-            else
+            else  // 15% Double
                 arrowType = DanceArrow.ArrowType.Double;
 
             GameObject arrowObj = arrowPool.GetArrow(randomDir);
@@ -94,6 +116,9 @@ namespace QTE
                 {
                     arrow.type = arrowType;
                     arrow.ResetArrow();
+
+                    float travelTime = (float)_avgBeatDuration * config.beatsToHitZone;
+                    arrow.SetTravelTime(travelTime);
                 }
                 else
                 {
@@ -109,9 +134,7 @@ namespace QTE
         public void ResetSpawner()
         {
             StopSpawning();
-            spawnTimer = 0f;
-            hasStartedSpawning = false;
-            StopAllCoroutines(); // Stop any running delay coroutines
+            _currentBeatIndex = 0;
             Debug.Log("ArrowSpawner: Reset complete", this);
         }
     } 

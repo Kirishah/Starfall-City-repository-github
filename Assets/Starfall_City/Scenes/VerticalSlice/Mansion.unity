@@ -9904,6 +9904,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1732698636826235943, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
+      propertyPath: comboBreakSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 11236a4516d83e042b51d0627c101cfd, type: 3}
     - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.107
@@ -17866,15 +17870,7 @@ MonoBehaviour:
       m_Calls: []
   promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
   promptOffset: {x: 1, y: 0.8, z: 0}
-  unlockConditions:
-  - type: 1
-    targetID: obj2fec
-    requiredAmount: 1
-    nextOperator: 1
-  - type: 1
-    targetID: obj44f7
-    requiredAmount: 1
-    nextOperator: 0
+  unlockConditions: []
   enableConditionLogging: 0
   questStarter: {fileID: 0}
   startDialogueID: d_boss_meetingAngry

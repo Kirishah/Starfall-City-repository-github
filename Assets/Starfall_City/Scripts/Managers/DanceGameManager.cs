@@ -31,11 +31,11 @@ namespace QTE
         private int currentCombo;
         private float timer;
         private bool isQTEActive;
-        private List<AudioSource> audioSourcePool;
-        private Queue<AudioSource> availableAudioSources;
 
         public delegate void QTECompleteHandler(bool success);
         public static event QTECompleteHandler OnQTEComplete;
+
+        public double MusicStartDSP { get; private set; }
 
         void Awake()
         {
@@ -49,9 +49,6 @@ namespace QTE
                 return;
             }
 
-            audioSourcePool = new List<AudioSource>();
-            availableAudioSources = new Queue<AudioSource>();
-
             if (wideCam == null || closeUpCam == null || dynamicCam == null || config == null)
             {
                 Debug.LogError("Missing Cinemachine cameras or QTEConfig!", this);
@@ -62,8 +59,6 @@ namespace QTE
             closeUpCam.Priority = 10;
             dynamicCam.Priority = 10;
             musicTrack.ignoreListenerPause = true;
-
-            InitializeAudioSourcePool();
         }
 
         private void TryResolveDancer()
@@ -110,21 +105,6 @@ namespace QTE
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
-            // Clean up AudioSource pool
-            if (audioSourcePool != null)
-            {
-                foreach (AudioSource audioSource in audioSourcePool)
-                {
-                    if (audioSource != null)
-                        Destroy(audioSource.gameObject);
-                }
-                audioSourcePool.Clear();
-            }
-
-            if (availableAudioSources != null)
-            {
-                availableAudioSources.Clear();
-            }
         }
 
         private void OnEnable()
@@ -139,22 +119,6 @@ namespace QTE
             DanceInput.OnArrowEvent -= HandleArrowEvent;
         }
 
-        private void InitializeAudioSourcePool()
-        {
-            for (int i = 0; i < config.audioSourcePoolSize; i++)
-            {
-                GameObject audioObj = new GameObject($"AudioSource_{i}");
-                audioObj.transform.SetParent(transform);
-                AudioSource audioSource = audioObj.AddComponent<AudioSource>();
-                audioSource.playOnAwake = false;
-                audioSource.spatialBlend = 0f; // 2D audio for UI
-                audioSourcePool.Add(audioSource);
-                availableAudioSources.Enqueue(audioSource);
-            }
-            Debug.Log($"Initialized AudioSource pool with {config.audioSourcePoolSize} sources", this);
-        }
-
-
 
         public void StartQTE()
         {
@@ -164,7 +128,8 @@ namespace QTE
 
             if (musicTrack != null)
             {
-                musicTrack.Play();
+                MusicStartDSP = AudioSettings.dspTime + 0.1; // маленькая задержка чтобы точно была синхронизация
+                musicTrack.PlayScheduled(MusicStartDSP);
             }
             else
             {
@@ -178,12 +143,12 @@ namespace QTE
             {
                 Debug.LogError("DanceGameManager: wideCam is null, cannot switch camera!");
             }
-            ArrowSpawner spawner = GetComponent<ArrowSpawner>();
+            var spawner = GetComponent<ArrowSpawner>();
             Debug.Log($"DanceGameManager: ArrowSpawner={spawner}");
             if (spawner != null)
             {
+                spawner.StartSpawning(MusicStartDSP); 
                 Debug.Log("DanceGameManager: Starting ArrowSpawner");
-                spawner.StartSpawning();
             }
             else
             {
@@ -218,7 +183,6 @@ namespace QTE
             _dancerAnimator?.SetTrigger("stop_dance");
             ResetPlayerState();
             OnQTEComplete?.Invoke(playerWon);
-            CleanupAudioSources();
         }
 
         public void ResetPlayerState()
@@ -276,6 +240,11 @@ namespace QTE
         {
             if (!isQTEActive || QTEGameManager.IsQTEPaused) return;
 
+            if (currentCombo > 10 && comboBreakSFX != null)
+            {
+                PlaySFX(comboBreakSFX);
+            }
+
             currentCombo = 0;
 
             if (missSFX != null)
@@ -303,46 +272,9 @@ namespace QTE
 
         void PlaySFX(AudioClip clip)
         {
-            if (availableAudioSources.Count == 0)
-            {
-                Debug.LogWarning("No available AudioSources in pool! Consider increasing config.audioSourcePoolSize.", this);
-                return;
-            }
-            AudioSource audioSource = availableAudioSources.Dequeue();
-            audioSource.transform.position = qteDance_cam != null ? qteDance_cam.transform.position : Vector3.zero;
-            audioSource.clip = clip;
-            audioSource.Play();
-            StartCoroutine(ReturnAudioSourceToPool(audioSource, clip.length));
-        }
+            if (clip == null) return;
 
-        private System.Collections.IEnumerator ReturnAudioSourceToPool(AudioSource audioSource, float delay)
-        {
-            yield return new WaitForSeconds(delay);
-            if (audioSource != null && audioSourcePool.Contains(audioSource))
-            {
-                audioSource.Stop();
-                audioSource.clip = null;
-                availableAudioSources.Enqueue(audioSource);
-            }
-        }
-
-        private void CleanupAudioSources()
-        {
-            foreach (AudioSource audioSource in audioSourcePool)
-            {
-                if (audioSource != null)
-                {
-                    audioSource.Stop();
-                    audioSource.clip = null;
-                }
-            }
-            availableAudioSources.Clear();
-            foreach (AudioSource audioSource in audioSourcePool)
-            {
-                if (audioSource != null)
-                    availableAudioSources.Enqueue(audioSource);
-            }
-            Debug.Log("Cleaned up AudioSource pool", this);
+            musicTrack.PlayOneShot(clip);
         }
 
         void SwitchCamera(CinemachineVirtualCamera targetCam)

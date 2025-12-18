@@ -13,6 +13,8 @@ namespace QTE
         public static DanceInput Instance { get; private set; }
         public static bool IsHolding { get; private set; } // Flag to pause flow
 
+        public static DanceArrow CurrentHoldArrow { get; private set; }
+
         public delegate void ArrowEvent(ArrowDirection direction, DanceArrow.ArrowType type, bool success);
         public static event ArrowEvent OnArrowEvent;
 
@@ -20,7 +22,7 @@ namespace QTE
         [SerializeField] private DanceArrowPool arrowPool;
         [SerializeField] private ProgressBar holdProgressBar;
         private Dictionary<ArrowDirection, List<DanceArrow>> activeArrowsByDirection = new();
-        private DanceArrow currentHoldArrow;
+
         private float holdStartTime;
         private Dictionary<ArrowDirection, float> lastPressTimes = new(); // Track last press time per direction
 
@@ -138,7 +140,7 @@ namespace QTE
             pendingDoubleClickArrows.Clear();
             lastPressTimes.Clear();
             IsHolding = false;
-            currentHoldArrow = null;
+            CurrentHoldArrow = null;
             if (holdProgressBar != null)
             {
                 holdProgressBar.SetProgress(0f);
@@ -194,7 +196,7 @@ namespace QTE
                     if (arrow.type == DanceArrow.ArrowType.Hold)
                     {
                         IsHolding = true;
-                        currentHoldArrow = arrow;
+                        CurrentHoldArrow = arrow;
                         holdStartTime = Time.time;
 
                         if (holdProgressBar != null)
@@ -239,8 +241,8 @@ namespace QTE
 
         private void HandleInputRelease(ArrowDirection direction)
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || currentHoldArrow == null || 
-                currentHoldArrow.direction != direction) return;
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || CurrentHoldArrow == null || 
+                CurrentHoldArrow.direction != direction) return;
 
             float elapsed = Time.time - holdStartTime;
             bool success = elapsed >= config.holdDuration;
@@ -253,18 +255,18 @@ namespace QTE
                 holdProgressBar.gameObject.SetActive(false); // Optional: Hide when not holding
             }
 
-            if (currentHoldArrow != null)
+            if (CurrentHoldArrow != null)
             {
-                ReturnArrowToPool(currentHoldArrow);
+                ReturnArrowToPool(CurrentHoldArrow);
             }
             IsHolding = false;
-            currentHoldArrow = null;
+            CurrentHoldArrow = null;
 
         }
 
         private void Update()
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || currentHoldArrow == null || config == null) return;
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || CurrentHoldArrow == null || config == null) return;
 
             float elapsed = Time.time - holdStartTime;
             float progress = Mathf.Clamp01(elapsed / config.holdDuration);
@@ -276,16 +278,16 @@ namespace QTE
 
             if (elapsed >= config.holdDuration)
             {
-                DanceGameManager.Instance?.HandleArrowEvent(currentHoldArrow.direction, DanceArrow.ArrowType.Hold, true);
+                DanceGameManager.Instance?.HandleArrowEvent(CurrentHoldArrow.direction, DanceArrow.ArrowType.Hold, true);
                 // Reset the progress bar before returning to pool
                 if (holdProgressBar != null)
                 {
                     holdProgressBar.SetProgress(0f);
                     holdProgressBar.gameObject.SetActive(false); // Optional
                 }
-                ReturnArrowToPool(currentHoldArrow);
+                ReturnArrowToPool(CurrentHoldArrow);
                 IsHolding = false;
-                currentHoldArrow = null;
+                CurrentHoldArrow = null;
             }
 
             // Cleanup stale lastPressTimes and pending doubles

@@ -15,16 +15,17 @@ MonoBehaviour:
   qteId: Intro
   showTutorialBanner: 1
   tutorialBannerAsset: {fileID: 9197481963319205126, guid: 57d6b8139b7766e4b8f20bcf8a28cf22, type: 3}
-  arrowMoveSpeed: 300
   hitZoneRange: {x: -100, y: 0}
   doubleClickThreshold: 0.2
-  beatInterval: 0.55
   holdDuration: 2
-  initialSpawnDelay: 2
   basePoints: 100
   comboMultiplier: 0.1
-  qteDuration: 30
-  audioSourcePoolSize: 100
+  beatSpawnTimes: []
+  bpm: 113
+  beatsToHitZone: 4
+  beatOffset: 0
+  qteDuration: 60
+  initialSpawnDelay: 2
   musicTrack: {fileID: 8300000, guid: 9d0eaae00c0ebab48946776e926b7a91, type: 3}
   enableRival: 1
   rivalAccuracy: 0.95
