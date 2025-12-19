@@ -1,16 +1,18 @@
-using System.Collections.Generic;
-using System.Linq;
-using TMPro;
+п»їusing System.Collections.Generic;
 using UnityEngine;
 using QTE;
 
 public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [Header("Settings")]
-    public float interactionRadius = 1f; 
-    public LayerMask interactableLayer;
+    [SerializeField] private float interactionRadius = 1f;
+    [SerializeField] private LayerMask interactableLayer;
 
-    private List<Interactable> _proximityInteractables = new();
+    // Pre-allocated buffer вЂ“ size based on reasonable max interactables in radius (adjust if needed)
+    private readonly Collider[] _overlapBuffer = new Collider[20];
+    private readonly List<Interactable> _proximityInteractables = new();
+
+
     private Interactable _closestInteractable;
     private Interactable _hoveredInteractable;
 
@@ -24,56 +26,71 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
         HandleEKeyInteraction();
     }
 
-    void DetectProximityInteractables()
+    private void DetectProximityInteractables()
     {
-        // Чистка старых взаимодействий
-        foreach (var i in _proximityInteractables) i.SetProximity(false);
-
-        // Чек на наличие взаимодействий в радиусе
-        var colliders = Physics.OverlapSphere(transform.position, interactionRadius, interactableLayer);
-        _proximityInteractables = colliders
-            .Select(c => c.GetComponent<Interactable>())
-            .Where(i => i != null)
-            .ToList();
-
-        // Обновление ближайшего взаимодействия
-        _closestInteractable = null;
-        var closestDistance = Mathf.Infinity;
-        foreach (var interactable in _proximityInteractables)
+        // Clear previous proximity state
+        foreach (var i in _proximityInteractables)
         {
-            interactable.SetProximity(true);
+            i.SetProximity(false);
+        }
+        _proximityInteractables.Clear();
 
-            var distance = Vector3.Distance(transform.position, interactable.transform.position);
-            if (distance < closestDistance)
+        // NonAlloc overlap вЂ” zero garbage!
+        int hitCount = Physics.OverlapSphereNonAlloc(
+            transform.position,
+            interactionRadius,
+            _overlapBuffer,
+            interactableLayer
+        );
+
+        _closestInteractable = null;
+        float closestDistance = Mathf.Infinity;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (_overlapBuffer[i].TryGetComponent<Interactable>(out var interactable))
             {
-                closestDistance = distance;
-                _closestInteractable = interactable;
+                _proximityInteractables.Add(interactable);
+                interactable.SetProximity(true);
+
+                float distance = Vector3.Distance(transform.position, interactable.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    _closestInteractable = interactable;
+                }
             }
         }
     }
 
-    void DetectHoverInteractable()
+    private void DetectHoverInteractable()
     {
         if (Camera.main == null) return;
-        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out var hit, Mathf.Infinity, interactableLayer))
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        // Single raycast is usually safe (no array allocation), but we can make it fully predictable
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
         {
-            if (_hoveredInteractable != null)
+            if (hit.collider.TryGetComponent<Interactable>(out var newHover))
             {
-                _hoveredInteractable.SetHovered(false);
-                _hoveredInteractable = null;
+                if (newHover == _hoveredInteractable) return;
+
+                if (_hoveredInteractable != null)
+                    _hoveredInteractable.SetHovered(false);
+
+                _hoveredInteractable = newHover;
+                _hoveredInteractable.SetHovered(true);
+                return;
             }
-            return;
         }
 
-        var newHover = hit.collider.GetComponent<Interactable>();
-        if (newHover == _hoveredInteractable) return;
-
+        // No hit or not interactable
         if (_hoveredInteractable != null)
+        {
             _hoveredInteractable.SetHovered(false);
-
-        _hoveredInteractable = newHover;
-        _hoveredInteractable.SetHovered(true);
+            _hoveredInteractable = null;
+        }
     }
 
     void HandleEKeyInteraction()

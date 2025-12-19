@@ -7,66 +7,69 @@ using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
-    private Animator animator;
-    private PlayerMovement playerMovement;
-    private Player3DMovement player3DMovement;
-    private CharacterController controller;
+    private Animator _animator;
+    private PlayerMovement _playerMovement;
+    private Player3DMovement _player3DMovement;
+    private CharacterController _controller;
+
+    [Header("Anim params")]
+    [SerializeField, Tooltip("Degrees per second to trigger turn")]
+    private float _turnThreshold = 100f;
+    [SerializeField, Tooltip("Prevent rapid successive turns")]
+    private float _turnCooldown = 1.0f;
+    [SerializeField] private float _speedThreshold = 0.1f;
+    [SerializeField] private float _smoothTime = 0.1f;
 
     [Header("Pose State")]
-    public bool isInPose = false; // Replaces isSitting
-    public PoseConfig? currentConfig; // Track full config for exit
-    public string? currentPoseID; // Track for exit (e.g., "Sit") - used for logging/events
-    public string? currentExitTrigger; // Track for generic exit 
-    private Coroutine? currentEnterCoroutine;
-    private Coroutine? currentExitCoroutine;
-
-    private float speedThreshold = 0.1f; 
-    private float smoothTime = 0.1f; 
-    private float currentSpeed;
+    [SerializeField] private PoseConfig? _currentConfig;
+    private Coroutine? _currentEnterCoroutine;
+    private Coroutine? _currentExitCoroutine;
+    private float _currentSpeed;
 
     // Turn animation variables
-    private Vector3 previousDesired;
-    private float turnThreshold = 100f; // Degrees per second to trigger turn
-    private float turnCooldown = 1.0f; // Prevent rapid successive turns
-    private float lastTurnTime;
+    private Vector3 _previousDesired;
+    private float _lastTurnTime;
+
+    // Public read-only access
+    public bool IsInPose { get; private set; }
+    public PoseConfig? CurrentConfig => _currentConfig;
+    public string? CurrentPoseID { get; private set; }
+    public string? CurrentExitTrigger { get; private set; }
 
 
     void Start()
     {
-        animator = GetComponent<Animator>();
-        playerMovement = GetComponent<PlayerMovement>();
-        player3DMovement = GetComponent<Player3DMovement>();
-        controller = GetComponent<CharacterController>();
+        _animator = GetComponent<Animator>();
+        _playerMovement = GetComponent<PlayerMovement>();
+        _player3DMovement = GetComponent<Player3DMovement>();
+        _controller = GetComponent<CharacterController>();
 
-        isInPose = false;
-        currentPoseID = null;
-        currentExitTrigger = null;
-        currentConfig = null;
+        IsInPose = false;
+        CurrentPoseID = null;
+        CurrentExitTrigger = null;
+        _currentConfig = null;
 
         // Initialize turn tracking
-        previousDesired = transform.forward;
-        lastTurnTime = -turnCooldown; // Allow immediate turn
+        _previousDesired = transform.forward;
+        _lastTurnTime = -_turnCooldown; // Allow immediate turn
     }
 
     // Public setters for tracking (called from PosePresenter)
     public void SetCurrentPose(string? poseID, PoseConfig? config)
     {
-        currentPoseID = poseID ?? throw new ArgumentNullException(nameof(poseID));
-        currentConfig = config ?? throw new ArgumentNullException(nameof(config));
-        Debug.Log($"Entered pose: {currentPoseID} (using config: {config?.name ?? "null"})");
+        CurrentPoseID = poseID ?? throw new ArgumentNullException(nameof(poseID));
+        _currentConfig = config ?? throw new ArgumentNullException(nameof(config));
+        Debug.Log($"Entered pose: {CurrentPoseID} (using config: {config?.name ?? "null"})");
     }
 
-    public void SetCurrentExitTrigger(string exitTrigger)
-    {
-        currentExitTrigger = exitTrigger ?? throw new ArgumentNullException(nameof(exitTrigger));
-    }
+    public void SetCurrentExitTrigger(string exitTrigger) => CurrentExitTrigger = exitTrigger ?? throw new ArgumentNullException(nameof(exitTrigger));
 
     private void OnAnimatorMove()
     {
-        if (animator.applyRootMotion && controller != null && player3DMovement.IsInTransitionAnimation)
+        if (_animator.applyRootMotion && _controller != null && _player3DMovement.IsInTransitionAnimation)
         {
             // Apply position delta from root motion to CharacterController
-            controller.Move(animator.deltaPosition);
+            _controller.Move(_animator.deltaPosition);
 
             // Optional: Apply rotation if your get-up anim includes root rotation
             // transform.rotation = animator.deltaRotation * transform.rotation;
@@ -78,14 +81,14 @@ public class PlayerAnimation : MonoBehaviour
         if (QTEGameManager.IsQTEActive) return;
         CheckMovement();
 
-        if (isInPose)
+        if (IsInPose)
         {
-            animator.SetBool("isSitting", true);
-            animator.SetBool("is_Walking", false); // Override walking during sit
+            _animator.SetBool("isSitting", true);
+            _animator.SetBool("is_Walking", false); // Override walking during sit
         }
         else
         {
-            animator.SetBool("isSitting", false);
+            _animator.SetBool("isSitting", false);
         }
 
         CheckTurnAnimation();
@@ -94,22 +97,22 @@ public class PlayerAnimation : MonoBehaviour
     void CheckMovement()
     {
         // Check if the player is moving
-        Vector3 velocity = playerMovement.GetVelocity(); 
+        Vector3 velocity = _playerMovement.GetVelocity();
 
         float targetSpeed = velocity.magnitude;
-        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, smoothTime);
-        bool isMoving = currentSpeed > speedThreshold;
+        _currentSpeed = Mathf.Lerp(_currentSpeed, targetSpeed, _smoothTime);
+        bool isMoving = _currentSpeed > _speedThreshold;
 
 
         if (isMoving)
         {
             // If the player is moving, set the walking animation
-            animator.SetBool("is_Walking", true);
+            _animator.SetBool("is_Walking", true);
         }
         else
         {
             // If the player is not moving, set the standing animation
-            animator.SetBool("is_Walking", false);
+            _animator.SetBool("is_Walking", false);
         }
     }
 
@@ -117,62 +120,62 @@ public class PlayerAnimation : MonoBehaviour
     {
         // Get desired direction based on movement mode
         Vector3 desired = Vector3.zero;
-        if (playerMovement.player.enabled)
+        if (_playerMovement.player.enabled)
         {
-            desired = playerMovement.GetDesiredDirection();
+            desired = _playerMovement.GetDesiredDirection();
         }
         else
         {
-            desired = player3DMovement.GetDesiredDirection();
+            desired = _player3DMovement.GetDesiredDirection();
         }
 
         // Only check for turns when moving and have a valid desired direction
-        if (desired.magnitude > 0.01f && animator.GetBool("is_Walking"))
+        if (desired.magnitude > 0.01f && _animator.GetBool("is_Walking"))
         {
             // Calculate turn angle between previous desired and current desired
-            float turnAngle = Vector3.SignedAngle(previousDesired, desired, Vector3.up);
+            float turnAngle = Vector3.SignedAngle(_previousDesired, desired, Vector3.up);
             float turnRate = Mathf.Abs(turnAngle) / Time.deltaTime; // Degrees per second
 
             // Check if we should trigger a 180 turn
-            if (turnRate > turnThreshold && Mathf.Abs(turnAngle) > 90f &&
-                Time.time - lastTurnTime > turnCooldown)
+            if (turnRate > _turnThreshold && Mathf.Abs(turnAngle) > 90f &&
+                Time.time - _lastTurnTime > _turnCooldown)
             {
-                animator.SetTrigger("Turn180");
-                lastTurnTime = Time.time;
+                _animator.SetTrigger("Turn180");
+                _lastTurnTime = Time.time;
             }
 
             // Update previous desired only if valid
-            previousDesired = desired;
+            _previousDesired = desired;
         }
     }
 
     // Generalized enter 
     public void TriggerEnterPose(string enterTrigger, bool enableRootMotion = false)
     {
-        if (isInPose)
+        if (IsInPose)
         {
-            Debug.LogWarning($"Already in pose '{currentPoseID}'. Skipping enter.");
+            Debug.LogWarning($"Already in pose '{CurrentPoseID}'. Skipping enter.");
             return;
         }
 
-        if (currentEnterCoroutine != null) StopCoroutine(currentEnterCoroutine);
-        currentEnterCoroutine = StartCoroutine(EnterPoseSequence(enterTrigger, enableRootMotion));
+        if (_currentEnterCoroutine != null) StopCoroutine(_currentEnterCoroutine);
+        _currentEnterCoroutine = StartCoroutine(EnterPoseSequence(enterTrigger, enableRootMotion));
     }
 
     private IEnumerator EnterPoseSequence(string enterTrigger, bool enableRootMotion)
     {
-        isInPose = true;
+        IsInPose = true;
         if (enableRootMotion)
         {
-            animator.applyRootMotion = true;
-            if (player3DMovement != null)
+            _animator.applyRootMotion = true;
+            if (_player3DMovement != null)
             {
-                player3DMovement.IsInTransitionAnimation = true;
+                _player3DMovement.IsInTransitionAnimation = true;
             }
         }
 
-        animator.SetTrigger(enterTrigger);
-        animator.Update(0f);  // Force immediate evaluation of transitions (0 deltaTime = next "frame")
+        _animator.SetTrigger(enterTrigger);
+        _animator.Update(0f);  // Force immediate evaluation of transitions (0 deltaTime = next "frame")
         yield return null;    // One frame for state change to propagate
 
         // Brief wait for transition to start
@@ -181,7 +184,7 @@ public class PlayerAnimation : MonoBehaviour
         // Poll for state entry (generic; customize per anim if needed)
         float maxWaitTime = 1f;
         float elapsed = 0f;
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
         bool stateEntered = false;
 
 
@@ -194,22 +197,22 @@ public class PlayerAnimation : MonoBehaviour
             }
             yield return null;
             elapsed += Time.deltaTime;
-            stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
         }
 
         if (!stateEntered)
         {
-            Debug.LogWarning($"EnterPoseSequence: Animator did not enter pose state within timeout!");
+            Debug.LogWarning("EnterPoseSequence: Animator did not enter pose state within timeout!");
             if (enableRootMotion)
             {
-                animator.applyRootMotion = false;
-                player3DMovement.IsInTransitionAnimation = false;
+                _animator.applyRootMotion = false;
+                _player3DMovement.IsInTransitionAnimation = false;
             }
             yield break;
         }
 
         // Explicitly set Bool after successful state entry to sustain the loop
-        animator.SetBool("isSitting", true);
+        _animator.SetBool("isSitting", true);
         Debug.Log("Entered Sitting Idle - Set isSitting=true");
 
         float animLength = stateInfo.length;
@@ -217,49 +220,46 @@ public class PlayerAnimation : MonoBehaviour
 
         if (enableRootMotion)
         {
-            animator.applyRootMotion = false;
-            player3DMovement.IsInTransitionAnimation = false;
+            _animator.applyRootMotion = false;
+            _player3DMovement.IsInTransitionAnimation = false;
         }
 
-        if (player3DMovement != null)
-        {
-            player3DMovement.SnapToSurface();
-        }
+        _player3DMovement?.SnapToSurface();
 
         Debug.Log("Pose enter complete.");
     }
 
     public void InstantExitPose(PoseConfig? config)
     {
-        if (currentExitCoroutine != null) StopCoroutine(currentExitCoroutine);
-        currentExitCoroutine = StartCoroutine(InstantExitSequence(config));
+        if (_currentExitCoroutine != null) StopCoroutine(_currentExitCoroutine);
+        _currentExitCoroutine = StartCoroutine(InstantExitSequence(config));
     }
 
     private IEnumerator InstantExitSequence(PoseConfig? config)
     {
-        Debug.Log($"Instant exit from pose '{currentPoseID}'.");
+        Debug.Log($"Instant exit from pose '{CurrentPoseID}'.");
 
         // Black screen in (instant)
         yield return ScreenFader.Instance.FadeToBlack(duration: 0f, frameWait: 0);
 
         // Immediately start transition out of pose (hidden under black)
-        isInPose = false;
-        animator.SetBool("isSitting", false); // Starts blend to standing now
+        IsInPose = false;
+        _animator.SetBool("isSitting", false); // Starts blend to standing now
 
         float holdDuration = config?.blackHoldDuration ?? 0.5f; // Quick 0.5s
         yield return new WaitForSecondsRealtime(holdDuration);
 
         // Re-enable movement
-        if (playerMovement != null) playerMovement.controlsEnabled = true;
-        if (player3DMovement != null) player3DMovement.controlsEnabled = true;
+        if (_playerMovement != null) _playerMovement.controlsEnabled = true;
+        if (_player3DMovement != null) _player3DMovement.controlsEnabled = true;
 
         // Fade out
         yield return ScreenFader.Instance.FadeFromBlack(duration: 0f);
 
         // Reset tracking
-        currentPoseID = null;
-        currentConfig = null;
-        currentExitTrigger = null;
+        CurrentPoseID = null;
+        _currentConfig = null;
+        CurrentExitTrigger = null;
 
         Debug.Log("Instant exit complete.");
     }
@@ -268,13 +268,13 @@ public class PlayerAnimation : MonoBehaviour
     public IEnumerator WaitForPoseComplete(bool isEnter)
     {
         yield return new WaitForSeconds(0.1f); // Buffer
-        if (isEnter && currentEnterCoroutine != null)
+        if (isEnter && _currentEnterCoroutine != null)
         {
-            yield return currentEnterCoroutine;
+            yield return _currentEnterCoroutine;
         }
-        else if (!isEnter && currentExitCoroutine != null)
+        else if (!isEnter && _currentExitCoroutine != null)
         {
-            yield return currentExitCoroutine;
+            yield return _currentExitCoroutine;
         }
         else if (!isEnter)
         {

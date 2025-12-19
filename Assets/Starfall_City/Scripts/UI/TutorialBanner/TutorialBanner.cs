@@ -33,12 +33,21 @@ public class TutorialBanner : MonoBehaviour
 
         gameObject.SetActive(true);
         Time.timeScale = 0f; // Freeze game until player closes banner
+        if (QTEGameManager.Instance != null)
+        {
+            QTEGameManager.Instance.SetQTEPaused(true);
+        }
     }
 
     public void Hide()
     {
         gameObject.SetActive(false);
         Time.timeScale = 1f;
+
+        if (QTEGameManager.Instance != null)
+        {
+            QTEGameManager.Instance.SetQTEPaused(false);
+        }
 
         // Cleanup event to avoid leaks
         if (closeButton != null)

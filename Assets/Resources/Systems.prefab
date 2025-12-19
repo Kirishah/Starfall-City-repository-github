@@ -1423,6 +1423,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5155573196516279406}
   - component: {fileID: 195565254313024055}
+  - component: {fileID: 5961774369491454428}
   m_Layer: 0
   m_Name: EventManager
   m_TagString: Untagged
@@ -1457,18 +1458,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba0c64768e43dfc408ec9af77087c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScriptedEventViewModel
+  eventSubscriptionConfig: {fileID: 11400000, guid: 38bc616f3df31f6429bf0a8c6b562370, type: 2}
+  executor: {fileID: 5961774369491454428}
+--- !u!114 &5961774369491454428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2276936346738232248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5902dbe3ada0cb4f92a4bb402ca1aa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::core.ScriptedEventExecutor
   eventAssets:
   - {fileID: 11400000, guid: 3467bf6d96ef08449920e1c6b436cb2e, type: 2}
   - {fileID: 11400000, guid: 1404ecf6fc97d284cb130576b0822c04, type: 2}
   - {fileID: 11400000, guid: c204f8802d0039648baf38188728dbe4, type: 2}
-  - {fileID: 11400000, guid: 068fa4fec4c40ba4092ef61e309fc3be, type: 2}
   - {fileID: 11400000, guid: 820c4921564012f4580c742d758cef5d, type: 2}
   - {fileID: 11400000, guid: df2528f7ea28f7f4dbe0ab9efedaa79e, type: 2}
   - {fileID: 11400000, guid: a6871c817856fe1489855b0a1b3f6022, type: 2}
-  - {fileID: 11400000, guid: e00ca2990052ee4458ee8db1c92e001f, type: 2}
-  - {fileID: 11400000, guid: 96efc37380fec0448a31ce1753d58bea, type: 2}
   - {fileID: 11400000, guid: 78777ec8b89eeb2419ac3984bb4c6d8a, type: 2}
-  eventSubscriptionConfig: {fileID: 11400000, guid: 38bc616f3df31f6429bf0a8c6b562370, type: 2}
+  - {fileID: 11400000, guid: 96efc37380fec0448a31ce1753d58bea, type: 2}
+  - {fileID: 11400000, guid: e00ca2990052ee4458ee8db1c92e001f, type: 2}
+  - {fileID: 11400000, guid: 068fa4fec4c40ba4092ef61e309fc3be, type: 2}
   dialogueManager: {fileID: 5931975876995255804}
 --- !u!1 &2277202813285513179
 GameObject:

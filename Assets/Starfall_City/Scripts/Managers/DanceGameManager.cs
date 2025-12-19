@@ -58,7 +58,6 @@ namespace QTE
             wideCam.Priority = 10;
             closeUpCam.Priority = 10;
             dynamicCam.Priority = 10;
-            musicTrack.ignoreListenerPause = true;
         }
 
         private void TryResolveDancer()

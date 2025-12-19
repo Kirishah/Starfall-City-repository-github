@@ -168,13 +168,11 @@ namespace QTE
         public void SetQTEPaused(bool paused)
         {
             IsQTEPaused = paused;
-            if (danceGameManager != null && danceGameManager.musicTrack != null)
-            {
-                if (paused)
-                    danceGameManager.musicTrack.Pause();
-                else
-                    danceGameManager.musicTrack.UnPause();
-            }
+            // This freezes dspTime + pauses music perfectly
+            AudioListener.pause = paused;
+
+            // Optional: volume control for smoother feel (fades out/in)
+            AudioListener.volume = paused ? 0f : 1f;
         }
 
         public void StartQTE(string qteId = "default")

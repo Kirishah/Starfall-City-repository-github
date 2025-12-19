@@ -24,7 +24,7 @@ MonoBehaviour:
     speaker: 
     delaySeconds: 0
     parallel: 0
-    tolerance: 2.5
+    tolerance: 0.3
     positionParamKey: deskPos
     poseConfig: {fileID: 0}
     rotationParamKey: 
@@ -34,6 +34,13 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    qteConfigId: 
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
   - actionType: 6
     targetTag: 
     targetPosition: {x: 0, y: 0, z: 0}
@@ -54,4 +61,11 @@ MonoBehaviour:
     animStopParam: 
     poseTargetTag: 
     exitMethodName: 
+    sceneName: 
+    loadAdditively: 0
+    qteConfigId: 
+    onQTESuccessEventId: 
+    onQTEFailureEventId: 
+    targetSpawnId: 
+    spawnYRotation: 0
   triggerCondition: 

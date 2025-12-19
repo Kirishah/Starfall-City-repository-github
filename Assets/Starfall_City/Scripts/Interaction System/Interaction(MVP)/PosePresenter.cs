@@ -59,20 +59,20 @@ public class PosePresenter : MonoBehaviour
             Debug.LogError("ExitPose: playerAnim null! (Re-find? Scene reload?)"); 
             return;
         }
-        if (!playerAnim.isInPose)
+        if (!playerAnim.IsInPose)
         {
-            Debug.LogWarning($"ExitPose: !isInPose (current: {playerAnim.isInPose}) - skipping.");
+            Debug.LogWarning($"ExitPose: !isInPose (current: {playerAnim.IsInPose}) - skipping.");
             return;
         }
-        if (!string.IsNullOrEmpty(skipIfPoseID) && skipIfPoseID == playerAnim.currentPoseID)
+        if (!string.IsNullOrEmpty(skipIfPoseID) && skipIfPoseID == playerAnim.CurrentPoseID)
         {
-            Debug.Log($"Skipping exit for pose: {playerAnim.currentPoseID}");
+            Debug.Log($"Skipping exit for pose: {playerAnim.CurrentPoseID}");
             return;
         }
 
         Debug.Log("ExitPose: Proceeding to InstantExitPose."); 
 
-        var effectiveConfig = config ?? playerAnim.currentConfig ?? ScriptableObject.CreateInstance<PoseConfig>(); // Temp fallback; customize as needed
+        var effectiveConfig = config ?? playerAnim.CurrentConfig ?? ScriptableObject.CreateInstance<PoseConfig>(); // Temp fallback; customize as needed
         playerAnim.InstantExitPose(effectiveConfig);
     }
 

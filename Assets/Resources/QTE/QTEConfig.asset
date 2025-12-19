@@ -21,14 +21,14 @@ MonoBehaviour:
   basePoints: 100
   comboMultiplier: 0.1
   beatSpawnTimes: []
-  bpm: 113
+  bpm: 115
   beatsToHitZone: 4
   beatOffset: 0
   qteDuration: 60
   initialSpawnDelay: 2
   musicTrack: {fileID: 8300000, guid: 9d0eaae00c0ebab48946776e926b7a91, type: 3}
   enableRival: 1
-  rivalAccuracy: 0.95
+  rivalAccuracy: 0.9
   rivalReactionDelay: 0.08
   rivalIntentionalMissChance: 0.1
   rivalComboAggression: 1.2

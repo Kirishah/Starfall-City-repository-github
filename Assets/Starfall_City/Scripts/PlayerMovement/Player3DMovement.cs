@@ -6,15 +6,15 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     public bool IsInTransitionAnimation { get; set; } = false;
 
-    [SerializeField] private float moveSpeed = 3f;
-    [SerializeField] private float turnSpeed = 20f;
+    [SerializeField] private float _moveSpeed = 3f;
+    [SerializeField] private float _turnSpeed = 20f;
 
     [Header("NavMesh Validation")]
-    [SerializeField] private float navMeshSampleDistance = 0.5f; // adjust based on your CharacterController.height / 2 + buffer
+    [SerializeField] private float _navMeshSampleDistance = 0.5f; // adjust based on your CharacterController.height / 2 + buffer
 
     [Header("Surface Snapping")]
-    [SerializeField] private bool handleGravity = true; // Toggle off if floors are perfectly flat/no jumps
-    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private bool _handleGravity = true; // Toggle off if floors are perfectly flat/no jumps
+    [SerializeField] private float _gravity = -9.81f;
     [SerializeField] private LayerMask groundLayerMask = 6; // Set to your floor/ground layers (default: all)
     [SerializeField] private float surfaceSnapTolerance = 0.01f; // Max Y drift before snapping (prevents jitter)
     [SerializeField] private float navMeshSnapDistance = 2f; // Max distance for NavMesh sample in snapping (larger than validation)
@@ -85,7 +85,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     void Update()
     {
         // Modified: Skip snap if root motion is active during transition
-        if (IsInTransitionAnimation && animator != null && animator.applyRootMotion)
+        if (IsInTransitionAnimation && animator?.applyRootMotion == true)
         {
             // Let root motion handle positioning - no snap here
         }
@@ -124,12 +124,9 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         }
     }
 
-    
 
-    private void GatherInput()
-    {
-        moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
-    }
+
+    private void GatherInput() => moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
     private void Look()
     {
         Vector3 isoDirection = moveDirection.ToIso();
@@ -137,24 +134,24 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         transform.rotation = Quaternion.Slerp(
             transform.rotation,
             targetRotation,
-            turnSpeed * Time.deltaTime
+            _turnSpeed * Time.deltaTime
         );
     }
 
     private void Move()
     {
-        Vector3 horizontalMove = transform.forward * moveSpeed * Time.deltaTime;
+        Vector3 horizontalMove = _moveSpeed * Time.deltaTime * transform.forward;
         horizontalMove.y = 0f; // Ensure no accidental Y from forward
 
         // Vertical (gravity) if enabled
         Vector3 verticalMove = Vector3.zero;
-        if (handleGravity && !IsInTransitionAnimation)
+        if (_handleGravity && !IsInTransitionAnimation)
         {
             if (controller.isGrounded && verticalVelocity.y < 0)
             {
                 verticalVelocity.y = -1f; // Small downward nudge to maintain contact (prevents hover)
             }
-            verticalVelocity.y += gravity * Time.deltaTime;
+            verticalVelocity.y += _gravity * Time.deltaTime;
             verticalMove.y = verticalVelocity.y * Time.deltaTime;
         }
 
@@ -186,14 +183,13 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     private bool IsPositionValid(Vector3 bottomTargetPosition)
     {
-        NavMeshHit hit;
-        bool isValid = NavMesh.SamplePosition(bottomTargetPosition, out hit, navMeshSampleDistance, NavMesh.AllAreas);
+        bool isValid = NavMesh.SamplePosition(bottomTargetPosition, out NavMeshHit hit, _navMeshSampleDistance, NavMesh.AllAreas);
 
         // Temporary debug (remove after testing)
         if (!isValid && Time.frameCount % 60 == 0)
         {
             float distToSurface = Vector3.Distance(bottomTargetPosition, hit.position);
-            Debug.Log($"Validation failed at bottom {bottomTargetPosition}. Nearest: {hit.position}, Dist: {distToSurface}, MaxAllowed: {navMeshSampleDistance}");
+            Debug.Log($"Validation failed at bottom {bottomTargetPosition}. Nearest: {hit.position}, Dist: {distToSurface}, MaxAllowed: {_navMeshSampleDistance}");
         }
 
         return isValid;
@@ -210,9 +206,8 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         // Prefer NavMesh sample for consistency with agent
         if (preferNavMeshForSnap)
         {
-            NavMeshHit navHit;
             Vector3 samplePos = transform.position + new Vector3(0, bottomOffset, 0); // Sample at current bottom (position.y)
-            if (NavMesh.SamplePosition(samplePos, out navHit, navMeshSnapDistance, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(samplePos, out NavMeshHit navHit, navMeshSnapDistance, NavMesh.AllAreas))
             {
                 targetSurfaceY = navHit.position.y;
                 snapped = true;
@@ -234,7 +229,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
             else
             {
                 Debug.LogWarning("No ground hit for snap - applying extra gravity");
-                if (handleGravity) verticalVelocity.y += gravity * Time.deltaTime * 1.5f;
+                if (_handleGravity) verticalVelocity.y += _gravity * Time.deltaTime * 1.5f;
                 return;
             }
         }
@@ -248,7 +243,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
             float yDrift = Mathf.Abs(transform.position.y - desiredPivotY);
 
             // Force snap if grounded (ignores tolerance for zero-drift reliability)
-            bool shouldSnap = forceSnapWhenGrounded && controller.isGrounded || yDrift > surfaceSnapTolerance;
+            bool shouldSnap = (forceSnapWhenGrounded && controller.isGrounded) || yDrift > surfaceSnapTolerance;
 
             if (IsInTransitionAnimation)
             {
@@ -259,7 +254,7 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
             {
                 float oldY = transform.position.y;
                 transform.position = new Vector3(transform.position.x, desiredPivotY, transform.position.z);
-                if (handleGravity) verticalVelocity.y = 0f;
+                if (_handleGravity) verticalVelocity.y = 0f;
             }
         }
     }

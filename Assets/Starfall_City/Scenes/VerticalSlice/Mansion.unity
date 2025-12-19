@@ -17815,7 +17815,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1701745334}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 1.8
   m_Acceleration: 8
   avoidancePriority: 50
@@ -17835,7 +17835,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1701745334}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c62d6d13afdbcc42b5dd22028cada0a, type: 3}
   m_Name: 
@@ -19439,6 +19439,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3861767348703501455, guid: f0dbe56366597ea4bb82b11562776368, type: 3}
+      propertyPath: _moveSpeed
+      value: 1.8
+      objectReference: {fileID: 0}
     - target: {fileID: 7419906115600427856, guid: f0dbe56366597ea4bb82b11562776368, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.897
