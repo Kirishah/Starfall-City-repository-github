@@ -4,6 +4,7 @@ using QTE;
 using System;
 using System.Collections;
 using UnityEngine;
+using Interaction;
 
 public class PlayerAnimation : MonoBehaviour
 {

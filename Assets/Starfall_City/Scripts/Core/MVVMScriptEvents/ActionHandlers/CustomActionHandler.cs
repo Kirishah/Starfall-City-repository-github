@@ -1,8 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Interaction;
 
 namespace core
 {
@@ -143,7 +144,7 @@ namespace core
 
                 if (enterConfig == null)
                 {
-                    Debug.LogWarning($"EnterPose: PoseConfig '{poseID}' not found � using default");
+                    Debug.LogWarning($"EnterPose: PoseConfig '{poseID}' not found — using default");
                     enterConfig = ScriptableObject.CreateInstance<PoseConfig>();
                     enterConfig.poseID = "DefaultPose";
                 }

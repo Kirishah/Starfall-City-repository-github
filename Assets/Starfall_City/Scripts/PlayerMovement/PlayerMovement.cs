@@ -1,4 +1,5 @@
-﻿using PlayerInputActions;
+﻿using Interaction;
+using PlayerInputActions;
 using QTE;
 using UnityEngine;
 using UnityEngine.AI;
@@ -8,7 +9,7 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
     [Header("References")]
     public NavMeshAgent player;
-    private Interactable _currentTargetInteractable;
+    private InteractionPresenter _currentTargetInteractable;
 
     [Header("Movement Settings")]
     private Vector3 _lastPosition;
@@ -116,7 +117,7 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
             {
                 Vector3 validDestination = navHit.position;
 
-                if (hit.collider.TryGetComponent<Interactable>(out var interactable) &&
+                if (hit.collider.TryGetComponent<InteractionPresenter>(out var interactable) &&
                     interactable.gameObject.activeInHierarchy)
                 {
                     SetInteractableTarget(interactable, validDestination);
@@ -131,7 +132,7 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         }
     }
 
-    void SetInteractableTarget(Interactable interactable, Vector3 targetPosition)
+    void SetInteractableTarget(InteractionPresenter interactable, Vector3 targetPosition)
     {
         _currentTargetInteractable = interactable;
         player.stoppingDistance = _interactionRange;

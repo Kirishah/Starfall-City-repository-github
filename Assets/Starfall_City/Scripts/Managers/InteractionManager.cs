@@ -4,141 +4,126 @@ using QTE;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
+namespace Interaction
 {
-    [Header("Settings")]
-    [SerializeField] private float interactionRadius = 1f;
-    [SerializeField] private LayerMask interactableLayer;
-
-    // Pre-allocated buffer – size based on reasonable max interactables in radius (adjust if needed)
-    private readonly Collider[] _overlapBuffer = new Collider[20];
-    private readonly RaycastHit[] _raycastBuffer = new RaycastHit[1]; // Size 1 for single hit
-
-    private readonly List<Interactable> _proximityInteractables = new();
-
-
-    private Interactable _closestInteractable;
-    private Interactable _hoveredInteractable;
-
-    private PlayerControls _controls;
-    private PlayerControls.InteractionActions _interactionActions;
-
-    private void Awake()
+    public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
     {
-        _controls = new PlayerControls();
-        _interactionActions = _controls.Interaction;
-    }
+        [Header("Settings")]
+        [SerializeField] private float _interactionRadius = 1f;
+        [SerializeField] private LayerMask _interactableLayer;
 
-    private void OnEnable()
-    {
-        _interactionActions.Enable();
-        _interactionActions.Key.performed += OnInteractKeyPressed;
-    }
+        // Pre-allocated buffer – size based on reasonable max interactables in radius (adjust if needed)
+        private readonly Collider[] _overlapBuffer = new Collider[20];
+        private readonly RaycastHit[] _raycastBuffer = new RaycastHit[1]; // Size 1 for single hit
 
-    private void OnDisable()
-    {
-        _interactionActions.Key.performed -= OnInteractKeyPressed;
-        _interactionActions.Disable();
-    }
+        private readonly List<InteractionPresenter> _proximityPresenters = new();
 
-    void Update()
-    {
-        if (QTEGameManager.IsQTEActive || !GameSystems.IsReady) return;
+        private InteractionPresenter _closestPresenter;
+        private InteractionPresenter _hoveredPresenter;
 
-        DetectProximityInteractables();
-        DetectHoverInteractable();
-    }
+        private PlayerControls _controls;
+        private PlayerControls.InteractionActions _interactionActions;
 
-    private void OnInteractKeyPressed(UnityEngine.InputSystem.InputAction.CallbackContext context)
-    {
-        HandleEKeyInteraction();
-    }
-
-    private void DetectProximityInteractables()
-    {
-        // Clear previous proximity state
-        foreach (var i in _proximityInteractables)
+        private void Awake()
         {
-            i.SetProximity(false);
+            _controls = new PlayerControls();
+            _interactionActions = _controls.Interaction;
         }
-        _proximityInteractables.Clear();
 
-        // NonAlloc overlap 
-        int hitCount = Physics.OverlapSphereNonAlloc(
-            transform.position,
-            interactionRadius,
-            _overlapBuffer,
-            interactableLayer
-        );
-
-        _closestInteractable = null;
-        float closestDistance = Mathf.Infinity;
-
-        for (int i = 0; i < hitCount; i++)
+        private void OnEnable()
         {
-            if (_overlapBuffer[i].TryGetComponent<Interactable>(out var interactable))
-            {
-                _proximityInteractables.Add(interactable);
-                interactable.SetProximity(true);
+            _interactionActions.Enable();
+            _interactionActions.Key.performed += OnInteractKeyPressed;
+        }
 
-                float distance = Vector3.Distance(transform.position, interactable.transform.position);
-                if (distance < closestDistance)
+        private void OnDisable()
+        {
+            _interactionActions.Key.performed -= OnInteractKeyPressed;
+            _interactionActions.Disable();
+        }
+
+        void Update()
+        {
+            if (QTEGameManager.IsQTEActive || !GameSystems.IsReady) return;
+
+            DetectProximityInteractables();
+            DetectHoverInteractable();
+        }
+
+        private void OnInteractKeyPressed(UnityEngine.InputSystem.InputAction.CallbackContext context) => _closestPresenter?.Interact();
+
+        private void DetectProximityInteractables()
+        {
+            // Clear previous proximity state
+            foreach (var i in _proximityPresenters)
+            {
+                i.SetProximity(false);
+            }
+            _proximityPresenters.Clear();
+
+            // NonAlloc overlap 
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                _interactionRadius,
+                _overlapBuffer,
+                _interactableLayer
+            );
+
+            _closestPresenter = null;
+            float closestDistance = Mathf.Infinity;
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (_overlapBuffer[i].TryGetComponent<InteractionPresenter>(out var presenter))
                 {
-                    closestDistance = distance;
-                    _closestInteractable = interactable;
+                    _proximityPresenters.Add(presenter);
+                    presenter.SetProximity(true);
+
+                    float distance = Vector3.Distance(transform.position, presenter.transform.position);
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        _closestPresenter = presenter;
+                    }
                 }
             }
         }
-    }
 
-    private void DetectHoverInteractable()
-    {
-        if (Camera.main == null) return;
-
-        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-
-        // NonAlloc single-hit raycast 
-        int hitCount = Physics.RaycastNonAlloc(ray, _raycastBuffer, Mathf.Infinity, interactableLayer);
-
-        if (hitCount > 0)
+        private void DetectHoverInteractable()
         {
-            if (_raycastBuffer[0].collider.TryGetComponent<Interactable>(out var newHover))
+            if (Camera.main == null) return;
+
+            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+            // NonAlloc single-hit raycast 
+            int hitCount = Physics.RaycastNonAlloc(ray, _raycastBuffer, Mathf.Infinity, _interactableLayer);
+
+            if (hitCount > 0)
             {
-                if (newHover == _hoveredInteractable) return;
+                if (_raycastBuffer[0].collider.TryGetComponent<InteractionPresenter>(out var newHover))
+                {
+                    if (newHover == _hoveredPresenter) return;
 
-                _hoveredInteractable?.SetHovered(false);
+                    _hoveredPresenter?.SetHovered(false);
 
-                _hoveredInteractable = newHover;
-                _hoveredInteractable?.SetHovered(true);
-                return;
+                    _hoveredPresenter = newHover;
+                    _hoveredPresenter?.SetHovered(true);
+                    return;
+                }
+            }
+
+            // No hit or not interactable
+            if (_hoveredPresenter != null)
+            {
+                _hoveredPresenter.SetHovered(false);
+                _hoveredPresenter = null;
             }
         }
 
-        // No hit or not interactable
-        if (_hoveredInteractable != null)
+        private void OnDestroy()
         {
-            _hoveredInteractable.SetHovered(false);
-            _hoveredInteractable = null;
+            _interactionActions.Key.performed -= OnInteractKeyPressed;
+            _interactionActions.Disable();
         }
-    }
-
-    void HandleEKeyInteraction()
-    {
-        if (_closestInteractable != null)
-        {
-            _closestInteractable.Interact();
-
-            string identifier = _closestInteractable.GetIdentifier(); 
-            if (!string.IsNullOrEmpty(identifier))
-            {
-                QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Interaction, identifier);
-            }
-        }
-    }
-
-    private void OnDestroy()
-    {
-        _interactionActions.Key.performed -= OnInteractKeyPressed;
-        _interactionActions.Disable();
     }
 }

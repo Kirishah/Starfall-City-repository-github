@@ -1638,10 +1638,13 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 135957469}
+      addedObject: {fileID: 135957473}
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 135957473}
+      addedObject: {fileID: 135957478}
+    - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 135957477}
   m_SourcePrefab: {fileID: 100100000, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
 --- !u!4 &135957467 stripped
 Transform:
@@ -1653,30 +1656,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
   m_PrefabInstance: {fileID: 135957466}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &135957469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 135957468}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280b39073407212468fccb9a513837f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractable
-  interactionText: "\u0421\u0432\u043E\u0431\u043E\u0434\u043D\u043E?"
-  _objectID: toilet_door
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 1, y: 1, z: 0}
-  unlockConditions: []
-  enableConditionLogging: 0
-  _item: {fileID: 0}
-  _quantity: 1
-  itemID: 
 --- !u!135 &135957473
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1698,6 +1677,38 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.59075844
   m_Center: {x: 0.48592055, y: 0.12926155, z: 0.004877147}
+--- !u!114 &135957477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 135957468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c35d4ad6c8ecd4f8596b5962da9580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.ObjectInteractionPresenter
+  _interactionText: Interact
+  _objectID: toilet_door
+  unlockConditions: []
+  _item: {fileID: 0}
+  _quantity: 1
+  _itemID: 
+--- !u!114 &135957478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 135957468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 1, y: 1, z: 0}
 --- !u!4 &145244925 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ddc5546606de6ab489b75304fb3fd37e, type: 3}
@@ -2891,7 +2902,10 @@ PrefabInstance:
       addedObject: {fileID: 642169630}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b8c7e7dda8dd77c42adb45e95fa674a8, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 642169631}
+      addedObject: {fileID: 642169636}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b8c7e7dda8dd77c42adb45e95fa674a8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 642169635}
   m_SourcePrefab: {fileID: 100100000, guid: b8c7e7dda8dd77c42adb45e95fa674a8, type: 3}
 --- !u!4 &292732394 stripped
 Transform:
@@ -3524,10 +3538,13 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8578844f82aa458439f790dd588e8d59, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 614576247}
+      addedObject: {fileID: 614576248}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8578844f82aa458439f790dd588e8d59, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 614576248}
+      addedObject: {fileID: 614576252}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8578844f82aa458439f790dd588e8d59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 614576251}
   m_SourcePrefab: {fileID: 100100000, guid: 8578844f82aa458439f790dd588e8d59, type: 3}
 --- !u!1001 &300359188
 PrefabInstance:
@@ -4553,10 +4570,13 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 395519238}
+      addedObject: {fileID: 395519242}
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 395519242}
+      addedObject: {fileID: 395519247}
+    - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 395519246}
   m_SourcePrefab: {fileID: 100100000, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
 --- !u!4 &395519236 stripped
 Transform:
@@ -4568,30 +4588,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
   m_PrefabInstance: {fileID: 395519235}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &395519238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395519237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280b39073407212468fccb9a513837f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractable
-  interactionText: "\u0421\u0432\u043E\u0431\u043E\u0434\u043D\u043E?"
-  _objectID: toilet_door
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 1, y: 1, z: 0}
-  unlockConditions: []
-  enableConditionLogging: 0
-  _item: {fileID: 0}
-  _quantity: 1
-  itemID: 
 --- !u!135 &395519242
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -4613,6 +4609,38 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5048171
   m_Center: {x: 0.40987957, y: 0.12926155, z: 0.0048771286}
+--- !u!114 &395519246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395519237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c35d4ad6c8ecd4f8596b5962da9580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.ObjectInteractionPresenter
+  _interactionText: Interact
+  _objectID: toilet_door
+  unlockConditions: []
+  _item: {fileID: 0}
+  _quantity: 1
+  _itemID: 
+--- !u!114 &395519247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395519237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 1, y: 1, z: 0}
 --- !u!1 &396142991 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3083551f1d13dec4fac4e25e871690fd, type: 3}
@@ -5084,10 +5112,16 @@ MonoBehaviour:
   onInteract:
     m_PersistentCalls:
       m_Calls: []
+    m_CallsDirty: 1
   promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
   promptOffset: {x: 1, y: 1, z: 0}
   unlockConditions: []
   enableConditionLogging: 0
+  _isInProximity: 0
+  _isHovered: 0
+  _isInteractable: 1
+  _conditionsEverEvaluated: 0
+  currentPrompt: {fileID: 0}
   questStarter: {fileID: 0}
   startDialogueID: MarthaInitialDialogue
   npcID: Martha
@@ -7478,34 +7512,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8578844f82aa458439f790dd588e8d59, type: 3}
   m_PrefabInstance: {fileID: 298661636}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &614576247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 594934061}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280b39073407212468fccb9a513837f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractable
-  interactionText: "\u041F\u043E\u043F\u0438\u0442\u044C \u0432\u043E\u0434\u044B"
-  _objectID: _waterCooler
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 1, y: 0.8, z: 0}
-  unlockConditions:
-  - type: 0
-    targetID: q_KiryaStar_Late
-    requiredAmount: 1
-    nextOperator: 0
-  enableConditionLogging: 0
-  _item: {fileID: 0}
-  _quantity: 1
-  itemID: 
 --- !u!135 &614576248
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -7527,6 +7533,42 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.9256291
   m_Center: {x: 0.00000009934107, y: -0.05990833, z: 0.4494945}
+--- !u!114 &614576251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594934061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c35d4ad6c8ecd4f8596b5962da9580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.ObjectInteractionPresenter
+  _interactionText: Interact
+  _objectID: _waterCooler
+  unlockConditions:
+  - type: 0
+    targetID: q_KiryaStar_Late
+    requiredAmount: 1
+    nextOperator: 0
+  _item: {fileID: 0}
+  _quantity: 1
+  _itemID: 
+--- !u!114 &614576252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594934061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 1, y: 0.8, z: 0}
 --- !u!4 &614943615 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9136375341039517006, guid: dbb20facf90e2f142880258993444f97, type: 3}
@@ -8124,7 +8166,7 @@ MonoBehaviour:
   m_IgnoreFromBuild: 0
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!114 &642169631
+--- !u!114 &642169635
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8133,26 +8175,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 642169626}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf0465a3350d4ee46b6662d53f82547b, type: 3}
+  m_Script: {fileID: 11500000, guid: b85195f5e5308cd40a56b545a5e28d45, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PoseInteractable
-  interactionText: "\u0421\u0435\u0441\u0442\u044C"
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.PoseInteractionPresenter
+  _interactionText: Interact
   _objectID: chair_Danny
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 1, y: 0.8, z: 0}
   unlockConditions:
   - type: 0
     targetID: q_toilet
     requiredAmount: 1
     nextOperator: 0
-  enableConditionLogging: 0
-  poseConfig: {fileID: 11400000, guid: e680a04ebf5abd847a38c4cede5fa17f, type: 2}
-  targetPosition: {fileID: 292732394}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  positionOffset: {x: 0, y: 0, z: 0}
+  _poseConfig: {fileID: 11400000, guid: e680a04ebf5abd847a38c4cede5fa17f, type: 2}
+  _targetPosition: {fileID: 292732394}
+  _rotationOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &642169636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 642169626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 1, y: 1, z: 0}
 --- !u!1001 &644341306
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10277,10 +10326,13 @@ PrefabInstance:
       addedObject: {fileID: 1194082830}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e6ff545081083504681fb007d6acadb0, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1194082831}
+      addedObject: {fileID: 1194082832}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e6ff545081083504681fb007d6acadb0, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1194082832}
+      addedObject: {fileID: 1194082834}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e6ff545081083504681fb007d6acadb0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1194082833}
   m_SourcePrefab: {fileID: 100100000, guid: e6ff545081083504681fb007d6acadb0, type: 3}
 --- !u!1001 &901605752
 PrefabInstance:
@@ -11688,10 +11740,13 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1017957685}
+      addedObject: {fileID: 1017957689}
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1017957689}
+      addedObject: {fileID: 1017957694}
+    - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1017957693}
   m_SourcePrefab: {fileID: 100100000, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
 --- !u!4 &1017957683 stripped
 Transform:
@@ -11703,30 +11758,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
   m_PrefabInstance: {fileID: 1017957682}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1017957685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1017957684}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280b39073407212468fccb9a513837f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractable
-  interactionText: "\u0421\u0432\u043E\u0431\u043E\u0434\u043D\u043E?"
-  _objectID: toilet_door
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 1, y: 1, z: 0}
-  unlockConditions: []
-  enableConditionLogging: 0
-  _item: {fileID: 0}
-  _quantity: 1
-  itemID: 
 --- !u!135 &1017957689
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -11748,6 +11779,38 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.59901446
   m_Center: {x: 0.45531934, y: 0.12926155, z: 0.0048771393}
+--- !u!114 &1017957693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017957684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c35d4ad6c8ecd4f8596b5962da9580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.ObjectInteractionPresenter
+  _interactionText: Interact
+  _objectID: toilet_door
+  unlockConditions: []
+  _item: {fileID: 0}
+  _quantity: 1
+  _itemID: 
+--- !u!114 &1017957694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017957684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 1, y: 1, z: 0}
 --- !u!1 &1021098394 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7530b2fe6df71f84281ea1d776b1dbe6, type: 3}
@@ -12944,30 +13007,6 @@ MonoBehaviour:
   m_IgnoreFromBuild: 0
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!114 &1194082831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 507920133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280b39073407212468fccb9a513837f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractable
-  interactionText: Coffee Cup
-  _objectID: 
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 0, y: 2, z: 1}
-  unlockConditions: []
-  enableConditionLogging: 0
-  _item: {fileID: 11400000, guid: fc587f1d424093040a781c114b8edb3f, type: 2}
-  _quantity: 1
-  itemID: coffee_cup
 --- !u!135 &1194082832
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -12989,6 +13028,38 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.4702664
   m_Center: {x: 1.1157068, y: -0.41400522, z: 0.8632986}
+--- !u!114 &1194082833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 507920133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c35d4ad6c8ecd4f8596b5962da9580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.ObjectInteractionPresenter
+  _interactionText: Interact
+  _objectID: ' '
+  unlockConditions: []
+  _item: {fileID: 11400000, guid: fc587f1d424093040a781c114b8edb3f, type: 2}
+  _quantity: 1
+  _itemID: coffee_cup
+--- !u!114 &1194082834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 507920133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 0, y: 2, z: 1}
 --- !u!1001 &1196006584
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17777,13 +17848,16 @@ PrefabInstance:
       addedObject: {fileID: 1701745336}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1701745338}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1701745339}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1701745341}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1701745344}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1701745343}
   m_SourcePrefab: {fileID: 100100000, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
 --- !u!1 &1701745334 stripped
 GameObject:
@@ -17835,30 +17909,6 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
   m_PrefabInstance: {fileID: 1701745332}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1701745338
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1701745334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81fd0d90e8b818d4cb1a31acb72e8b79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NPCInteractable
-  interactionText: "\u041F\u043E\u0433\u043E\u0432\u043E\u0440\u0438\u0442\u044C"
-  _objectID: 
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 1, y: 0.8, z: 0}
-  unlockConditions: []
-  enableConditionLogging: 0
-  questStarter: {fileID: 0}
-  startDialogueID: d_boss_meetingAngry
-  npcID: Boss_Michael
 --- !u!135 &1701745339
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -17893,6 +17943,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::core.PersistentObjectId
   id: Boss Michael_6eb45b8842374825a5c
+--- !u!114 &1701745343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701745334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bca7979ebfca4d40bfdeb42b2412537, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.NPCInteractionPresenter
+  _interactionText: Interact
+  _objectID: ' '
+  unlockConditions: []
+  _questStarter: {fileID: 0}
+  _startDialogueID: d_boss_meetingAngry
+  _npcID: Boss_Michael
+--- !u!114 &1701745344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701745334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 1, y: 0.8, z: 0}
 --- !u!4 &1706979250 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2c26b9925a4ca9a4290c7c5bc9644bbb, type: 3}
@@ -19470,6 +19552,10 @@ PrefabInstance:
     - target: {fileID: 7904694619507323370, guid: f0dbe56366597ea4bb82b11562776368, type: 3}
       propertyPath: m_Name
       value: Ch43_nonPBR Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 8455826966139621729, guid: f0dbe56366597ea4bb82b11562776368, type: 3}
+      propertyPath: _interactableLayer.m_Bits
+      value: 128
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
@@ -22361,10 +22447,13 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2126396305}
+      addedObject: {fileID: 2126396309}
     - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2126396309}
+      addedObject: {fileID: 2126396314}
+    - targetCorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2126396313}
   m_SourcePrefab: {fileID: 100100000, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
 --- !u!4 &2126396303 stripped
 Transform:
@@ -22376,30 +22465,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9166295014850924412, guid: cee9ca60d51c8ea4fafe5af545ecbe85, type: 3}
   m_PrefabInstance: {fileID: 2126396302}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2126396305
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2126396304}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280b39073407212468fccb9a513837f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectInteractable
-  interactionText: "\u0421\u0432\u043E\u0431\u043E\u0434\u043D\u043E?"
-  _objectID: toilet_door
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
-  promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
-  promptOffset: {x: 1, y: 1, z: 0}
-  unlockConditions: []
-  enableConditionLogging: 0
-  _item: {fileID: 0}
-  _quantity: 1
-  itemID: 
 --- !u!135 &2126396309
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -22421,6 +22486,38 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.59075844
   m_Center: {x: 0.48592055, y: 0.12926155, z: 0.004877147}
+--- !u!114 &2126396313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126396304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c35d4ad6c8ecd4f8596b5962da9580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.ObjectInteractionPresenter
+  _interactionText: Interact
+  _objectID: toilet_door
+  unlockConditions: []
+  _item: {fileID: 0}
+  _quantity: 1
+  _itemID: 
+--- !u!114 &2126396314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126396304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd59a9884ad22ab49b9031877d925a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interaction.InteractionView
+  _promptPrefab: {fileID: 2776271985634402272, guid: 3cbd43db3cacb9746a2028a93f5eeb9f, type: 3}
+  _promptOffset: {x: 1, y: 1, z: 0}
 --- !u!1001 &2129003756
 PrefabInstance:
   m_ObjectHideFlags: 0

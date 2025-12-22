@@ -328,10 +328,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     #endregion
 
     #region Utility
-    private Dialogue FindDialogue(string id)
-    {
-        return DialogueDatabase.Instance?.GetDialogue(id);
-    }
+    private Dialogue FindDialogue(string id) => DialogueDatabase.Instance?.GetDialogue(id);
 
     public void TransferToLocation(int targetLocation) => GameManager.Instance.LoadSceneWithTransition(targetLocation);
 
