@@ -16,7 +16,7 @@ public class QuestStarter : MonoBehaviour
     {
         DetermineCurrentQuestAndDialogue();
 
-        if (DialogueManager.Instance == null)
+        if (DialogueManager_UIToolkit.Instance == null)
         {
             Debug.LogError("DialogueManager.Instance is null!");
             return;
@@ -29,7 +29,7 @@ public class QuestStarter : MonoBehaviour
         }
 
         Debug.Log($"[QuestStarter] Starting dialogue '{_currentDialogueStartID}' (NPC: {_npcID})");
-        DialogueManager.Instance.StartDialogue(_currentDialogueStartID, _npcID);
+        DialogueManager_UIToolkit.Instance.StartDialogue(_currentDialogueStartID, _npcID);
     }
 
     private void DetermineCurrentQuestAndDialogue()

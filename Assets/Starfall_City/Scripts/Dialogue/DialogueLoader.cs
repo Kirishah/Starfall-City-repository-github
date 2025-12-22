@@ -1,7 +1,6 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
 public class DialogueLoader : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class DialogueLoader : MonoBehaviour
         {
             List<Dialogue> dialogues = JsonConvert.DeserializeObject<List<Dialogue>>(jsonFile.text);
             Debug.Log($"Successfully loaded {dialogues.Count} dialogues.");
-            return dialogues;
+            return dialogues; // Returns the list and forgets it
         }
         catch (System.Exception e)
         {

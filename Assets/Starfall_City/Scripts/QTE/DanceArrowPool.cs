@@ -1,6 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using DanceInputActions;
+using PlayerInputActions;
 
 namespace QTE
 {
@@ -30,7 +30,7 @@ namespace QTE
                 }
                 if (!pool.prefab.GetComponent<RectTransform>())
                 {
-                    Debug.LogError($"Prefab for direction {pool.direction} is missing RectTransform! Ensure it�s a UI element.", pool.prefab);
+                    Debug.LogError($"Prefab for direction {pool.direction} is missing RectTransform! Ensure it’s a UI element.", pool.prefab);
                     continue;
                 }
                 if (!pool.prefab.GetComponent<DanceArrow>())

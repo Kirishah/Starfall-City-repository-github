@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using QTE;
 
@@ -33,6 +33,8 @@ public class CameraMovement : MonoBehaviour
     private bool isObstructed = false;
     private float unobstructedTime = 0f;
 
+    private readonly RaycastHit[] _raycastBuffer = new RaycastHit[1];
+
 
     private void Awake()
     {
@@ -49,13 +51,13 @@ public class CameraMovement : MonoBehaviour
     void Update()
     {
         if (QTEGameManager.IsQTEActive) return;
-        // Ïåðåêëþ÷åíèå ðåæèìà êàìåðû ñ ïîìîùüþ êëàâèøè F
+        // ÐŸÐµÑ€ÐµÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ€ÐµÐ¶Ð¸Ð¼Ð° ÐºÐ°Ð¼ÐµÑ€Ñ‹ Ñ Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒÑŽ ÐºÐ»Ð°Ð²Ð¸ÑˆÐ¸ F
         if (Input.GetKeyDown(KeyCode.F))
         {
             isFollowing = !isFollowing; 
         }
 
-        // Ïåðåìåùåíèå êàìåðû ìûøêîé ïî êðàÿì ýêðàíà
+        // ÐŸÐµÑ€ÐµÐ¼ÐµÑ‰ÐµÐ½Ð¸Ðµ ÐºÐ°Ð¼ÐµÑ€Ñ‹ Ð¼Ñ‹ÑˆÐºÐ¾Ð¹ Ð¿Ð¾ ÐºÑ€Ð°ÑÐ¼ ÑÐºÑ€Ð°Ð½Ð°
         if (!isFollowing)
         {
             HandleEdgeMovement();
@@ -77,7 +79,7 @@ public class CameraMovement : MonoBehaviour
     private void FollowPlayerIsometric()
     {
         Vector3 targetPosition = target.position + initialOffset;
-        targetPosition.y = fixedY; // Enforce fixed height — essential for isometric
+        targetPosition.y = fixedY; // Enforce fixed height â€” essential for isometric
 
         transform.position = Vector3.SmoothDamp(
             transform.position,
@@ -101,54 +103,56 @@ public class CameraMovement : MonoBehaviour
         }
 
         bool currentlyObstructed = false;
-        Vector3[] heightOffsets = { Vector3.zero, Vector3.up * rayOffsetHeight, Vector3.down * rayOffsetHeight };
-        float minDistToPlayer = float.MaxValue;
-        MeshRenderer potentialWall = null;
-        Collider potentialCollider = null;
+        MeshRenderer closestWallRenderer = null;
+        Collider closestWallCollider = null;
         float closestWallDist = float.MaxValue;
+
+        Vector3[] heightOffsets = { Vector3.zero, Vector3.up * rayOffsetHeight, Vector3.down * rayOffsetHeight };
 
         foreach (Vector3 heightOffset in heightOffsets)
         {
             Vector3 targetPoint = target.position + heightOffset;
-            float distToPoint = Vector3.Distance(transform.position, targetPoint);
-            minDistToPlayer = Mathf.Min(minDistToPlayer, distToPoint);
-            Vector3 directionToPoint = (targetPoint - transform.position).normalized;
+            Vector3 direction = (targetPoint - transform.position).normalized;
+            float maxDistance = Vector3.Distance(transform.position, targetPoint);
 
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, directionToPoint, out hit, distToPoint))
+            // NonAlloc single-hit raycast
+            int hitCount = Physics.RaycastNonAlloc(
+                transform.position,
+                direction,
+                _raycastBuffer,
+                maxDistance
+            );
+
+            if (hitCount > 0)
             {
-                // Check if hit is a wall closer than the target point
-                if (hit.distance < distToPoint && hit.collider.CompareTag("Wall") && hit.collider.gameObject != target.gameObject)
+                RaycastHit hit = _raycastBuffer[0];
+                if (hit.collider.CompareTag("Wall") && hit.collider.gameObject != target.gameObject)
                 {
-                    MeshRenderer wallRenderer = hit.collider.GetComponent<MeshRenderer>();
-                    if (wallRenderer != null && hit.distance < closestWallDist)
+                    currentlyObstructed = true;
+
+                    if (hit.distance < closestWallDist)
                     {
                         closestWallDist = hit.distance;
-                        potentialWall = wallRenderer;
-                        potentialCollider = hit.collider;
+                        closestWallRenderer = hit.collider.GetComponent<MeshRenderer>();
+                        closestWallCollider = hit.collider;
                     }
-                    currentlyObstructed = true;  // Any wall hit = obstructed
                 }
             }
-
-            // Debug rays (uncomment for visualization in Scene view)
-            // Debug.DrawRay(transform.position, directionToPoint * distToPoint, Color.green, 0.1f);
         }
 
-        // Use the closest wall for fading (avoids switching between nearby walls)
         if (currentlyObstructed)
         {
-            if (!isObstructed || potentialWall != currentWall)
+            if (!isObstructed || closestWallRenderer != currentWall)
             {
-                // Fade the (new/closest) wall
                 if (currentWall != null) ResetWall();
-                if (potentialWall != null)
+
+                if (closestWallRenderer != null)
                 {
-                    currentWall = potentialWall;
-                    currentWallCollider = potentialCollider;
+                    currentWall = closestWallRenderer;
+                    currentWallCollider = closestWallCollider;
                     originalWallMaterial = currentWall.sharedMaterial;
                     currentWall.sharedMaterial = transparentMaterial;
-                    currentWallCollider.enabled = false;
+                    if (currentWallCollider != null) currentWallCollider.enabled = false;
                 }
             }
             isObstructed = true;
@@ -166,18 +170,11 @@ public class CameraMovement : MonoBehaviour
                     currentWallCollider = null;
                     originalWallMaterial = null;
                     isObstructed = false;
-                    unobstructedTime = 0f;
-                }
-                else
-                {
-                    // During buffer period (clear check but not expired), keep collider enabled
-                    if (currentWallCollider != null) currentWallCollider.enabled = true;
                 }
             }
-            // If not obstructed, no action needed (collider stays enabled)
         }
 
-        // Restore disable state only if it was disabled and we're still obstructing
+        // Restore if needed
         if (wasDisabled && isObstructed && currentWallCollider != null)
         {
             currentWallCollider.enabled = false;

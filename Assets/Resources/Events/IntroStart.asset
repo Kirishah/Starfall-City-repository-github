@@ -24,7 +24,7 @@ MonoBehaviour:
     speaker: 
     delaySeconds: 0
     parallel: 0
-    tolerance: 0.3
+    tolerance: 0.2
     positionParamKey: deskPos
     poseConfig: {fileID: 0}
     rotationParamKey: 

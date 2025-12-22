@@ -9904,22 +9904,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1732698636826235943, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: comboBreakSFX
-      value: 
-      objectReference: {fileID: 8300000, guid: 11236a4516d83e042b51d0627c101cfd, type: 3}
-    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -9.107
-      objectReference: {fileID: 0}
-    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3.074
-      objectReference: {fileID: 0}
-    - target: {fileID: 5670068481646421010, guid: f7ea48f21df34334c8a08ab600117334, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1.7850001
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17455,7 +17439,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.196
+      value: 2.287
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: aee1b0fd653a4dd4eb841372b6a77549, type: 3}
       propertyPath: m_LocalPosition.y

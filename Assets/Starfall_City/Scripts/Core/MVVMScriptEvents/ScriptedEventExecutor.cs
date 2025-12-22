@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace core
             RegisterHandler(new TransferObjActionHandler(this));
             RegisterHandler(new NavMeshMoveActionHandler());
             RegisterHandler(new StartDialogueActionHandler(dialogueManager));
-            RegisterHandler(new WaitForDialogueEndActionHandler(dialogueManager));
+            RegisterHandler(new WaitForDialogueEndActionHandler());
             RegisterHandler(new WaitForReachActionHandler());
             RegisterHandler(new SetPlayerControlsActionHandler());
             RegisterHandler(new RepositionActionHandler());
@@ -46,7 +46,7 @@ namespace core
             var gameState = GameStateModel.Instance;
             if (gameState.IsEventCompleted(eventId))
             {
-                Debug.Log($"[Executor] Event {eventId} already completed�skipping.");
+                Debug.Log($"[Executor] Event {eventId} already completed—skipping.");
                 return;
             }
 

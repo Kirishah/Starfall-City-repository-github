@@ -15,19 +15,18 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     [Header("Audio")]
     [SerializeField] private AudioSource audioSource;
 
-    private List<Dialogue> dialogues;
-    private Dialogue currentDialogue;
-    private string currentNPCID;
-    public string currentStartID {  get; private set; } 
-    private int currentDeltaPoints;
+    private Dialogue _currentDialogue;
+    private string _currentNPCID;
+    public string currentStartID {  get; private set; }
+    private int _currentDeltaPoints;
 
-    // Событие для отображения диалоговой строки
+    // Events for dialogue
     public delegate void DialogueLineDisplayedHandler(string dialogueID, string npcID);
     public static event DialogueLineDisplayedHandler OnDialogueLineDisplayed;
     public static System.Action OnDialogueStarted;
     public static System.Action OnDialogueEnded;
 
-    // Событие для запуска QTE
+    // QTE events
     public delegate void QTETriggerAction(string qteID);
     public static event QTETriggerAction OnQTETrigger;
 
@@ -39,7 +38,6 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         {
             Debug.LogError("DialogueUI_Toolkit not found! Assign in Inspector.");
         }
-        LoadDialogues("Dialogue");
         uiHandler.turnOffPicking();
     }
 
@@ -52,42 +50,30 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         }
         Instance = this;
     }
-
-    private void LoadDialogues(string jsonPath)
-    {
-        if (dialogueLoader == null)
-        {
-            Debug.LogError("DialogueLoader component is missing.");
-            return;
-        }
-        dialogues = dialogueLoader.LoadDialogues(jsonPath);
-    }
     #endregion
 
     #region Dialogue Flow
     public void StartDialogue(string startID, string npcID)
     {
         currentStartID = startID;
-        currentNPCID = npcID;
-        currentDeltaPoints = 0;
-        currentDialogue = FindDialogue(startID);
-        if (currentDialogue == null)
+        _currentNPCID = npcID;
+        _currentDeltaPoints = 0;
+
+        _currentDialogue = DialogueDatabase.Instance?.GetDialogue(startID);
+        if (_currentDialogue == null)
         {
             Debug.LogError($"Dialogue with ID {startID} not found!");
             return;
         }
         uiHandler.ClearHistory();
         uiHandler.ShowPanel();
-        ShowDialogue(currentDialogue);
+        ShowDialogue(_currentDialogue);
 
         OnDialogueStarted?.Invoke();
     }
 
     // Keep the old 3-param overload for Continue button 
-    public void SelectChoice(string choiceText, string targetID, bool triggersQTE = false)
-    {
-        SelectChoice(choiceText, targetID, triggersQTE, 0);
-    }
+    public void SelectChoice(string choiceText, string targetID, bool triggersQTE = false) => SelectChoice(choiceText, targetID, triggersQTE, 0);
 
     // 4-ARG OVERLOAD: For actual choice buttons (with deltaPoints)
     public void SelectChoice(string choiceText, string targetID, bool triggersQTE, int deltaPoints)
@@ -99,9 +85,9 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         }
 
         // Accumulate points from this choice
-        currentDeltaPoints += deltaPoints;
+        _currentDeltaPoints += deltaPoints;
 
-        Choice selectedChoice = currentDialogue?.choices?.Find(c =>
+        Choice selectedChoice = _currentDialogue?.choices?.Find(c =>
             c.text == choiceText &&
             (c.targetID ?? "") == (targetID ?? ""));
 
@@ -118,7 +104,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
 
         if (triggersQTE)
         {
-            string qteID = currentDialogue?.qteID ?? "default_dance_battle";
+            string qteID = _currentDialogue?.qteID ?? "default_dance_battle";
             OnQTETrigger?.Invoke(qteID);
             Debug.Log($"[Dialogue] Triggered QTE with ID: {qteID}");
         }
@@ -178,8 +164,8 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
         Item item = ItemDataBase.Instance.GetItemByID(itemID);
         if (item != null && InventoryManager.Instance.RemoveItem(item, 1))
         {
-            QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.GiveItem, currentNPCID, itemID);
-            Debug.Log($"Gave {item.Name} to {currentNPCID}");
+            QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.GiveItem, _currentNPCID, itemID);
+            Debug.Log($"Gave {item.Name} to {_currentNPCID}");
             if (string.IsNullOrEmpty(nextDialogueID) || nextDialogueID == "-1")
             {
                 EndDialogue();  // Preserves currentDialogue
@@ -198,10 +184,10 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
 
     private void AdvanceToDialogue(string dialogueID)
     {
-        currentDialogue = FindDialogue(dialogueID);
-        if (currentDialogue != null)
+        _currentDialogue = FindDialogue(dialogueID);
+        if (_currentDialogue != null)
         {
-            ShowDialogue(currentDialogue);
+            ShowDialogue(_currentDialogue);
         }
         else
         {
@@ -217,23 +203,23 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             audioSource.Stop();
         }
 
-        if (!string.IsNullOrEmpty(currentNPCID))
+        if (!string.IsNullOrEmpty(_currentNPCID))
         {
-            QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Dialogue, currentNPCID);
-            Debug.Log($"Dialogue ended: NPCID={currentNPCID}");
+            QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Dialogue, _currentNPCID);
+            Debug.Log($"Dialogue ended: NPCID={_currentNPCID}");
         }
 
         // ALWAYS apply effects before any early returns
         string effectType = GetEffectType();
-        Debug.Log($"EndDialogue: Applying effects - effectType='{effectType}', totalPoints={currentDeltaPoints}");  
-        EffectsManager.Instance?.ApplyPoints(effectType, currentDeltaPoints);
-        currentDeltaPoints = 0;
+        Debug.Log($"EndDialogue: Applying effects - effectType='{effectType}', totalPoints={_currentDeltaPoints}");
+        EffectsManager.Instance?.ApplyPoints(effectType, _currentDeltaPoints);
+        _currentDeltaPoints = 0;
 
 
         if (!string.IsNullOrEmpty(currentStartID))
         {
             // Only skip if the CURRENT node (not the start node!) has skipAutoStart = true
-            bool skipThisTime = currentDialogue?.skipAutoStart ?? false;
+            bool skipThisTime = _currentDialogue?.skipAutoStart ?? false;
 
             if (!skipThisTime)
             {
@@ -274,7 +260,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
             uiHandler.AddToHistory(dialogue.speaker, dialogue.text);
         }
 
-        OnDialogueLineDisplayed?.Invoke(dialogue.id, currentNPCID);
+        OnDialogueLineDisplayed?.Invoke(dialogue.id, _currentNPCID);
 
         // Display choices or continue
         uiHandler.DisplayChoices(
@@ -344,13 +330,10 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     #region Utility
     private Dialogue FindDialogue(string id)
     {
-        return dialogues?.Find(d => d.id == id);
+        return DialogueDatabase.Instance?.GetDialogue(id);
     }
 
-    public void TransferToLocation(int targetLocation)
-    {
-        GameManager.Instance.LoadSceneWithTransition(targetLocation);
-    }
+    public void TransferToLocation(int targetLocation) => GameManager.Instance.LoadSceneWithTransition(targetLocation);
 
     private QuestSO FindQuestByStartingDialogue(string startingDialogueID)
     {
@@ -368,7 +351,7 @@ public class DialogueManager_UIToolkit : MonoBehaviour, QTEGameManager.IRPGCompo
     private string GetEffectType()
     {
         var startDialogue = FindDialogue(currentStartID);
-        return startDialogue?.effectType ?? currentDialogue?.effectType ?? "";
+        return startDialogue?.effectType ?? _currentDialogue?.effectType ?? "";
     }
 
     private Dictionary<string, object> BuildParamsFromChoice(Choice choice)

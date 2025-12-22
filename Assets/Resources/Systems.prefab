@@ -1628,8 +1628,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2935730807115008858}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -12.58556, y: 4.02488, z: -2.38171}
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -9.107, y: 3.074, z: -1.7850001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1841,6 +1841,7 @@ GameObject:
   - component: {fileID: 1244826432188115576}
   - component: {fileID: 5931975876995255804}
   - component: {fileID: 1640447655283053804}
+  - component: {fileID: 7242299114459754668}
   m_Layer: 0
   m_Name: DialogueManager
   m_TagString: Untagged
@@ -1987,6 +1988,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bc35aaa732fe4349b5445b0e00a1d1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueLoader
+--- !u!114 &7242299114459754668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3061878037054395867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f51c48c215a5d0847b3c788eddd3dd7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueDatabase
+  loader: {fileID: 1640447655283053804}
+  dialogueJsonPath: Dialogue
 --- !u!1 &3191214802829507644
 GameObject:
   m_ObjectHideFlags: 0
@@ -2812,9 +2827,9 @@ MonoBehaviour:
     debugName: Ch43_nonPBR Variant
     objectType: GameObject
   musicTrack: {fileID: 1413257221177747235}
-  hitSFX: {fileID: 8300000, guid: f91f79f24bccbc34bb56bfd7cd76b020, type: 3}
-  missSFX: {fileID: 8300000, guid: 141e2298069cdeb49a69dfab78b8c70b, type: 3}
-  comboBreakSFX: {fileID: 8300000, guid: f50c3f7a3b82bcf41aa7461ace5dead0, type: 3}
+  hitSFX: {fileID: 8300000, guid: 141e2298069cdeb49a69dfab78b8c70b, type: 3}
+  missSFX: {fileID: 8300000, guid: f91f79f24bccbc34bb56bfd7cd76b020, type: 3}
+  comboBreakSFX: {fileID: 8300000, guid: 11236a4516d83e042b51d0627c101cfd, type: 3}
   scoreText: {fileID: 7516938900033441075}
   comboText: {fileID: 8546241777150208592}
   wideCam: {fileID: 7415780407882180457}

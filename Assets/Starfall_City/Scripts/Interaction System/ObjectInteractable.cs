@@ -1,10 +1,10 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 
 public class ObjectInteractable : Interactable
 {
     [Header("Item Settings")]
-    [SerializeField] private Item _item; // SO â èíñïåêòîðå
+    [SerializeField] private Item _item; // SO Ð² Ð¸Ð½ÑÐ¿ÐµÐºÑ‚Ð¾Ñ€Ðµ
     [SerializeField] private int _quantity = 1;
     [SerializeField] private string itemID;
 
@@ -14,7 +14,7 @@ public class ObjectInteractable : Interactable
     {
         if (_isPickedUp) return;
 
-        // Äîáàâëåíèå ïðåäìåòà â èíâåíòàðü
+        // Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿Ñ€ÐµÐ´Ð¼ÐµÑ‚Ð° Ð² Ð¸Ð½Ð²ÐµÐ½Ñ‚Ð°Ñ€ÑŒ
         bool success = InventoryManager.Instance.AddItem(_item, _quantity);
         if (success)
         {
@@ -30,8 +30,5 @@ public class ObjectInteractable : Interactable
         // Call base for quest progress (e.g., if this is a Collection or Interaction objective)
         base.Interact();
     }
-    public override string GetIdentifier()
-    {
-        return itemID;
-    }
+    public override string GetIdentifier() => itemID;
 }

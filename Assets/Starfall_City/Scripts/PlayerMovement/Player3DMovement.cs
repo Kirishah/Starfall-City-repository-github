@@ -1,6 +1,10 @@
-﻿using UnityEngine;
-using UnityEngine.AI;
+﻿using GLTFast.Schema;
+using PlayerInputActions;
 using QTE;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.XR;
 
 public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
@@ -22,47 +26,81 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     [SerializeField] private bool forceSnapWhenGrounded = true; // Always snap if isGrounded (eliminates drift)
 
     [Header("References")]
-    private CharacterController controller;
-    private PlayerMovement agent;
-    private NavMeshAgent navAgent;
-    private Animator animator;
+    private CharacterController _controller;
+    private PlayerMovement _agent;
+    private NavMeshAgent _navAgent;
+    private Animator _animator;
 
     [Header("Controls")]
     public bool controlsEnabled = true;
+    private PlayerControls _controls;
+    private PlayerControls.PlayerMovementActions _movementActions;
 
-    private Vector3 moveDirection;
-    private Vector3 desiredDirection;
-    private Vector3 verticalVelocity; // For gravity
+    private Vector3 _moveInput;
+    private Vector3 _moveDirection;
+    private Vector3 _verticalVelocity; // For gravity
 
     // Cached offsets
-    private float bottomOffset;
-    private float topOffset;
+    private float _bottomOffset;
+    private float _topOffset;
+
+    private readonly RaycastHit[] _groundRaycastBuffer = new RaycastHit[1];
+
+    private void Awake()
+    {
+        _controls = new PlayerControls();
+        _movementActions = _controls.PlayerMovement;
+    }
+
+    private void OnEnable()
+    {
+        _controls.Enable();
+        _movementActions.Movement.performed += OnMovementPerformed;
+        _movementActions.Movement.canceled += OnMovementCanceled;
+    }
+
+    private void OnDisable()
+    {
+        _movementActions.Movement.performed -= OnMovementPerformed;
+        _movementActions.Movement.canceled -= OnMovementCanceled;
+        _controls.Disable();
+    }
+
+    private void OnMovementPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        _moveInput = ctx.ReadValue<Vector2>();
+    }
+
+    private void OnMovementCanceled(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+    {
+        _moveInput = Vector2.zero;
+    }
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
-        agent = GetComponent<PlayerMovement>();
-        navAgent = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
+        _controller = GetComponent<CharacterController>();
+        _agent = GetComponent<PlayerMovement>();
+        _navAgent = GetComponent<NavMeshAgent>();
+        _animator = GetComponent<Animator>();
 
-        if (controller == null)
+        if (_controller == null)
         {
             Debug.LogError("CharacterController missing on " + gameObject.name);
             return;
         }
 
         // Calculate offsets once
-        bottomOffset = controller.center.y - (controller.height / 2f); // Now -1.0f with center.y=0
-        topOffset = controller.center.y + (controller.height / 2f);   // Now +1.0f
-        Debug.Log($"Capsule offsets - Bottom: {bottomOffset}, Top: {topOffset}. Expected pivot Y on surface=0: {-bottomOffset}"); // Logs ~1.0
+        _bottomOffset = _controller.center.y - (_controller.height / 2f); // Now -1.0f with center.y=0
+        _topOffset = _controller.center.y + (_controller.height / 2f);   // Now +1.0f
+        Debug.Log($"Capsule offsets - Bottom: {_bottomOffset}, Top: {_topOffset}. Expected pivot Y on surface=0: {-_bottomOffset}"); // Logs ~1.0
 
         // Sync NavMeshAgent to use capsule center as pivot
-        navAgent.baseOffset = -bottomOffset; // 1.0f - agent will set position.y = surface + 1.0
-        Debug.Log($"Set NavMeshAgent.baseOffset to {-bottomOffset} for center alignment");
+        _navAgent.baseOffset = -_bottomOffset; // 1.0f - agent will set position.y = surface + 1.0
+        Debug.Log($"Set NavMeshAgent.baseOffset to {-_bottomOffset} for center alignment");
 
-        if (navAgent.baseOffset != 0)
+        if (_navAgent.baseOffset != 0)
         {
-            navAgent.baseOffset = 0f;
+            _navAgent.baseOffset = 0f;
             Debug.Log("Reset NavMeshAgent.baseOffset to 0 for feet alignment.");
         }
 
@@ -77,6 +115,10 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     {
         DialogueManager_UIToolkit.OnDialogueStarted -= PauseControls;
         DialogueManager_UIToolkit.OnDialogueEnded -= ResumeControls;
+
+        _movementActions.Movement.performed -= OnMovementPerformed;
+        _movementActions.Movement.canceled -= OnMovementCanceled;
+        _controls.Disable();
     }
 
     public void PauseControls() => controlsEnabled = false;
@@ -84,53 +126,51 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void Update()
     {
-        // Modified: Skip snap if root motion is active during transition
-        if (IsInTransitionAnimation && animator?.applyRootMotion == true)
+        // Skip snapping during root-motion transitions
+        if (!(IsInTransitionAnimation && _animator?.applyRootMotion == true))
         {
-            // Let root motion handle positioning - no snap here
-        }
-        else if (IsInTransitionAnimation)
-        {
-            SnapToSurface(); // Only snap every frame for non-root-motion transitions
+            if (IsInTransitionAnimation || !_controller.isGrounded)
+                SnapToSurface();
         }
 
         if (QTEGameManager.IsQTEActive || !controlsEnabled) return;
 
-        GatherInput();
-        if (moveDirection.magnitude >= 0.1f)
+        // Convert raw input (WASD) to direction
+        _moveDirection = new Vector3(_moveInput.x, 0f, _moveInput.y).normalized;
+
+        if (_moveDirection.magnitude >= 0.1f)
         {
             // Disable NavMeshAgent when using WASD
-            if (navAgent.enabled)
+            if (_navAgent.enabled)
             {
                 Debug.Log("Switching to WASD movement");
                 float preSwitchY = transform.position.y;
-                navAgent.ResetPath();
-                navAgent.enabled = false;
-                agent.ClearDestinationIndicator();
+                _navAgent.ResetPath();
+                _navAgent.enabled = false;
+                _agent.ClearDestinationIndicator();
                 SnapToSurface();
-                Debug.Log($"Post-switch to CC - Y: {transform.position.y} (was {preSwitchY}, target bottom Y: {transform.position.y + bottomOffset})");
+                Debug.Log($"Post-switch to CC - Y: {transform.position.y} (was {preSwitchY}, target bottom Y: {transform.position.y + _bottomOffset})");
             }
+
             Look();
             Move();
         }
-        else if (!navAgent.enabled)
+        else if (!_navAgent.enabled)
         {
             // Re-enable NavMeshAgent when stopping WASD
             Debug.Log("Switching to Point-and-Click movement");
-            float preSwitchY = transform.position.y;
             SnapToSurface(); // Align before re-enabling (though agent will project)
-            navAgent.enabled = true;
-            verticalVelocity.y = 0f; // Reset vertical on switch
+            _navAgent.enabled = true;
+            _verticalVelocity.y = 0f; // Reset vertical on switch
         }
     }
 
-
-
-    private void GatherInput() => moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
     private void Look()
     {
-        Vector3 isoDirection = moveDirection.ToIso();
-        Quaternion targetRotation = Quaternion.LookRotation(isoDirection.normalized, Vector3.up);
+        Vector3 isoDirection = _moveDirection.ToIso();
+        if (isoDirection.sqrMagnitude < 0.01f) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(isoDirection, Vector3.up);
         transform.rotation = Quaternion.Slerp(
             transform.rotation,
             targetRotation,
@@ -147,12 +187,12 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         Vector3 verticalMove = Vector3.zero;
         if (_handleGravity && !IsInTransitionAnimation)
         {
-            if (controller.isGrounded && verticalVelocity.y < 0)
+            if (_controller.isGrounded && _verticalVelocity.y < 0)
             {
-                verticalVelocity.y = -1f; // Small downward nudge to maintain contact (prevents hover)
+                _verticalVelocity.y = -1f; // Small downward nudge to maintain contact (prevents hover)
             }
-            verticalVelocity.y += _gravity * Time.deltaTime;
-            verticalMove.y = verticalVelocity.y * Time.deltaTime;
+            _verticalVelocity.y += _gravity * Time.deltaTime;
+            verticalMove.y = _verticalVelocity.y * Time.deltaTime;
         }
 
         // Combined move
@@ -163,18 +203,18 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         Vector3 proposedPosition = initialPosition + horizontalMove;
 
         // Project to capsule bottom for validation
-        Vector3 bottomProposed = proposedPosition + new Vector3(0, bottomOffset, 0);
+        Vector3 bottomProposed = proposedPosition + new Vector3(0, _bottomOffset, 0);
 
         // Чек действительна ли позиция цели на NavMesh
         if (IsPositionValid(bottomProposed))
         {
-            controller.Move(totalMove);
+            _controller.Move(totalMove);
         }
         else
         {
             Debug.Log("Blocked movement beyond NavMesh boundaries at proposed bottom: " + bottomProposed);
             // Still apply vertical (allow falling/sliding down edges)
-            controller.Move(verticalMove);
+            _controller.Move(verticalMove);
         }
 
         // Snap Y after move
@@ -197,16 +237,16 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     public void SnapToSurface()
     {
-        if (controller == null) return;
+        if (_controller == null) return;
 
-        float currentBottomY = transform.position.y + bottomOffset; // Now same as position.y
+        float currentBottomY = transform.position.y + _bottomOffset; // Now same as position.y
         float targetSurfaceY = currentBottomY; // Default: no change
         bool snapped = false;
 
         // Prefer NavMesh sample for consistency with agent
         if (preferNavMeshForSnap)
         {
-            Vector3 samplePos = transform.position + new Vector3(0, bottomOffset, 0); // Sample at current bottom (position.y)
+            Vector3 samplePos = transform.position + new Vector3(0, _bottomOffset, 0); // Sample at current bottom (position.y)
             if (NavMesh.SamplePosition(samplePos, out NavMeshHit navHit, navMeshSnapDistance, NavMesh.AllAreas))
             {
                 targetSurfaceY = navHit.position.y;
@@ -217,19 +257,29 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         // Fallback to raycast if no NavMesh hit or disabled
         if (!snapped)
         {
-            Vector3 rayStart = transform.position + new Vector3(0, topOffset, 0);
+            Vector3 rayStart = transform.position + new Vector3(0, _topOffset, 0);
             Vector3 rayDirection = Vector3.down;
-            float rayDistance = controller.height + surfaceSnapTolerance + Mathf.Abs(bottomOffset); // ~2.1f now
+            float rayDistance = _controller.height + surfaceSnapTolerance + Mathf.Abs(_bottomOffset);
 
-            if (Physics.Raycast(rayStart, rayDirection, out RaycastHit groundHit, rayDistance, groundLayerMask))
+            // NonAlloc raycast 
+            int hitCount = Physics.RaycastNonAlloc(
+                rayStart,
+                rayDirection,
+                _groundRaycastBuffer,
+                rayDistance,
+                groundLayerMask
+            );
+
+            if (hitCount > 0)
             {
-                targetSurfaceY = groundHit.point.y + controller.skinWidth;
+                RaycastHit groundHit = _groundRaycastBuffer[0];
+                targetSurfaceY = groundHit.point.y + _controller.skinWidth;
                 snapped = true;
             }
             else
             {
                 Debug.LogWarning("No ground hit for snap - applying extra gravity");
-                if (_handleGravity) verticalVelocity.y += _gravity * Time.deltaTime * 1.5f;
+                if (_handleGravity) _verticalVelocity.y += _gravity * Time.deltaTime * 1.5f;
                 return;
             }
         }
@@ -237,13 +287,13 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         // If snapped, calculate and apply (pivot Y = surface Y)
         if (snapped)
         {
-            float desiredPivotY = targetSurfaceY - bottomOffset; // = targetSurfaceY (0.035)
+            float desiredPivotY = targetSurfaceY - _bottomOffset; // = targetSurfaceY (0.035)
 
             // Check drift
             float yDrift = Mathf.Abs(transform.position.y - desiredPivotY);
 
             // Force snap if grounded (ignores tolerance for zero-drift reliability)
-            bool shouldSnap = (forceSnapWhenGrounded && controller.isGrounded) || yDrift > surfaceSnapTolerance;
+            bool shouldSnap = (forceSnapWhenGrounded && _controller.isGrounded) || yDrift > surfaceSnapTolerance;
 
             if (IsInTransitionAnimation)
             {
@@ -252,12 +302,11 @@ public class Player3DMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
             if (shouldSnap)
             {
-                float oldY = transform.position.y;
                 transform.position = new Vector3(transform.position.x, desiredPivotY, transform.position.z);
-                if (_handleGravity) verticalVelocity.y = 0f;
+                if (_handleGravity) _verticalVelocity.y = 0f;
             }
         }
     }
 
-    public Vector3 GetDesiredDirection() => desiredDirection;
+    public Vector3 GetDesiredDirection() => _moveDirection;
 }

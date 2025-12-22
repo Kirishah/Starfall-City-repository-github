@@ -24,7 +24,7 @@ MonoBehaviour:
   bpm: 115
   beatsToHitZone: 4
   beatOffset: 0
-  qteDuration: 60
+  qteDuration: 30
   initialSpawnDelay: 2
   musicTrack: {fileID: 8300000, guid: 9d0eaae00c0ebab48946776e926b7a91, type: 3}
   enableRival: 1

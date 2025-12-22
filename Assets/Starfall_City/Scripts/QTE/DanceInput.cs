@@ -1,10 +1,8 @@
-using DanceInputActions;
+﻿using PlayerInputActions;
 using MagicPigGames;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static Unity.Collections.AllocatorManager;
 
 namespace QTE
 {
@@ -29,7 +27,7 @@ namespace QTE
         // Add a flag to track if we're waiting for a second click for double arrows
         private Dictionary<ArrowDirection, DanceArrow> pendingDoubleClickArrows = new();
 
-        private @DanceControls controls;
+        private PlayerControls controls;
 
         private void Awake()
         {
@@ -39,7 +37,7 @@ namespace QTE
                 return;
             }
             Instance = this;
-            controls = new DanceControls();
+            controls = new PlayerControls();
 
             // Initialize all direction lists
             activeArrowsByDirection[ArrowDirection.Up] = new List<DanceArrow>();

@@ -1,6 +1,8 @@
+﻿using PlayerInputActions;
+using QTE;
 using UnityEngine;
 using UnityEngine.AI;
-using QTE;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 {
@@ -9,24 +11,47 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
     private Interactable _currentTargetInteractable;
 
     [Header("Movement Settings")]
-    private Vector3 lastPosition;
-    private Vector3 velocity;
-    private const float DefaultStoppingDistance = 0.1f;
+    private Vector3 _lastPosition;
+    private Vector3 _velocity;
+    private const float _defaultStoppingDistance = 0.1f;
 
     [Header("Destination Indicator")]
-    public GameObject destinationIndicatorPrefab; 
-    private GameObject destinationIndicator;
+    public GameObject destinationIndicatorPrefab;
+    private GameObject _destinationIndicator;
 
     [Header("Interaction")]
-    [SerializeField] private float interactionRange = 1.5f;
+    [SerializeField] private float _interactionRange = 1f;
 
     [Header("Controls")]
     public bool controlsEnabled = true;
 
+    private readonly RaycastHit[] _clickRaycastBuffer = new RaycastHit[1];
+
+    private PlayerControls _controls;
+    private PlayerControls.PlayerMovementActions _playerMovementActions;
+
+    private void Awake()
+    {
+        _controls = new PlayerControls();
+        _playerMovementActions = _controls.PlayerMovement;
+    }
+
+    private void OnEnable()
+    {
+        _controls.Enable();
+        _playerMovementActions.Click.performed += OnPointAndClick;
+    }
+
+    private void OnDisable()
+    {
+        _playerMovementActions.Click.performed -= OnPointAndClick;
+        _controls.Disable();
+    }
+
     private void Start()
     {
-       lastPosition = transform.position;
-       player.stoppingDistance = DefaultStoppingDistance;
+       _lastPosition = transform.position;
+       player.stoppingDistance = _defaultStoppingDistance;
        player.angularSpeed = 360f; // Increased for smoother, faster turns
        player.acceleration = 20f; // Increased for quicker speed changes
 
@@ -34,10 +59,13 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
        DialogueManager_UIToolkit.OnDialogueEnded += ResumeControls;
     }
 
-    private void OnDestroy() 
+    private void OnDestroy()
     {
         DialogueManager_UIToolkit.OnDialogueStarted -= PauseControls;
         DialogueManager_UIToolkit.OnDialogueEnded -= ResumeControls;
+
+        _playerMovementActions.Click.performed -= OnPointAndClick;
+        _controls.Disable();
     }
 
     public void PauseControls() => controlsEnabled = false;
@@ -53,63 +81,80 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
         if (player.enabled)
         {
-            if (Input.GetMouseButtonDown(1))
-            {
-                HandleMovementInput();
-            }
             CheckIfReachedDestination();
         }
         CalculateVelocity();
     }
 
-    void HandleMovementInput()
+    private void OnPointAndClick(InputAction.CallbackContext context)
     {
-        // Early exit if NavMeshAgent isn't active
-        if (!player.enabled) return;
-        // Clear previous interaction target immediately
+        // Ignore click if:
+        // - NavMeshAgent is disabled (means we're in direct WASD mode via Player3DMovement)
+        // - Controls are paused
+        if (!player.enabled || !controlsEnabled)
+            return;
+
+        HandlePointAndClickInput();
+    }
+
+    void HandlePointAndClickInput()
+    {
         _currentTargetInteractable = null;
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out RaycastHit hit)) return;
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = Camera.main.ScreenPointToRay(mousePos);
 
-        // Check if we clicked an interactable
-        Interactable interactable = hit.collider.GetComponent<Interactable>();
-        if (interactable != null)
-        {
-            SetInteractableTarget(interactable, hit.point);
-        }
-        else
-        {
-            SetRegularMovement(hit.point);
-        }
+        // NonAlloc 
+        int hitCount = Physics.RaycastNonAlloc(ray, _clickRaycastBuffer);
 
-        UpdateDestinationIndicator(hit.point);
+        if (hitCount > 0)
+        {
+            RaycastHit hit = _clickRaycastBuffer[0];
+
+            // Sample NavMesh to ensure destination is valid
+            if (NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, 2f, NavMesh.AllAreas))
+            {
+                Vector3 validDestination = navHit.position;
+
+                if (hit.collider.TryGetComponent<Interactable>(out var interactable) &&
+                    interactable.gameObject.activeInHierarchy)
+                {
+                    SetInteractableTarget(interactable, validDestination);
+                }
+                else
+                {
+                    SetRegularMovement(validDestination);
+                }
+
+                UpdateDestinationIndicator(validDestination);
+            }
+        }
     }
 
     void SetInteractableTarget(Interactable interactable, Vector3 targetPosition)
     {
         _currentTargetInteractable = interactable;
-        player.stoppingDistance = interactionRange;
+        player.stoppingDistance = _interactionRange;
         player.SetDestination(targetPosition);
     }
 
     void SetRegularMovement(Vector3 targetPosition)
     {
         _currentTargetInteractable = null;
-        player.stoppingDistance = DefaultStoppingDistance;
+        player.stoppingDistance = _defaultStoppingDistance;
         player.SetDestination(targetPosition);
     }
 
     void UpdateDestinationIndicator(Vector3 position)
     {
-        if (destinationIndicator == null)
+        if (_destinationIndicator == null || !_destinationIndicator) // Recreate if missing/destroyed
         {
-            destinationIndicator = Instantiate(destinationIndicatorPrefab, position, Quaternion.identity);
+            _destinationIndicator = Instantiate(destinationIndicatorPrefab, position, Quaternion.identity);
         }
         else
         {
-            destinationIndicator.SetActive(true);
-            destinationIndicator.transform.position = position;
+            _destinationIndicator.SetActive(true);
+            _destinationIndicator.transform.position = position;
         }
     }
 
@@ -118,15 +163,14 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         if (!player.enabled) return;
 
         if (player.hasPath && !player.pathPending &&
-            player.remainingDistance <= player.stoppingDistance)
+            player.remainingDistance <= player.stoppingDistance + 0.05f) // small tolerance
         {
             ClearDestinationIndicator();
             TryInteractWithTarget();
         }
 
         // Clear target if it becomes invalid
-        if (_currentTargetInteractable != null &&
-            !_currentTargetInteractable.gameObject.activeInHierarchy)
+        if (_currentTargetInteractable?.gameObject.activeInHierarchy == false)
         {
             _currentTargetInteractable = null;
             player.ResetPath();
@@ -147,9 +191,17 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
 
     public void ClearDestinationIndicator()
     {
-        if (destinationIndicator != null)
+        if (_destinationIndicator != null)
         {
-            destinationIndicator.SetActive(false);
+            // If somehow destroyed, clear reference
+            if (!_destinationIndicator)
+            {
+                _destinationIndicator = null;
+            }
+            else
+            {
+                _destinationIndicator.SetActive(false);
+            }
         }
     }
 
@@ -158,23 +210,17 @@ public class PlayerMovement : MonoBehaviour, QTEGameManager.IRPGComponent
         // Calculate the velocity based on the change in position over time
         if (player.enabled)
         {
-            velocity = (player.velocity); // Use NavMeshAgent's velocity
+            _velocity = (player.velocity); // Use NavMeshAgent's velocity
         }
-        else 
+        else
         {
-            velocity = (transform.position - lastPosition) / Time.deltaTime;
+            _velocity = (transform.position - _lastPosition) / Time.deltaTime;
         }
         // Update last position for the next frame
-        lastPosition = transform.position;
+        _lastPosition = transform.position;
     }
 
-    public Vector3 GetVelocity() => velocity;
+    public Vector3 GetVelocity() => _velocity;
 
-    public Vector3 GetDesiredDirection()
-    {
-        return player.enabled && player.desiredVelocity.magnitude > 0.01f ? player.desiredVelocity.normalized : Vector3.zero;
-    }
+    public Vector3 GetDesiredDirection() => player.enabled && player.desiredVelocity.magnitude > 0.01f ? player.desiredVelocity.normalized : Vector3.zero;
 }
-
-    
-

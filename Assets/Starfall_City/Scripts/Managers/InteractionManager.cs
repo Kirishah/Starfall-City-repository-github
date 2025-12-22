@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using PlayerInputActions;
 using QTE;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 {
@@ -10,12 +12,34 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 
     // Pre-allocated buffer – size based on reasonable max interactables in radius (adjust if needed)
     private readonly Collider[] _overlapBuffer = new Collider[20];
+    private readonly RaycastHit[] _raycastBuffer = new RaycastHit[1]; // Size 1 for single hit
+
     private readonly List<Interactable> _proximityInteractables = new();
 
 
     private Interactable _closestInteractable;
     private Interactable _hoveredInteractable;
 
+    private PlayerControls _controls;
+    private PlayerControls.InteractionActions _interactionActions;
+
+    private void Awake()
+    {
+        _controls = new PlayerControls();
+        _interactionActions = _controls.Interaction;
+    }
+
+    private void OnEnable()
+    {
+        _interactionActions.Enable();
+        _interactionActions.Key.performed += OnInteractKeyPressed;
+    }
+
+    private void OnDisable()
+    {
+        _interactionActions.Key.performed -= OnInteractKeyPressed;
+        _interactionActions.Disable();
+    }
 
     void Update()
     {
@@ -23,6 +47,10 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 
         DetectProximityInteractables();
         DetectHoverInteractable();
+    }
+
+    private void OnInteractKeyPressed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
         HandleEKeyInteraction();
     }
 
@@ -35,7 +63,7 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
         }
         _proximityInteractables.Clear();
 
-        // NonAlloc overlap — zero garbage!
+        // NonAlloc overlap 
         int hitCount = Physics.OverlapSphereNonAlloc(
             transform.position,
             interactionRadius,
@@ -67,20 +95,21 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
     {
         if (Camera.main == null) return;
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-        // Single raycast is usually safe (no array allocation), but we can make it fully predictable
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
+        // NonAlloc single-hit raycast 
+        int hitCount = Physics.RaycastNonAlloc(ray, _raycastBuffer, Mathf.Infinity, interactableLayer);
+
+        if (hitCount > 0)
         {
-            if (hit.collider.TryGetComponent<Interactable>(out var newHover))
+            if (_raycastBuffer[0].collider.TryGetComponent<Interactable>(out var newHover))
             {
                 if (newHover == _hoveredInteractable) return;
 
-                if (_hoveredInteractable != null)
-                    _hoveredInteractable.SetHovered(false);
+                _hoveredInteractable?.SetHovered(false);
 
                 _hoveredInteractable = newHover;
-                _hoveredInteractable.SetHovered(true);
+                _hoveredInteractable?.SetHovered(true);
                 return;
             }
         }
@@ -95,7 +124,7 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
 
     void HandleEKeyInteraction()
     {
-        if (Input.GetKeyDown(KeyCode.E) && _closestInteractable != null)
+        if (_closestInteractable != null)
         {
             _closestInteractable.Interact();
 
@@ -107,4 +136,9 @@ public class InteractionManager : MonoBehaviour, QTEGameManager.IRPGComponent
         }
     }
 
+    private void OnDestroy()
+    {
+        _interactionActions.Key.performed -= OnInteractKeyPressed;
+        _interactionActions.Disable();
+    }
 }
