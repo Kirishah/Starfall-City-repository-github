@@ -12,9 +12,9 @@ namespace QuestSystem
 
         public GiveItemObjective(GiveItemSO data) : base(data)
         {
-            TargetNPCID = data.TargetNPCID;
-            TargetItemID = data.TargetItemID;
-            _requiredAmount = data.RequiredAmount;
+            TargetNPCID = data.targetNPCID;
+            TargetItemID = data.targetItemID;
+            _requiredAmount = data.requiredAmount;
             _currentAmount = 0;
         }
 

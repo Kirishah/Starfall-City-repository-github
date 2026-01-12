@@ -13,8 +13,8 @@ namespace QuestSystem
         public CollectItemObjective(CollectItemSO data) : base(data)
         {
             _data = data;
-            _targetItemID = data.TargetItemID;
-            _requiredCount = data.RequiredAmount;
+            _targetItemID = data.targetItemID;
+            _requiredCount = data.requiredAmount;
             _currentCount = 0;
             Debug.Log($"CollectionObjective initialized: TargetItemID={_targetItemID}, RequiredAmount={_requiredCount}");
         }

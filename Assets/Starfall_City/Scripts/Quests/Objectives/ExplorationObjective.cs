@@ -9,7 +9,7 @@ namespace QuestSystem
         public ExplorationObjective(ExplorationSO data) : base(data)
         {
             _data = data;
-            _locationID = data.LocationID;
+            _locationID = data.locationID;
         }
 
         public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)

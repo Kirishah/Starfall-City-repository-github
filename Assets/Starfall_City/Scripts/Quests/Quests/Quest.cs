@@ -139,12 +139,12 @@ namespace QuestSystem
 
             if (activeObjective is CollectItemObjective collectionObj)
             {
-                Debug.Log($"CollectionObjective detected: TargetItemID={collectionObj.TargetItemID}, RequiredAmount={((CollectItemSO)collectionObj._data).RequiredAmount}");
+                Debug.Log($"CollectionObjective detected: TargetItemID={collectionObj.TargetItemID}, RequiredAmount={((CollectItemSO)collectionObj._data).requiredAmount}");
                 var item = ItemDataBase.Instance.GetItemByID(collectionObj.TargetItemID);
                 if (item != null)
                 {
                     Debug.Log($"Item found in database: {item.name}, ID={item.ItemID}");
-                    var requiredAmount = ((CollectItemSO)collectionObj._data).RequiredAmount;
+                    var requiredAmount = ((CollectItemSO)collectionObj._data).requiredAmount;
                     var hasItem = InventoryManager.Instance.HasItem(item, requiredAmount);
                     Debug.Log($"Inventory has item? {hasItem}");
                     if (hasItem)

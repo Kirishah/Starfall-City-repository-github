@@ -64,13 +64,13 @@ namespace QuestSystem
         private int GetRequiredProgress(ObjectiveSO objective)
         {
             if (objective is QTEObjectiveSO qteObjective)
-                return qteObjective.RequiredSuccessCount;
+                return qteObjective.requiredSuccessCount;
             if (objective is DialogueSO dialogueObjective)
                 return 1;
             if (objective is InteractionSO interactionObjective)
-                return interactionObjective.RequiredInteractions;
+                return interactionObjective.requiredInteractions;
             if (objective is CollectItemSO collectionObjective)
-                return collectionObjective.RequiredAmount;
+                return collectionObjective.requiredAmount;
             if (objective is ExplorationSO)
                 return 1;
             if (objective is PerformanceSO)

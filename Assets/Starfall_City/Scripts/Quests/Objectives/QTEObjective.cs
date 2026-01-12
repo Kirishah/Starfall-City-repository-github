@@ -11,8 +11,8 @@ namespace QuestSystem
         public QTEObjective(QTEObjectiveSO data) : base(data)
         {
             _data = data;
-            _qteID = data.QTEID;
-            _requiredCount = data.RequiredSuccessCount;
+            _qteID = data.qteID;
+            _requiredCount = data.requiredSuccessCount;
             _successCount = 0;
         }
 

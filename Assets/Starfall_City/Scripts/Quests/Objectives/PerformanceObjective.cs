@@ -9,7 +9,7 @@ namespace QuestSystem
         public PerformanceObjective(PerformanceSO data) : base(data)
         {
             _data = data;
-            _challengeID = data.ChallengeID;
+            _challengeID = data.challengeID;
         }
 
         public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)

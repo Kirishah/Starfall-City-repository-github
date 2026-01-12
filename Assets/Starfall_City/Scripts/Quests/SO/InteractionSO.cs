@@ -5,12 +5,12 @@ namespace QuestSystem
     [CreateAssetMenu(menuName = "Quests/Objectives/Interaction")]
     public class InteractionSO : ObjectiveSO
     {
-        public string ObjectID { get; }
-        public int RequiredInteractions { get; }
+        public string objectID;
+        public int requiredInteractions;
 
         [Header("Post-Interaction Trigger")]
-        public string PostInteractionDialogueID { get; } // Dialogue start ID to trigger on completion
-        public string PostDialogueNPCID { get; } // NPC ID for the triggered dialogue
+        public string postInteractionDialogueID; // Dialogue start ID to trigger on completion
+        public string postDialogueNPCID; // NPC ID for the triggered dialogue
 
         public override Objective CreateObjective() => new InteractionObjective(this);
     }

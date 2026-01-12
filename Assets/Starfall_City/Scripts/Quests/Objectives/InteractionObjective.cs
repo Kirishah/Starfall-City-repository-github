@@ -14,10 +14,10 @@ namespace QuestSystem
         public InteractionObjective(InteractionSO data) : base(data)
         {
             _data = data;
-            _objectID = data.ObjectID;
-            _requiredCount = data.RequiredInteractions;
-            _postInteractionDialogueID = data.PostInteractionDialogueID;
-            _postDialogueNPCID = data.PostDialogueNPCID;
+            _objectID = data.objectID;
+            _requiredCount = data.requiredInteractions;
+            _postInteractionDialogueID = data.postInteractionDialogueID;
+            _postDialogueNPCID = data.postDialogueNPCID;
             _interactionCount = 0;
         }
 
