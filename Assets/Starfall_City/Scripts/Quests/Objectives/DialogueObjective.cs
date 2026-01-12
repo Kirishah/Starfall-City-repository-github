@@ -1,26 +1,26 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class DialogueObjective : Objective
+namespace QuestSystem
 {
-    public DialogueObjective(DialogueSO data) : base(data)
+    public class DialogueObjective : Objective
     {
-        _data = data;  
-    }
-
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
-    {
-        
-        if (type == ObjectiveType.Dialogue && identifier == ((DialogueSO)_data).TargetNPCID)
+        public DialogueObjective(DialogueSO data) : base(data)
         {
-            Debug.Log($"DialogueObjective CheckProgress: type={type}, identifier={identifier}, target={((DialogueSO)_data).TargetNPCID}");
-            // Report completion progress
-            UpdateProgress(1, 1);  // 1/1 required
-            Complete();
+            _data = data;
         }
-    }
 
-    protected override ObjectiveType GetObjectiveType()
-    {
-        return ObjectiveType.Dialogue;
+        public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
+        {
+
+            if (type == ObjectiveType.Dialogue && identifier == ((DialogueSO)_data).TargetNPCID)
+            {
+                Debug.Log($"DialogueObjective CheckProgress: type={type}, identifier={identifier}, target={((DialogueSO)_data).TargetNPCID}");
+                // Report completion progress
+                UpdateProgress(1, 1);  // 1/1 required
+                Complete();
+            }
+        }
+
+        protected override ObjectiveType GetObjectiveType() => ObjectiveType.Dialogue;
     }
 }

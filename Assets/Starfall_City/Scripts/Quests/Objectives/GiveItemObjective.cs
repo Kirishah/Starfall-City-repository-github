@@ -1,35 +1,33 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class GiveItemObjective : Objective
+namespace QuestSystem
 {
-    private string _targetNPCID;
-    private string _targetItemID;
-    private int _requiredAmount;
-    private int _currentAmount;
-
-    public string TargetNPCID => _targetNPCID;
-    public string TargetItemID => _targetItemID;
-
-    public GiveItemObjective(GiveItemSO data) : base(data)
+    public class GiveItemObjective : Objective
     {
-        _targetNPCID = data.TargetNPCID;
-        _targetItemID = data.TargetItemID;
-        _requiredAmount = data.RequiredAmount;
-        _currentAmount = 0;
-    }
+        private readonly int _requiredAmount;
+        private int _currentAmount;
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
-    {
-        if (type == ObjectiveType.GiveItem && identifier == _targetNPCID && itemID == _targetItemID)
+        public string TargetNPCID { get; }
+        public string TargetItemID { get; }
+
+        public GiveItemObjective(GiveItemSO data) : base(data)
         {
-            _currentAmount++;
-            UpdateProgress(_currentAmount, _requiredAmount);
-            if (_currentAmount >= _requiredAmount) Complete();
+            TargetNPCID = data.TargetNPCID;
+            TargetItemID = data.TargetItemID;
+            _requiredAmount = data.RequiredAmount;
+            _currentAmount = 0;
         }
-    }
 
-    protected override ObjectiveType GetObjectiveType()
-    {
-        return ObjectiveType.GiveItem;
+        public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
+        {
+            if (type == ObjectiveType.GiveItem && identifier == TargetNPCID && itemID == TargetItemID)
+            {
+                _currentAmount++;
+                UpdateProgress(_currentAmount, _requiredAmount);
+                if (_currentAmount >= _requiredAmount) Complete();
+            }
+        }
+
+        protected override ObjectiveType GetObjectiveType() => ObjectiveType.GiveItem;
     }
 }

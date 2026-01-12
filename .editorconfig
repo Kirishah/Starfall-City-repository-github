@@ -3,9 +3,20 @@ root = true
 [*.cs]
 
 # roslynator
+
 roslynator_refactorings.enabled = true
+# Use conditional access
+dotnet_diagnostic.rcs1146.severity = none
+# Use coalesce expression instead of conditional expression
+dotnet_diagnostic.rcs1084.severity = none
+# Remove unused member declaration
+dotnet_diagnostic.rcs1213.severity = none
+# Use conditional access instead of conditional expression
+dotnet_diagnostic.rcs1206.severity = none
+
 
 # Core formatting
+
 indent_style = space
 indent_size = 4
 tab_width = 4
@@ -14,13 +25,17 @@ charset = utf-8-bom
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+
 # Bracing and spacing
-csharp_prefer_braces = true:suggestion
+
+csharp_prefer_braces = when_multiline:suggestion
 csharp_space_after_cast = false
 csharp_space_between_method_call_parameter_list_parentheses = false
 csharp_space_between_method_declaration_parameter_list_parentheses = false
 
+
 # Modern C# preferences
+
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = true:suggestion
@@ -28,11 +43,15 @@ csharp_style_expression_bodied_methods = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
 
+
 # Null handling
-dotnet_style_null_propagation = true:suggestion
+
+dotnet_style_null_propagation = false:suggestion
 dotnet_style_coalesce_expression = true:suggestion
 
+
 # Private fields: use _camelCase
+
 dotnet_naming_rule.private_fields_rule.severity = suggestion
 dotnet_naming_rule.private_fields_rule.symbols = private_fields
 dotnet_naming_rule.private_fields_rule.style = camel_case_with_underscore
@@ -43,7 +62,9 @@ dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 dotnet_naming_style.camel_case_with_underscore.capitalization = camel_case
 dotnet_naming_style.camel_case_with_underscore.required_prefix = _
 
+
 # Async methods must end with Async
+
 dotnet_naming_rule.async_methods_rule.severity = warning
 dotnet_naming_rule.async_methods_rule.symbols = async_methods
 dotnet_naming_rule.async_methods_rule.style = pascal_case_with_async_suffix
@@ -54,5 +75,6 @@ dotnet_naming_symbols.async_methods.required_modifiers = async
 dotnet_naming_style.pascal_case_with_async_suffix.capitalization = pascal_case
 dotnet_naming_style.pascal_case_with_async_suffix.required_suffix = Async
 
-# Prefer properties over public fields (your mentor's direct advice!)
+
+# Prefer properties over public fields 
 dotnet_style_prefer_property_over_field = true:warning

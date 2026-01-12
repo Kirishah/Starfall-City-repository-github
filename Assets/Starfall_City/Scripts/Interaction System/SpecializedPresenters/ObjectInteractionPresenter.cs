@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using InventorySystem;
+using UnityEngine;
 
 
 namespace Interaction
@@ -7,13 +8,12 @@ namespace Interaction
     {
         [SerializeField] private Item _item;
         [SerializeField] private int _quantity = 1;
-        [SerializeField] private string _itemID;
 
         private bool _isPickedUp;
 
         protected override void PerformInteraction()
         {
-            if (_isPickedUp) return;
+            if (_isPickedUp || _item == null) return;
 
             bool success = InventoryManager.Instance.AddItem(_item, _quantity);
             if (success)
@@ -28,6 +28,6 @@ namespace Interaction
             }
         }
 
-        public override string GetIdentifier() => _itemID;
+        public override string GetIdentifier() => _item != null ? _item.ItemID : "";
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DialogueSystem;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -34,10 +35,7 @@ namespace core
             RegisterHandler(new CustomActionHandler(this, dialogueManager)); // handles all Custom subtypes
         }
 
-        private void RegisterHandler(IScriptedActionHandler handler)
-        {
-            _handlers[handler.SupportedType] = handler;
-        }
+        private void RegisterHandler(IScriptedActionHandler handler) => _handlers[handler.SupportedType] = handler;
 
         public async UniTask ExecuteEventAsync(string eventId, Dictionary<string, object> @params = null)
         {
@@ -65,7 +63,7 @@ namespace core
                 foreach (var action in runtimeEvent.actions)
                 {
                     if (!string.IsNullOrEmpty(action.positionParamKey) &&
-                        @params.TryGetValue(action.positionParamKey, out object posObj) &&
+                        @params.TryGetValue(action.positionParamKey, out var posObj) &&
                         posObj is Vector3 pos)
                     {
                         action.targetPosition = pos;
@@ -137,7 +135,11 @@ namespace core
 
             foreach (var (obj, spawnId, yRot) in _pendingTransfers)
             {
-                if (obj == null) continue;
+                if (obj == null)
+                {
+                    Debug.LogWarning("[EVENT EXECUTOR]: Object is missing.");
+                    continue;
+                }
                 if (!spawnDict.TryGetValue(spawnId, out var spawn))
                 {
                     Debug.LogError($"SpawnPoint '{spawnId}' not found!");
@@ -158,10 +160,9 @@ namespace core
 
                 if (!obj.activeInHierarchy) obj.SetActive(true);
 
-                obj.GetComponent<NavMeshAgent>()?.EnterCinematicMode();
+                obj.GetComponent<NavMeshAgent>().EnterCinematicMode();
 
-                var ddolTag = obj.GetComponent<DontDestroyOnLoadTag>();
-                if (ddolTag != null)
+                if (obj.TryGetComponent<DontDestroyOnLoadTag>(out var ddolTag))
                     StartCoroutine(RemoveDDOLNextFrame(ddolTag));
             }
 
@@ -171,7 +172,7 @@ namespace core
         private static IEnumerator RemoveDDOLNextFrame(DontDestroyOnLoadTag tag)
         {
             yield return null;
-            tag?.MakeNormalAgain();
+            tag.MakeNormalAgain();
         }
 
         // Keep AwaitCoroutineAsync here if still needed (for ExitPose)

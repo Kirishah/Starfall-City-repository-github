@@ -1,4 +1,4 @@
-using QTE;
+﻿using QTE;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,18 +12,18 @@ namespace Core
 
         [Header("Music Settings")]
         [SerializeField, Tooltip("List of background music clips to play in sequence.")]
-        private List<AudioClip> musicPlaylist = new List<AudioClip>();
+        private List<AudioClip> _musicPlaylist = new();
         [SerializeField, Tooltip("Volume for background music (0 to 1).")]
-        [Range(0f, 1f)] private float musicVolume = 0.1f;
+        [Range(0f, 1f)] private float _musicVolume = 0.1f;
         [SerializeField, Tooltip("Fade duration when transitioning between songs (seconds).")]
-        [Min(0f)] private float fadeDuration = 1f;
+        [Min(0f)] private float _fadeDuration = 1f;
 
-        private AudioSource musicSource;
-        private int currentTrackIndex = 0;
-        private bool isFading;
-        private bool isPausedDueToFocus; // Track if paused due to window focus
-        private float pauseTime; // Track where we paused to resume from same position
-        private bool applicationHasFocus = true; // Track application focus state
+        private AudioSource _musicSource;
+        private int _currentTrackIndex = 0;
+        private bool _isFading;
+        private bool _isPausedDueToFocus; // Track if paused due to window focus
+        private float _pauseTime; // Track where we paused to resume from same position
+        private bool _applicationHasFocus = true; // Track application focus state
 
         private void Awake()
         {
@@ -35,20 +35,20 @@ namespace Core
             Instance = this;
 
             // Set up AudioSource
-            musicSource = GetComponent<AudioSource>();
-            if (musicSource == null)
+            _musicSource = GetComponent<AudioSource>();
+            if (_musicSource == null)
             {
                 Debug.LogError("BackgroundMusicManager: Failed to add AudioSource component!", this);
                 enabled = false;
                 return;
             }
-            musicSource.loop = false; // We'll handle looping manually
-            musicSource.playOnAwake = false;
-            musicSource.spatialBlend = 0f; // 2D audio
-            musicSource.volume = musicVolume;
+            _musicSource.loop = false; // We'll handle looping manually
+            _musicSource.playOnAwake = false;
+            _musicSource.spatialBlend = 0f; // 2D audio
+            _musicSource.volume = _musicVolume;
 
             // Validate playlist
-            if (musicPlaylist.Count == 0)
+            if (_musicPlaylist.Count == 0)
             {
                 Debug.LogWarning("BackgroundMusicManager: Music playlist is empty!", this);
                 enabled = false;
@@ -85,21 +85,15 @@ namespace Core
         {
             SubscribeToEvents();
 
-            if (musicPlaylist.Count > 0 && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
+            if (_musicPlaylist.Count > 0 && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
             {
                 PlayCurrentTrack();
             }
         }
 
-        private void OnEnable()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
+        private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
 
-        private void OnDisable()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
+        private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
         private void OnDestroy()
         {
@@ -119,18 +113,18 @@ namespace Core
         // Handle application focus changes
         private void OnApplicationFocus(bool hasFocus)
         {
-            applicationHasFocus = hasFocus;
+            _applicationHasFocus = hasFocus;
 
-            if (!enabled || musicPlaylist.Count == 0 || isFading) return;
+            if (!enabled || _musicPlaylist.Count == 0 || _isFading) return;
 
-            if (!hasFocus && musicSource.isPlaying && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
+            if (!hasFocus && _musicSource.isPlaying && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
             {
-                pauseTime = musicSource.time;
-                musicSource.Pause();
-                isPausedDueToFocus = true;
+                _pauseTime = _musicSource.time;
+                _musicSource.Pause();
+                _isPausedDueToFocus = true;
                 Debug.Log("BackgroundMusicManager: Paused music due to window minimize");
             }
-            else if (hasFocus && isPausedDueToFocus && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
+            else if (hasFocus && _isPausedDueToFocus && (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive))
             {
                 // Wait a frame before resuming to ensure everything is properly initialized
                 StartCoroutine(ResumeAfterFocusGain());
@@ -142,17 +136,15 @@ namespace Core
             // Wait one frame to ensure the application is fully focused
             yield return null;
 
-            musicSource.time = pauseTime;
-            musicSource.UnPause();
-            isPausedDueToFocus = false;
+            _musicSource.time = _pauseTime;
+            _musicSource.UnPause();
+            _isPausedDueToFocus = false;
             Debug.Log("BackgroundMusicManager: Unpaused music after window focus gain");
         }
 
-        private void OnApplicationPause(bool pause)
-        {
+        private void OnApplicationPause(bool pause) =>
             // Handle mobile pause (treat as focus loss)
             OnApplicationFocus(!pause);
-        }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
@@ -169,9 +161,9 @@ namespace Core
             }
 
             // Check QTE state and stop music if QTE is active
-            if (QTEGameManager.Instance != null && QTEGameManager.IsQTEActive && musicSource.isPlaying)
+            if (QTEGameManager.Instance != null && QTEGameManager.IsQTEActive && _musicSource.isPlaying)
             {
-                StartCoroutine(FadeOut(musicSource, fadeDuration));
+                StartCoroutine(FadeOut(_musicSource, _fadeDuration));
             }
         }
 
@@ -180,62 +172,62 @@ namespace Core
             // Don't process music if game is paused (Time.timeScale = 0)
             if (Time.timeScale == 0f)
             {
-                if (musicSource.isPlaying)
+                if (_musicSource.isPlaying)
                 {
-                    musicSource.Pause();
+                    _musicSource.Pause();
                     Debug.Log("BackgroundMusicManager: Paused due to Time.timeScale = 0");
                 }
                 return;
             }
             // Only process music if the application has focus
-            if (!applicationHasFocus) return;
+            if (!_applicationHasFocus) return;
 
             if (QTEGameManager.Instance == null || !QTEGameManager.IsQTEActive)
             {
                 // Only advance to next track if not paused due to focus
-                if (!musicSource.isPlaying && !isFading && !isPausedDueToFocus && musicPlaylist.Count > 0 &&
+                if (!_musicSource.isPlaying && !_isFading && !_isPausedDueToFocus && _musicPlaylist.Count > 0 &&
                 (PauseManager.Instance == null || !PauseManager.IsPaused))
                 {
                     NextTrack();
                 }
 
                 // Respect pause system for non-QTE gameplay
-                if (PauseManager.Instance != null && PauseManager.IsPaused && musicSource.isPlaying)
+                if (PauseManager.Instance != null && PauseManager.IsPaused && _musicSource.isPlaying)
                 {
-                    musicSource.Pause();
-                    isPausedDueToFocus = false; // Ensure focus pause doesn't interfere
+                    _musicSource.Pause();
+                    _isPausedDueToFocus = false; // Ensure focus pause doesn't interfere
                     Debug.Log("BackgroundMusicManager: Paused due to PauseManager");
                 }
-                else if (PauseManager.Instance != null && !PauseManager.IsPaused && 
-                    !musicSource.isPlaying && !isFading && !isPausedDueToFocus && musicPlaylist.Count > 0)
+                else if (PauseManager.Instance != null && !PauseManager.IsPaused &&
+                    !_musicSource.isPlaying && !_isFading && !_isPausedDueToFocus && _musicPlaylist.Count > 0)
                 {
-                    musicSource.UnPause();
+                    _musicSource.UnPause();
                     Debug.Log("BackgroundMusicManager: Unpaused due to PauseManager");
                 }
             }
-            else if (musicSource.isPlaying && !isFading)
+            else if (_musicSource.isPlaying && !_isFading)
             {
                 // QTE is active, stop music
-                StartCoroutine(FadeOut(musicSource, fadeDuration));
+                StartCoroutine(FadeOut(_musicSource, _fadeDuration));
             }
         }
 
         private void OnQTEStart()
         {
-            if (musicSource == null)
+            if (_musicSource == null)
             {
                 // Try to get the AudioSource if it's null
-                musicSource = GetComponent<AudioSource>();
-                if (musicSource == null)
+                _musicSource = GetComponent<AudioSource>();
+                if (_musicSource == null)
                 {
                     Debug.LogWarning("BackgroundMusicManager: musicSource is null in OnQTEStart, skipping.", this);
                     return;
                 }
             }
 
-            if (musicSource.isPlaying)
+            if (_musicSource.isPlaying)
             {
-                StartCoroutine(FadeOut(musicSource, fadeDuration));
+                StartCoroutine(FadeOut(_musicSource, _fadeDuration));
             }
             Debug.Log("BackgroundMusicManager: Paused for QTE", this);
         }
@@ -244,53 +236,53 @@ namespace Core
         {
             if (this == null) return;  // Early exit if this instance is destroyed
 
-            if (musicSource == null)
+            if (_musicSource == null)
             {
                 // Try to get the AudioSource if it's null
-                musicSource = GetComponent<AudioSource>();
-                if (musicSource == null)
+                _musicSource = GetComponent<AudioSource>();
+                if (_musicSource == null)
                 {
                     Debug.LogWarning("BackgroundMusicManager: musicSource is null in OnQTEComplete, skipping.", this);
                     return;
                 }
             }
 
-            if (musicPlaylist.Count > 0 && !musicSource.isPlaying)
+            if (_musicPlaylist.Count > 0 && !_musicSource.isPlaying)
             {
-                StartCoroutine(FadeIn(musicSource, fadeDuration));
+                StartCoroutine(FadeIn(_musicSource, _fadeDuration));
                 Debug.Log("BackgroundMusicManager: Resumed after QTE", this);
             }
         }
 
         private void PlayCurrentTrack()
         {
-            if (musicPlaylist.Count == 0)
+            if (_musicPlaylist.Count == 0)
             {
                 Debug.LogWarning("BackgroundMusicManager: No tracks in playlist to play!", this);
                 return;
             }
 
-            musicSource.clip = musicPlaylist[currentTrackIndex];
-            musicSource.volume = musicVolume;
-            musicSource.Play();
-            Debug.Log($"BackgroundMusicManager: Playing track {musicPlaylist[currentTrackIndex].name}", this);
+            _musicSource.clip = _musicPlaylist[_currentTrackIndex];
+            _musicSource.volume = _musicVolume;
+            _musicSource.Play();
+            Debug.Log($"BackgroundMusicManager: Playing track {_musicPlaylist[_currentTrackIndex].name}", this);
         }
 
         private void NextTrack()
         {
-            if (musicPlaylist.Count == 0)
+            if (_musicPlaylist.Count == 0)
             {
                 Debug.LogWarning("BackgroundMusicManager: No tracks in playlist to play!", this);
                 return;
             }
 
-            currentTrackIndex = (currentTrackIndex + 1) % musicPlaylist.Count;
+            _currentTrackIndex = (_currentTrackIndex + 1) % _musicPlaylist.Count;
             PlayCurrentTrack();
         }
 
         private System.Collections.IEnumerator FadeOut(AudioSource source, float duration)
         {
-            isFading = true;
+            _isFading = true;
             float startVolume = source.volume;
 
             for (float t = 0; t < duration; t += Time.deltaTime)
@@ -301,18 +293,18 @@ namespace Core
 
             source.Stop();
             source.volume = startVolume;
-            isFading = false;
-            isPausedDueToFocus = false; // Reset to ensure no conflict
+            _isFading = false;
+            _isPausedDueToFocus = false; // Reset to ensure no conflict
         }
 
         private System.Collections.IEnumerator FadeIn(AudioSource source, float duration)
         {
-            isFading = true;
-            source.clip = musicPlaylist[currentTrackIndex];
+            _isFading = true;
+            source.clip = _musicPlaylist[_currentTrackIndex];
             source.volume = 0f;
             source.Play();
 
-            float targetVolume = musicVolume;
+            float targetVolume = _musicVolume;
             for (float t = 0; t < duration; t += Time.deltaTime)
             {
                 source.volume = Mathf.Lerp(0f, targetVolume, t / duration);
@@ -320,33 +312,33 @@ namespace Core
             }
 
             source.volume = targetVolume;
-            isFading = false;
+            _isFading = false;
         }
 
         public void SetVolume(float volume)
         {
-            musicVolume = Mathf.Clamp01(volume);
-            musicSource.volume = musicVolume;
-            Debug.Log($"BackgroundMusicManager: Volume set to {musicVolume}", this);
+            _musicVolume = Mathf.Clamp01(volume);
+            _musicSource.volume = _musicVolume;
+            Debug.Log($"BackgroundMusicManager: Volume set to {_musicVolume}", this);
         }
 
         public void AddTrack(AudioClip clip)
         {
-            if (clip != null && !musicPlaylist.Contains(clip))
+            if (clip != null && !_musicPlaylist.Contains(clip))
             {
-                musicPlaylist.Add(clip);
+                _musicPlaylist.Add(clip);
                 Debug.Log($"BackgroundMusicManager: Added track {clip.name}", this);
             }
         }
 
         public void RemoveTrack(AudioClip clip)
         {
-            if (clip != null && musicPlaylist.Contains(clip))
+            if (clip != null && _musicPlaylist.Contains(clip))
             {
-                musicPlaylist.Remove(clip);
-                if (musicSource.clip == clip)
+                _musicPlaylist.Remove(clip);
+                if (_musicSource.clip == clip)
                 {
-                    musicSource.Stop();
+                    _musicSource.Stop();
                     NextTrack();
                 }
                 Debug.Log($"BackgroundMusicManager: Removed track {clip.name}", this);

@@ -12,25 +12,24 @@ namespace QTE
         public static DanceGameManager Instance { get; private set; }
 
         [Header("References")]
-        [SerializeField] private QTEConfig config;
-        [SerializeField] private PersistentReference dancer;
+        [SerializeField] private QTEConfig _config;
+        [SerializeField] private PersistentReference _dancer;
 
-        private GameObject _dancerGO;
-        private Animator _dancerAnimator;
+        [SerializeField] private AudioSource _musicTrack;
+        [SerializeField] private AudioClip _hitSFX, _missSFX, _comboBreakSFX;
+        [SerializeField] private TextMeshProUGUI _scoreText, _comboText;
 
-        public AudioSource musicTrack;
-        public AudioClip hitSFX, missSFX, comboBreakSFX;
-        public TextMeshProUGUI scoreText, comboText;
-
-        public CinemachineVirtualCamera wideCam, closeUpCam, dynamicCam;
-        [SerializeField] private Camera qteDance_cam;
-        [SerializeField] private DanceArrowPool pool;
+        [SerializeField] private CinemachineVirtualCamera _wideCam, _closeUpCam, _dynamicCam;
+        [SerializeField] private Camera _qteDance_cam;
+        [SerializeField] private DanceArrowPool _pool;
 
         // Runtime Variables
-        private int currentScore;
-        private int currentCombo;
-        private float timer;
-        private bool isQTEActive;
+        private int _currentScore;
+        private int _currentCombo;
+        private float _timer;
+        private bool _isQTEActive;
+        private GameObject _dancerGO;
+        private Animator _dancerAnimator;
 
         public delegate void QTECompleteHandler(bool success);
         public static event QTECompleteHandler OnQTEComplete;
@@ -49,15 +48,15 @@ namespace QTE
                 return;
             }
 
-            if (wideCam == null || closeUpCam == null || dynamicCam == null || config == null)
+            if (_wideCam == null || _closeUpCam == null || _dynamicCam == null || _config == null)
             {
                 Debug.LogError("Missing Cinemachine cameras or QTEConfig!", this);
                 return;
             }
 
-            wideCam.Priority = 10;
-            closeUpCam.Priority = 10;
-            dynamicCam.Priority = 10;
+            _wideCam.Priority = 10;
+            _closeUpCam.Priority = 10;
+            _dynamicCam.Priority = 10;
         }
 
         private void TryResolveDancer()
@@ -77,13 +76,13 @@ namespace QTE
         private bool ResolvePlayerDancer()
         {
             // Resolve Player Dancer
-            if (dancer == null || !dancer.IsValid)
+            if (_dancer == null || !_dancer.IsValid)
             {
                 Debug.LogError("DanceGameManager: Player dancer PersistentReference is missing or invalid!");
                 return false;
             }
 
-            _dancerGO = dancer.Get<GameObject>();
+            _dancerGO = _dancer.Get<GameObject>();
             if (_dancerGO == null)
             {
                 Debug.LogError("DanceGameManager: Failed to resolve dancer GameObject — check PersistentRegistry fix!");
@@ -122,21 +121,21 @@ namespace QTE
         public void StartQTE()
         {
             ResetPlayerState();
-            isQTEActive = true;
-            timer = 0f;
+            _isQTEActive = true;
+            _timer = 0f;
 
-            if (musicTrack != null)
+            if (_musicTrack != null)
             {
                 MusicStartDSP = AudioSettings.dspTime + 0.1; // маленькая задержка чтобы точно была синхронизация
-                musicTrack.PlayScheduled(MusicStartDSP);
+                _musicTrack.PlayScheduled(MusicStartDSP);
             }
             else
             {
                 Debug.LogError("DanceGameManager: musicTrack is null, cannot play music!");
             }
-            if (wideCam != null)
+            if (_wideCam != null)
             {
-                SwitchCamera(wideCam);
+                SwitchCamera(_wideCam);
             }
             else
             {
@@ -146,7 +145,7 @@ namespace QTE
             Debug.Log($"DanceGameManager: ArrowSpawner={spawner}");
             if (spawner != null)
             {
-                spawner.StartSpawning(MusicStartDSP); 
+                spawner.StartSpawning(MusicStartDSP);
                 Debug.Log("DanceGameManager: Starting ArrowSpawner");
             }
             else
@@ -157,10 +156,10 @@ namespace QTE
 
         void Update()
         {
-            if (!isQTEActive || QTEGameManager.IsQTEPaused) return;
+            if (!_isQTEActive || QTEGameManager.IsQTEPaused) return;
 
-            timer += Time.deltaTime;
-            if (timer >= config.qteDuration)
+            _timer += Time.deltaTime;
+            if (_timer >= _config.qteDuration)
             {
                 EndQTE();
             }
@@ -168,30 +167,30 @@ namespace QTE
 
         private void EndQTE()
         {
-            isQTEActive = false;
-            musicTrack?.Stop();
+            _isQTEActive = false;
+            _musicTrack.Stop();
 
             // Let RivalDancer report its own score
             var rival = FindFirstObjectByType<RivalDancer>();
-            bool playerWon = currentScore >= (rival?.FinalScore ?? 0);
+            bool playerWon = _currentScore >= (rival != null ? rival.FinalScore : 0);
 
-            Debug.Log($"DANCE RESULT → Player: {currentScore} | Rival: {rival?.FinalScore ?? 0} → " +
-                      (currentScore > (rival?.FinalScore ?? 0) ? "PLAYER WINS" :
-                       currentScore < (rival?.FinalScore ?? 0) ? "RIVAL WINS" : "TIE"));
+            Debug.Log($"DANCE RESULT → Player: {_currentScore} | Rival: {rival.FinalScore} → " +
+                      (_currentScore > (rival.FinalScore) ? "PLAYER WINS" :
+                       _currentScore < (rival.FinalScore) ? "RIVAL WINS" : "TIE"));
 
-            _dancerAnimator?.SetTrigger("stop_dance");
+            _dancerAnimator.SetTrigger("stop_dance");
             ResetPlayerState();
-            OnQTEComplete?.Invoke(playerWon);
+            OnQTEComplete.Invoke(playerWon);
         }
 
         public void ResetPlayerState()
         {
-            currentScore = 0;
-            currentCombo = 0;
+            _currentScore = 0;
+            _currentCombo = 0;
             UpdateUI();
-            GetComponent<ArrowSpawner>()?.ResetSpawner();
-            pool?.ResetAllArrows();
-            DanceInput.Instance?.ClearRegisteredArrows();
+            GetComponent<ArrowSpawner>().ResetSpawner();
+            _pool.ResetAllArrows();
+            DanceInput.Instance.ClearRegisteredArrows();
         }
 
         private void ResetAnimatorTriggers()
@@ -199,9 +198,9 @@ namespace QTE
             if (_dancerAnimator != null)
             {
                 string[] triggers = { "dance_Up", "dance_Down", "dance_Left", "dance_Right" };
-                foreach (string t in triggers)
+                foreach (var t in triggers)
                 {
-                    _dancerAnimator?.ResetTrigger(t);
+                    _dancerAnimator.ResetTrigger(t);
                 }
             }
             Debug.Log("Reset all Animator triggers");
@@ -209,7 +208,7 @@ namespace QTE
 
         public void HandleArrowEvent(ArrowDirection direction, DanceArrow.ArrowType type, bool success)
         {
-            if (!isQTEActive || QTEGameManager.IsQTEPaused) return;
+            if (!_isQTEActive || QTEGameManager.IsQTEPaused) return;
             if (!success)
             {
                 HandleMiss();
@@ -218,42 +217,42 @@ namespace QTE
 
             _dancerAnimator.SetTrigger($"dance_{direction}");
 
-            currentCombo++;
-            currentScore += Mathf.RoundToInt(config.basePoints * (1 + currentCombo * config.comboMultiplier));
+            _currentCombo++;
+            _currentScore += Mathf.RoundToInt(_config.basePoints * (1 + (_currentCombo * _config.comboMultiplier)));
             UpdateUI();
 
             // SFX
-            if (hitSFX != null)
+            if (_hitSFX != null)
             {
-                PlaySFX(hitSFX);
+                PlaySFX(_hitSFX);
             }
 
             // Camera
-            if (currentCombo % 10 == 0)
-                SwitchCamera(closeUpCam); // Close-up on high combos
-            else if (currentCombo % 5 == 0)
-                SwitchCamera(dynamicCam); // Dynamic on every 5 combos
+            if (_currentCombo % 10 == 0)
+                SwitchCamera(_closeUpCam); // Close-up on high combos
+            else if (_currentCombo % 5 == 0)
+                SwitchCamera(_dynamicCam); // Dynamic on every 5 combos
         }
 
         public void HandleMiss()
         {
-            if (!isQTEActive || QTEGameManager.IsQTEPaused) return;
+            if (!_isQTEActive || QTEGameManager.IsQTEPaused) return;
 
-            if (currentCombo > 10 && comboBreakSFX != null)
+            if (_currentCombo > 10 && _comboBreakSFX != null)
             {
-                PlaySFX(comboBreakSFX);
+                PlaySFX(_comboBreakSFX);
             }
 
-            currentCombo = 0;
+            _currentCombo = 0;
 
-            if (missSFX != null)
+            if (_missSFX != null)
             {
-                PlaySFX(missSFX);
+                PlaySFX(_missSFX);
             }
             UpdateUI();
-            if (wideCam != null)
+            if (_wideCam != null)
             {
-                SwitchCamera(wideCam);
+                SwitchCamera(_wideCam);
             }
             if (GetComponent<CinemachineImpulseSource>())
                 GetComponent<CinemachineImpulseSource>().GenerateImpulse();
@@ -261,29 +260,45 @@ namespace QTE
 
         void UpdateUI()
         {
-            if (scoreText != null)
-                scoreText.text = $"Score: {currentScore}";
-            if (comboText != null)
-                comboText.text = $"Combo: x{currentCombo}";
-            if (comboText != null)
-                comboText.color = Color.Lerp(Color.white, Color.yellow, currentCombo / 10f);
+            if (_scoreText != null)
+                _scoreText.text = $"Score: {_currentScore}";
+            if (_comboText != null)
+                _comboText.text = $"Combo: x{_currentCombo}";
+            if (_comboText != null)
+                _comboText.color = Color.Lerp(Color.white, Color.yellow, _currentCombo / 10f);
         }
 
         void PlaySFX(AudioClip clip)
         {
             if (clip == null) return;
 
-            musicTrack.PlayOneShot(clip);
+            _musicTrack.PlayOneShot(clip);
         }
 
         void SwitchCamera(CinemachineVirtualCamera targetCam)
         {
-            if (wideCam == null || closeUpCam == null || dynamicCam == null) return;
-            wideCam.Priority = 10;
-            closeUpCam.Priority = 10;
-            dynamicCam.Priority = 10;
+            if (_wideCam == null || _closeUpCam == null || _dynamicCam == null) return;
+            _wideCam.Priority = 10;
+            _closeUpCam.Priority = 10;
+            _dynamicCam.Priority = 10;
             targetCam.Priority = 20;
         }
 
-    } 
+        public void SetMusicClip(AudioClip newClip)
+        {
+            if (_musicTrack != null && newClip != null)
+            {
+                _musicTrack.clip = newClip;
+                Debug.Log($"DanceGameManager: Music clip overridden to {newClip.name}");
+            }
+            else if (newClip == null)
+            {
+                Debug.LogWarning("DanceGameManager: Attempted to set null music clip.");
+            }
+            else
+            {
+                Debug.LogError("DanceGameManager: musicTrack AudioSource is null — cannot set clip!");
+            }
+        }
+    }
 }

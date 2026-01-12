@@ -1,8 +1,9 @@
 ﻿#nullable enable
-
 using System.Collections;
-using UnityEngine;
+using Cysharp.Threading.Tasks;
 using Interaction;
+using Movement;
+using UnityEngine;
 
 namespace core
 {
@@ -10,9 +11,9 @@ namespace core
     {
         public static PosePresenter Instance { get; private set; }
 
-        private PlayerMovement playerMovement;
-        private Player3DMovement player3DMovement;
-        private PlayerAnimation playerAnim;
+        private PlayerMovement _playerMovement;
+        private Player3DMovement _player3DMovement;
+        private PlayerAnimation _playerAnim;
 
         private void Awake()
         {
@@ -27,12 +28,12 @@ namespace core
         private void Start()
         {
             // Auto-find player components
-            GameObject playerGO = GameObject.FindWithTag("Player");
+            var playerGO = GameObject.FindWithTag("Player");
             if (playerGO != null)
             {
-                playerMovement = playerGO.GetComponent<PlayerMovement>();
-                player3DMovement = playerGO.GetComponent<Player3DMovement>();
-                playerAnim = playerGO.GetComponent<PlayerAnimation>();
+                _playerMovement = playerGO.GetComponent<PlayerMovement>();
+                _player3DMovement = playerGO.GetComponent<Player3DMovement>();
+                _playerAnim = playerGO.GetComponent<PlayerAnimation>();
             }
             else
             {
@@ -42,8 +43,8 @@ namespace core
 
         public void EnterPose(Vector3 targetPos, float targetYRotation, PoseConfig config)
         {
-            Debug.Log($"EnterPose called: Pos={targetPos}, YRot={targetYRotation}, Config={config?.name}");
-            if (config == null || playerAnim == null)
+            Debug.Log($"EnterPose called: Pos={targetPos}, YRot={targetYRotation}, Config={config.name}");
+            if (config == null || _playerAnim == null)
             {
                 Debug.LogError("EnterPose: Config or PlayerAnim null!");
                 return;
@@ -54,28 +55,35 @@ namespace core
 
         public void ExitPose(PoseConfig? config = null, string? skipIfPoseID = null)
         {
-            Debug.Log($"ExitPose called! Args: config={config?.name ?? "null"}, skipIfPoseID={skipIfPoseID ?? "null"}");
+            Debug.Log($"ExitPose called! Args: config={config.name ?? "null"}, skipIfPoseID={skipIfPoseID ?? "null"}");
 
-            if (playerAnim == null)
+            if (_playerAnim == null)
             {
                 Debug.LogError("ExitPose: playerAnim null! (Re-find? Scene reload?)");
                 return;
             }
-            if (!playerAnim.IsInPose)
+            if (!_playerAnim.IsInPose)
             {
-                Debug.LogWarning($"ExitPose: !isInPose (current: {playerAnim.IsInPose}) - skipping.");
+                Debug.LogWarning($"ExitPose: !isInPose (current: {_playerAnim.IsInPose}) - skipping.");
                 return;
             }
-            if (!string.IsNullOrEmpty(skipIfPoseID) && skipIfPoseID == playerAnim.CurrentPoseID)
+            if (!string.IsNullOrEmpty(skipIfPoseID) && skipIfPoseID == _playerAnim.CurrentPoseID)
             {
-                Debug.Log($"Skipping exit for pose: {playerAnim.CurrentPoseID}");
+                Debug.Log($"Skipping exit for pose: {_playerAnim.CurrentPoseID}");
                 return;
             }
 
             Debug.Log("ExitPose: Proceeding to InstantExitPose.");
 
-            var effectiveConfig = config ?? playerAnim.CurrentConfig ?? ScriptableObject.CreateInstance<PoseConfig>(); // Temp fallback; customize as needed
-            playerAnim.InstantExitPose(effectiveConfig);
+            if (_playerAnim.CurrentConfig != null)
+            {
+                var effectiveConfig = _playerAnim.CurrentConfig;
+                _playerAnim.InstantExitPose(effectiveConfig);
+            }
+            else
+            {
+                Debug.LogError("ExitPose: playerAnim config is null!");
+            }
         }
 
         private IEnumerator PoseTransitionSequence(Vector3 targetPos, float targetYRotation, PoseConfig config, bool isEnter)
@@ -89,7 +97,7 @@ namespace core
             // onPoseStart?.Invoke(config.poseID, isEnter);
 
             // Black screen
-            yield return ScreenFader.Instance.FadeToBlack(duration: 0f, frameWait: 0);
+            yield return ScreenFader.Instance.FadeToBlackAsync(duration: 0f, frameWait: 0).ToCoroutine();
 
             // All work under black: Reposition, track, trigger anim, disable
             PerformEnterPose(targetPos, targetYRotation, config);
@@ -98,33 +106,33 @@ namespace core
             yield return new WaitForSecondsRealtime(config.blackHoldDuration);
 
             // Fade out
-            yield return ScreenFader.Instance.FadeFromBlack(duration: 0f);
+            yield return ScreenFader.Instance.FadeFromBlackAsync(duration: 0f).ToCoroutine();
         }
 
         private void PerformEnterPose(Vector3 targetPos, float targetYRotation, PoseConfig config)
         {
-            if (playerMovement == null || playerAnim == null) return;
+            if (_playerMovement == null || _playerAnim == null) return;
 
             // Preserve X/Z rotation, apply Y from target
-            Vector3 currentEuler = playerMovement.transform.eulerAngles;
+            var currentEuler = _playerMovement.transform.eulerAngles;
 
             // Reposition
-            playerMovement.transform.position = targetPos;
-            playerMovement.transform.eulerAngles = new Vector3(currentEuler.x, targetYRotation, currentEuler.z);
+            _playerMovement.transform.position = targetPos;
+            _playerMovement.transform.eulerAngles = new Vector3(currentEuler.x, targetYRotation, currentEuler.z);
 
             // Set tracking *before* anim trigger (for immediate state)
-            playerAnim.SetCurrentPose(config.poseID, config);
-            playerAnim.SetCurrentExitTrigger(config.exitTrigger);
+            _playerAnim.SetCurrentPose(config.poseID, config);
+            _playerAnim.SetCurrentExitTrigger(config.exitTrigger);
 
             // Trigger anim, disable movement
-            playerAnim.TriggerEnterPose(config.enterTrigger, config.useRootMotion);
+            _playerAnim.TriggerEnterPose(config.enterTrigger, config.useRootMotion);
             DisableMovement();
         }
 
         private void DisableMovement()
         {
-            if (playerMovement != null) playerMovement.controlsEnabled = false;
-            if (player3DMovement != null) player3DMovement.controlsEnabled = false;
+            if (_playerMovement != null) _playerMovement.controlsEnabled = false;
+            if (_player3DMovement != null) _player3DMovement.controlsEnabled = false;
         }
     }
 }

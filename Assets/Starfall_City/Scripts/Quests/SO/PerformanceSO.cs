@@ -1,10 +1,13 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-[CreateAssetMenu(menuName = "Quests/Objectives/Performance")]
-public class PerformanceSO : ObjectiveSO
+namespace QuestSystem
 {
-    public string ChallengeID;
-    // Ñþäà ìîæíî äîáàâèòü äîïîëíèòåëüíûå äàííûå, íàïðèìåð, îãðàíè÷åíèÿ ïî âðåìåíè èëè óñëîâèÿ
+    [CreateAssetMenu(menuName = "Quests/Objectives/Performance")]
+    public class PerformanceSO : ObjectiveSO
+    {
+        public string ChallengeID { get; }
+        // Ð¡ÑŽÐ´Ð° Ð¼Ð¾Ð¶Ð½Ð¾ Ð´Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ, Ð½Ð°Ð¿Ñ€Ð¸Ð¼ÐµÑ€, Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ñ Ð¿Ð¾ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸ Ð¸Ð»Ð¸ ÑƒÑÐ»Ð¾Ð²Ð¸Ñ
 
-    public override Objective CreateObjective() => new PerformanceObjective(this);
+        public override Objective CreateObjective() => new PerformanceObjective(this);
+    }
 }

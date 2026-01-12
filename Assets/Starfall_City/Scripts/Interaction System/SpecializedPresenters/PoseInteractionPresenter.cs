@@ -21,6 +21,6 @@ namespace Interaction
             PosePresenter.Instance.EnterPose(targetPos, targetYRot, _poseConfig);
         }
 
-        public override string GetIdentifier() => _poseConfig?.poseID ?? base.GetIdentifier();
+        public override string GetIdentifier() => _poseConfig != null ? _poseConfig.poseID : null ?? base.GetIdentifier();
     }
 }

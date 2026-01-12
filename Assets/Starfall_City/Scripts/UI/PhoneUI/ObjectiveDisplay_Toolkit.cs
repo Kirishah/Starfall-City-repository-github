@@ -1,130 +1,146 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ObjectiveDisplay_Toolkit : MonoBehaviour
+namespace QuestSystem
 {
-    [SerializeField] public VisualTreeAsset objectiveUXML;
-
-    private VisualElement parentElement;  // The container we'll build into
-    private Label objectiveLabel;
-    private Image statusIcon;
-    private Sprite completeIcon;
-    private Sprite incompleteIcon;
-
-    private ObjectiveSO objectiveData;
-    private Objective objectiveInstance;
-    private int currentProgress;
-    private int requiredProgress;
-
-    public void Initialize(VisualElement parent, ObjectiveSO objectiveDataParam, Objective objectiveInstanceParam, Sprite completeIconParam, Sprite incompleteIconParam)
+    public class ObjectiveDisplay_Toolkit : MonoBehaviour
     {
-        parentElement = parent;
-        objectiveData = objectiveDataParam;
-        objectiveInstance = objectiveInstanceParam;
-        completeIcon = completeIconParam;
-        incompleteIcon = incompleteIconParam;
+        private VisualTreeAsset _objectiveUXML;
 
-        requiredProgress = GetRequiredProgress(objectiveData);
+        private VisualElement _parentElement;  // The container we'll build into
+        private Label _objectiveLabel;
+        private Image _statusIcon;
+        private Sprite _completeIcon;
+        private Sprite _incompleteIcon;
 
-        // Sync with QuestManager
-        var progress = QuestManager.Instance.GetObjectiveProgress(objectiveData.ObjectiveID);
-        currentProgress = progress.current;
-        requiredProgress = progress.required;
+        private ObjectiveSO _objectiveData;
+        private Objective _objectiveInstance;
+        private int _currentProgress;
+        private int _requiredProgress;
 
-        BuildUI();
-        UpdateDisplay();
-        if (QuestManager.Instance != null)
+        public void Initialize(VisualElement parent, ObjectiveSO objectiveDataParam,
+            Objective objectiveInstanceParam, Sprite completeIconParam, Sprite incompleteIconParam, VisualTreeAsset objectiveUXML)
         {
-            QuestManager.OnObjectiveProgressed += HandleObjectiveProgress;
-        }
-    }
+            _parentElement = parent;
+            _objectiveData = objectiveDataParam;
+            _objectiveInstance = objectiveInstanceParam;
+            _completeIcon = completeIconParam;
+            _incompleteIcon = incompleteIconParam;
+            _objectiveUXML = objectiveUXML;
 
-    private void BuildUI()
-    {
-        if (parentElement == null || objectiveUXML == null) return;
+            _requiredProgress = GetRequiredProgress(_objectiveData);
 
-        // Instantiate directly into parent (no UIDocument or root.Clear needed)
-        var objectiveElement = objectiveUXML.Instantiate();
-        parentElement.Add(objectiveElement);
+            // Sync with QuestManager
+            var (current, required) = QuestManager.Instance.GetObjectiveProgress(_objectiveData.ObjectiveID);
+            _currentProgress = current;
+            _requiredProgress = required;
 
-        objectiveLabel = objectiveElement.Q<Label>("ObjectiveText");
-        statusIcon = objectiveElement.Q<Image>("StatusIcon");
-
-        if (objectiveLabel == null) Debug.LogWarning($"ObjectiveDisplay: 'ObjectiveText' Label not found in UXML!");
-        if (statusIcon == null) Debug.LogWarning($"ObjectiveDisplay: 'StatusIcon' Image not found in UXML!");
-        if (objectiveElement.childCount == 0) Debug.LogWarning($"ObjectiveDisplay: Instantiated element has no children�check UXML structure.");
-
-        objectiveElement.RemoveFromClassList("completed");
-    }
-
-    private int GetRequiredProgress(ObjectiveSO objective)
-    {
-        if (objective is QTEObjectiveSO qteObjective)
-            return qteObjective.RequiredSuccessCount;
-        if (objective is DialogueSO dialogueObjective)
-            return 1;
-        if (objective is InteractionSO interactionObjective)
-            return interactionObjective.RequiredInteractions;
-        if (objective is CollectItemSO collectionObjective)
-            return collectionObjective.RequiredAmount;
-        if (objective is ExplorationSO)
-            return 1;
-        if (objective is PerformanceSO)
-            return 1;
-        return 1; // Default
-    }
-
-    private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
-    {
-        if (objective.ObjectiveID == this.objectiveData.ObjectiveID)
-        {
-            currentProgress = current;
-            requiredProgress = required;
+            BuildUI();
             UpdateDisplay();
-        }
-    }
-
-    private void UpdateDisplay()
-    {
-        if (statusIcon == null || objectiveLabel == null || objectiveData == null)
-        {
-            Debug.LogWarning($"label, icon, or data null.");
-            return;
-        }
-
-        bool isComplete = objectiveInstance != null ? objectiveInstance.IsCompleted : currentProgress >= requiredProgress;
-
-        if (statusIcon != null)
-        {
-            if (completeIcon != null && incompleteIcon != null)
+            if (QuestManager.Instance != null)
             {
-                statusIcon.style.backgroundImage = new StyleBackground(isComplete ? completeIcon.texture : incompleteIcon.texture);
-            }
-            statusIcon.style.unityBackgroundImageTintColor = Color.white;  // Optional: Tint if needed
-        }
-
-        if (objectiveLabel != null)
-        {
-            string desc = string.IsNullOrEmpty(objectiveData?.Description) ? "Unnamed Objective" : objectiveData.Description;
-            objectiveLabel.text = $"{desc} ({currentProgress}/{requiredProgress})";
-
-            // Strikethrough via USS class
-            if (isComplete)
-            {
-                objectiveLabel.AddToClassList("completed");
-            }
-            else
-            {
-                objectiveLabel.RemoveFromClassList("completed");
+                QuestManager.OnObjectiveProgressed += HandleObjectiveProgress;
             }
         }
-    }
 
-    private void OnDestroy()
-    {
-        if (QuestManager.Instance != null)
+        private void BuildUI()
         {
-            QuestManager.OnObjectiveProgressed -= HandleObjectiveProgress;
+            if (_parentElement == null || _objectiveUXML == null) return;
+
+            // Instantiate directly into parent (no UIDocument or root.Clear needed)
+            var objectiveElement = _objectiveUXML.Instantiate();
+            _parentElement.Add(objectiveElement);
+
+            _objectiveLabel = objectiveElement.Q<Label>("ObjectiveText");
+            _statusIcon = objectiveElement.Q<Image>("StatusIcon");
+
+            if (_objectiveLabel == null) Debug.LogWarning("ObjectiveDisplay: 'ObjectiveText' Label not found in UXML!");
+            if (_statusIcon == null) Debug.LogWarning("ObjectiveDisplay: 'StatusIcon' Image not found in UXML!");
+            if (objectiveElement.childCount == 0) Debug.LogWarning("ObjectiveDisplay: Instantiated element has no children—check UXML structure.");
+
+            objectiveElement.RemoveFromClassList("completed");
+        }
+
+        private int GetRequiredProgress(ObjectiveSO objective)
+        {
+            if (objective is QTEObjectiveSO qteObjective)
+                return qteObjective.RequiredSuccessCount;
+            if (objective is DialogueSO dialogueObjective)
+                return 1;
+            if (objective is InteractionSO interactionObjective)
+                return interactionObjective.RequiredInteractions;
+            if (objective is CollectItemSO collectionObjective)
+                return collectionObjective.RequiredAmount;
+            if (objective is ExplorationSO)
+                return 1;
+            if (objective is PerformanceSO)
+                return 1;
+            return 1; // Default
+        }
+
+        private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
+        {
+            if (objective.ObjectiveID == this._objectiveData.ObjectiveID)
+            {
+                _currentProgress = current;
+                _requiredProgress = required;
+                UpdateDisplay();
+            }
+        }
+
+        private void UpdateDisplay()
+        {
+            if (_statusIcon == null || _objectiveLabel == null || _objectiveData == null)
+            {
+                Debug.LogWarning("label, icon, or data null.");
+                return;
+            }
+
+            bool isComplete = _objectiveInstance != null ? _objectiveInstance.IsCompleted : _currentProgress >= _requiredProgress;
+
+            if (_statusIcon != null)
+            {
+                if (_completeIcon != null && _incompleteIcon != null)
+                {
+                    _statusIcon.style.backgroundImage = new StyleBackground(isComplete ? _completeIcon.texture : _incompleteIcon.texture);
+                }
+                _statusIcon.style.unityBackgroundImageTintColor = Color.white;  // Optional: Tint if needed
+            }
+
+            if (_objectiveLabel != null)
+            {
+                var desc = string.IsNullOrEmpty(_objectiveData.Description) ? "Unnamed Objective" : _objectiveData.Description;
+                _objectiveLabel.text = $"{desc} ({_currentProgress}/{_requiredProgress})";
+
+                // Strikethrough via USS class
+                if (isComplete)
+                {
+                    _objectiveLabel.AddToClassList("completed");
+                }
+                else
+                {
+                    _objectiveLabel.RemoveFromClassList("completed");
+                }
+            }
+        }
+
+        public void CopyConfigurationFromOUI(ObjectiveDisplay_Toolkit prefabSource)
+        {
+            if (prefabSource == null)
+            {
+                Debug.LogError("ObjectiveDisplay_Toolkit: the method called with null source.");
+                return;
+            }
+
+            _objectiveUXML = prefabSource._objectiveUXML;
+        }
+
+        private void OnDestroy()
+        {
+            if (QuestManager.Instance != null)
+            {
+                QuestManager.OnObjectiveProgressed -= HandleObjectiveProgress;
+            }
         }
     }
 }

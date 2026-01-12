@@ -1,15 +1,18 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class LocationTrigger : MonoBehaviour
+namespace QuestSystem
 {
-    [SerializeField] private string _locationID; 
-
-    private void OnTriggerEnter(Collider other)
+    public class LocationTrigger : MonoBehaviour
     {
-        if (other.CompareTag("Player"))
+        [SerializeField] private string _locationID;
+
+        private void OnTriggerEnter(Collider other)
         {
-            Debug.Log($"Player entered location: {_locationID}");
-            QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Exploration, _locationID);
+            if (other.CompareTag("Player"))
+            {
+                Debug.Log($"Player entered location: {_locationID}");
+                QuestManager.Instance.HandleObjectiveUpdate(ObjectiveType.Exploration, _locationID);
+            }
         }
     }
 }

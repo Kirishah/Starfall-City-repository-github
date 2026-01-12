@@ -1,9 +1,12 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-[CreateAssetMenu(menuName = "Quests/Objectives/Exploration")]
-public class ExplorationSO : ObjectiveSO
+namespace QuestSystem
 {
-    public string LocationID;
+    [CreateAssetMenu(menuName = "Quests/Objectives/Exploration")]
+    public class ExplorationSO : ObjectiveSO
+    {
+        public string LocationID { get; }
 
-    public override Objective CreateObjective() => new ExplorationObjective(this);
+        public override Objective CreateObjective() => new ExplorationObjective(this);
+    }
 }

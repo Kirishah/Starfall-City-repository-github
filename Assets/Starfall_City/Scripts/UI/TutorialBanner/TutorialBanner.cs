@@ -1,33 +1,33 @@
-using QTE;
+﻿using QTE;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class TutorialBanner : MonoBehaviour
 {
-    [SerializeField] public UIDocument uiDocument;
-    [SerializeField] private string closeButtonName = "CloseButton";
+    [SerializeField] private UIDocument _uiDocument;
+    [SerializeField] private string _closeButtonName = "CloseButton";
 
-    private VisualElement root;
-    private Button closeButton;
+    private VisualElement _root;
+    private Button _closeButton;
 
     private void Awake()
     {
-        if (uiDocument == null) uiDocument = GetComponent<UIDocument>();
+        if (_uiDocument == null) _uiDocument = GetComponent<UIDocument>();
         gameObject.SetActive(false); // Hidden by default
     }
 
     public void Show()
     {
-        root = uiDocument.rootVisualElement;
-        closeButton = root.Q<Button>(closeButtonName);
+        _root = _uiDocument.rootVisualElement;
+        _closeButton = _root.Q<Button>(_closeButtonName);
 
-        if (closeButton == null)
+        if (_closeButton == null)
         {
             Debug.LogError("[TutorialBanner] Button with name='CloseButton' not found after tree build! Check UXML hierarchy.", this);
         }
         else
         {
-            closeButton.clicked += OnCloseClicked;
+            _closeButton.clicked += OnCloseClicked;
             Debug.Log("[TutorialBanner] Close button hooked successfully in Show().");
         }
 
@@ -50,10 +50,10 @@ public class TutorialBanner : MonoBehaviour
         }
 
         // Cleanup event to avoid leaks
-        if (closeButton != null)
+        if (_closeButton != null)
         {
-            closeButton.clicked -= OnCloseClicked;
-            closeButton = null;
+            _closeButton.clicked -= OnCloseClicked;
+            _closeButton = null;
         }
     }
 
@@ -63,9 +63,22 @@ public class TutorialBanner : MonoBehaviour
         Hide();
     }
 
+    public void SetVisualTreeAsset(VisualTreeAsset asset)
+    {
+        if (_uiDocument != null)
+        {
+            _uiDocument.visualTreeAsset = asset;
+            Debug.Log($"[TutorialBanner] VisualTreeAsset set to: {(asset != null ? asset.name : "null")}");
+        }
+        else
+        {
+            Debug.LogError("[TutorialBanner] Cannot set VisualTreeAsset — _uiDocument is null!");
+        }
+    }
+
     private void OnDestroy()
     {
-        if (closeButton != null)
-            closeButton.clicked -= OnCloseClicked;
+        if (_closeButton != null)
+            _closeButton.clicked -= OnCloseClicked;
     }
 }

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -22,7 +22,7 @@ namespace core
         {
             get
             {
-                var obj = PersistentRegistry.Instance?.Find(id);
+                var obj = PersistentRegistry.Instance.Find(id);
                 if (obj == null || obj.Equals(null)) // Unity magic: destroyed objects are "null" but not actually null
                     return null;
                 return obj;
@@ -50,7 +50,7 @@ namespace core
                 return;
             }
 
-            IPersistentId pid = obj switch
+            var pid = obj switch
             {
                 GameObject go => go.GetComponent<IPersistentId>(),
                 ScriptableObject so => so as IPersistentId,
@@ -104,5 +104,5 @@ namespace core
             }
         }
 #endif
-    } 
+    }
 }

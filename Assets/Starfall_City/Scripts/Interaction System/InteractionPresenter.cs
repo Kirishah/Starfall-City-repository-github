@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using InventorySystem;
+using QuestSystem;
+using System.Collections.Generic;
 using UnityEngine;
-using static QuestSO;
+using static QuestSystem.QuestSO;
 
 
 namespace Interaction

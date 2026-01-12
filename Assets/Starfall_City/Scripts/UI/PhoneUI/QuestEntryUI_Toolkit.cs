@@ -1,121 +1,140 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class QuestEntryUI_Toolkit : MonoBehaviour
+namespace QuestSystem
 {
-    [SerializeField] public VisualTreeAsset questEntryUXML;  // Made public for assignment
-    [SerializeField] public VisualTreeAsset objectiveDisplayUXML;  // Made public for assignment
-    [SerializeField] public Sprite completeIcon;  // Made public for assignment
-    [SerializeField] public Sprite incompleteIcon;
-
-    public QuestSO QuestData { get; private set; }
-
-    public VisualElement parentElement;  // The container we'll build into
-
-    private Label titleLabel;
-    private Label descriptionLabel;
-    private Label rewardsLabel;
-    private VisualElement objectivesContainer;
-
-    private Quest quest;
-    private List<ObjectiveDisplay_Toolkit> objectiveDisplays = new List<ObjectiveDisplay_Toolkit>();
-
-    public void Initialize(VisualElement parent, QuestSO questData)
+    public class QuestEntryUI_Toolkit : MonoBehaviour
     {
-        parentElement = parent;
-        QuestData = questData;
-        BuildUI();
-        PopulateStaticContent();
-        quest = QuestManager.Instance.FindQuestByObjective(questData.Objectives[0]);
-        if (quest == null)
+        private readonly VisualTreeAsset _questEntryUXML;
+        private VisualTreeAsset _objectiveDisplayUXML;
+        private Sprite _completeIcon;
+        private Sprite _incompleteIcon;
+
+        public QuestSO QuestData { get; private set; }
+
+        private VisualElement _parentElement;  // The container we'll build into
+
+        private Label _titleLabel;
+        private Label _descriptionLabel;
+        private Label _rewardsLabel;
+        private VisualElement _objectivesContainer;
+
+        private Quest _quest;
+        private readonly List<ObjectiveDisplay_Toolkit> _objectiveDisplays = new();
+
+        public void Initialize(VisualElement parent, QuestSO questData,
+            VisualTreeAsset objectiveDisplayUXML, Sprite completeIcon, Sprite incompleteIcon)
         {
-            Debug.LogWarning($"Quest instance for {questData.Title} not found.");
-            return;
-        }
-        RefreshObjectives();
-    }
+            _parentElement = parent;
+            QuestData = questData;
 
-    private void BuildUI()
-    {
-        if (parentElement == null)
-        {
-            Debug.LogError("QuestEntryUI: Missing parent element or UXML reference!");
-            return;
-        }
+            // Store the passed assets
+            this._objectiveDisplayUXML = objectiveDisplayUXML;
+            this._completeIcon = completeIcon;
+            this._incompleteIcon = incompleteIcon;
 
-        titleLabel = parentElement.Q<Label>("QuestTitle");
-        descriptionLabel = parentElement.Q<Label>("QuestDescription");
-        rewardsLabel = parentElement.Q<Label>("RewardsText");
-        objectivesContainer = parentElement.Q<VisualElement>("ObjectivesContainer");
-
-        if (titleLabel == null) Debug.LogError("QuestTitle label not found!");
-        if (descriptionLabel == null) Debug.LogError("QuestDescription label not found!");
-        if (objectivesContainer == null) Debug.LogError("ObjectivesContainer not found!");
-    }
-
-    private void PopulateStaticContent()
-    {
-        titleLabel.text = QuestData.Title;
-        descriptionLabel.text = QuestData.Description;
-
-        string rewards = "";
-        if (QuestData.MoneyReward > 0)
-            rewards += $"Money: {QuestData.MoneyReward}";
-        rewardsLabel.text = rewards.Length > 0 ? $"Rewards: {rewards}" : "No rewards";
-    }
-
-    private void RefreshObjectives()
-    {
-        // Clear old displays
-        foreach (var display in objectiveDisplays)
-        {
-            if (display != null) Destroy(display.gameObject);
-        }
-        objectiveDisplays.Clear();
-        if (objectivesContainer == null) return;
-
-        objectivesContainer.Clear();
-
-        // Completed objectives
-        var completedObjectives = quest.GetCompletedObjectives();
-        foreach (var objective in completedObjectives)
-        {
-            var objectiveSO = quest.GetObjectiveSO(objective);
-            if (objectiveSO != null)
+            BuildUI();
+            PopulateStaticContent();
+            _quest = QuestManager.Instance.FindQuestByObjective(questData.Objectives[0]);
+            if (_quest == null)
             {
-                // Create component GO (no UIDocument)
-                var displayGO = new GameObject("ObjectiveDisplay");
-                var display = displayGO.AddComponent<ObjectiveDisplay_Toolkit>();
-                display.objectiveUXML = objectiveDisplayUXML;
-                // Pass objectivesContainer directly
-                display.Initialize(objectivesContainer, objectiveSO, objective, completeIcon, incompleteIcon);
-                objectiveDisplays.Add(display);
+                Debug.LogWarning($"Quest instance for {questData.Title} not found.");
+                return;
+            }
+            RefreshObjectives();
+        }
+
+        private void BuildUI()
+        {
+            if (_parentElement == null)
+            {
+                Debug.LogError("QuestEntryUI: Missing parent element or UXML reference!");
+                return;
+            }
+
+            _titleLabel = _parentElement.Q<Label>("QuestTitle");
+            _descriptionLabel = _parentElement.Q<Label>("QuestDescription");
+            _rewardsLabel = _parentElement.Q<Label>("RewardsText");
+            _objectivesContainer = _parentElement.Q<VisualElement>("ObjectivesContainer");
+
+            if (_titleLabel == null) Debug.LogError("QuestTitle label not found!");
+            if (_descriptionLabel == null) Debug.LogError("QuestDescription label not found!");
+            if (_objectivesContainer == null) Debug.LogError("ObjectivesContainer not found!");
+        }
+
+        private void PopulateStaticContent()
+        {
+            _titleLabel.text = QuestData.Title;
+            _descriptionLabel.text = QuestData.Description;
+
+            var rewards = "";
+            if (QuestData.MoneyReward > 0)
+                rewards += $"Money: {QuestData.MoneyReward}";
+            _rewardsLabel.text = rewards.Length > 0 ? $"Rewards: {rewards}" : "No rewards";
+        }
+
+        private void RefreshObjectives()
+        {
+            // Clear old displays
+            foreach (var display in _objectiveDisplays)
+            {
+                if (display != null) Destroy(display.gameObject);
+            }
+            _objectiveDisplays.Clear();
+            if (_objectivesContainer == null) return;
+
+            _objectivesContainer.Clear();
+
+            // Completed objectives
+            var completedObjectives = _quest.GetCompletedObjectives();
+            foreach (var objective in completedObjectives)
+            {
+                var objectiveSO = _quest.GetObjectiveSO(objective);
+                if (objectiveSO != null)
+                {
+                    // Create component GO (no UIDocument)
+                    var displayGO = new GameObject("ObjectiveDisplay");
+                    var display = displayGO.AddComponent<ObjectiveDisplay_Toolkit>();
+                    display.Initialize(_objectivesContainer, objectiveSO, objective,
+    _completeIcon, _incompleteIcon, _objectiveDisplayUXML);
+                }
+            }
+            // Current objective
+            var currentObjective = _quest.GetCurrentObjective();
+            if (currentObjective != null)
+            {
+                var currentObjectiveSO = _quest.GetObjectiveSO(currentObjective);
+                if (currentObjectiveSO != null)
+                {
+                    var displayGO = new GameObject("ObjectiveDisplay");
+                    var display = displayGO.AddComponent<ObjectiveDisplay_Toolkit>();
+                    display.Initialize(_objectivesContainer, currentObjectiveSO, currentObjective,
+                        _completeIcon, _incompleteIcon, _objectiveDisplayUXML);
+                }
             }
         }
 
-        // Current objective
-        var currentObjective = quest.GetCurrentObjective();
-        if (currentObjective != null)
+        public void CopyConfigurationFromQEUI(QuestEntryUI_Toolkit prefabSource)
         {
-            var currentObjectiveSO = quest.GetObjectiveSO(currentObjective);
-            if (currentObjectiveSO != null)
+            if (prefabSource == null)
             {
-                var displayGO = new GameObject("ObjectiveDisplay");
-                var display = displayGO.AddComponent<ObjectiveDisplay_Toolkit>();
-                display.objectiveUXML = objectiveDisplayUXML;
-                display.Initialize(objectivesContainer, currentObjectiveSO, currentObjective, completeIcon, incompleteIcon);
-                objectiveDisplays.Add(display);
+                Debug.LogError("QuestEntryUI_Toolkit: the method called with null source.");
+                return;
             }
-        }
-    }
 
-    private void OnDestroy()
-    {
-        foreach (var display in objectiveDisplays)
-        {
-            if (display != null) Destroy(display.gameObject);
+            _objectiveDisplayUXML = prefabSource._objectiveDisplayUXML;
+            _completeIcon = prefabSource._completeIcon;
+            _incompleteIcon = prefabSource._incompleteIcon;
         }
-        objectiveDisplays.Clear();
+
+        private void OnDestroy()
+        {
+            foreach (var display in _objectiveDisplays)
+            {
+                if (display != null) Destroy(display.gameObject);
+            }
+            _objectiveDisplays.Clear();
+        }
     }
 }

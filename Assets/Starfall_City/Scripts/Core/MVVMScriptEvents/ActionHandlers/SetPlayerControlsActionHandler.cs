@@ -1,3 +1,4 @@
+﻿using Movement;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace core
 
         public async UniTask ExecuteAsync(ScriptedEvent.ActionCommand cmd, GameObject _, Dictionary<string, object> __, ScriptedEventExecutor ___)
         {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            var player = GameObject.FindGameObjectWithTag("Player");
             if (player == null)
             {
                 Debug.LogError("SetPlayerControls: Player with tag 'Player' not found!");

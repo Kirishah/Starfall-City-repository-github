@@ -1,231 +1,229 @@
+п»їusing InventorySystem;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Quest
+namespace QuestSystem
 {
-    private QuestSO _data;
-    private bool _isCompleted;
-    private bool _isCompleting; // Чтобы не выполнялось несколько раз
-    public List<Objective> _objectives = new List<Objective>();
-    private int _activeObjectiveIndex;
-
-    public QuestSO Data => _data;
-    public bool IsCompleted => _isCompleted;
-    public int ActiveObjectiveIndex => _activeObjectiveIndex;
-
-    public void Initialize(QuestSO questSO)
+    public class Quest
     {
-        _data = questSO;
-        _objectives.Clear(); // список пустой
-        _activeObjectiveIndex = 0;
-        _isCompleted = false;
-        _isCompleting = false;
-        foreach (ObjectiveSO objectiveSO in questSO.Objectives)
-        {
-            var objective = objectiveSO.CreateObjective();
+        private QuestSO _data;
+        private bool _isCompleted;
+        private bool _isCompleting; // Р§С‚РѕР±С‹ РЅРµ РІС‹РїРѕР»РЅСЏР»РѕСЃСЊ РЅРµСЃРєРѕР»СЊРєРѕ СЂР°Р·
+        public List<Objective> _objectives = new();
+        private int _activeObjectiveIndex;
 
-            objective.OnProgressChanged += HandleObjectiveProgress;
-            objective.OnCompleted += HandleObjectiveCompleted;
-            _objectives.Add(objective);
-            Debug.Log($"Initialized objective: {objectiveSO.GetType().Name} for quest {questSO.Title}");
-        }
-    }
+        public QuestSO Data => _data;
+        public bool IsCompleted => _isCompleted;
+        public int ActiveObjectiveIndex => _activeObjectiveIndex;
 
-    public void StartQuest()
-    {
-        foreach (Objective objective in _objectives)
+        public void Initialize(QuestSO questSO)
         {
-            objective.Initialize();
-        }
-        CheckActiveObjective();
-    }
-
-    public void ProcessObjectiveEvent(ObjectiveType type, string identifier, string itemID)
-    {
-        if (_isCompleted || _isCompleting)
-        {
-            Debug.Log($"Quest {Data.Title} is already completed or completing, skipping event.");
-            return;
-        }
-        Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
-
-        // Поиск первой невыполненной цели
-        int firstIncompleteIndex = -1;
-        for (int i = 0; i < _objectives.Count; i++)
-        {
-            if (!_objectives[i].IsCompleted)
+            _data = questSO;
+            _objectives.Clear(); // СЃРїРёСЃРѕРє РїСѓСЃС‚РѕР№
+            _activeObjectiveIndex = 0;
+            _isCompleted = false;
+            _isCompleting = false;
+            foreach (var objectiveSO in questSO.Objectives)
             {
-                firstIncompleteIndex = i;
-                break;
+                var objective = objectiveSO.CreateObjective();
+
+                objective.OnProgressChanged += HandleObjectiveProgress;
+                objective.OnCompleted += HandleObjectiveCompleted;
+                _objectives.Add(objective);
+                Debug.Log($"Initialized objective: {objectiveSO.GetType().Name} for quest {questSO.Title}");
             }
         }
 
-        // Если все цели выполнены, ничего не происходит (CheckAllObjectivesCompleted обработает завершение квеста).
-        if (firstIncompleteIndex == -1)
+        public void StartQuest()
         {
-            Debug.Log("All objectives completed, skipping ProcessObjectiveEvent.");
-            return;
-        }
-
-        // Обновление индекса активной цели
-        _activeObjectiveIndex = firstIncompleteIndex;
-        Objective activeObjective = _objectives[_activeObjectiveIndex];
-        Debug.Log($"Calling CheckProgress on active objective: {activeObjective.GetType().Name} (Index: {_activeObjectiveIndex})");
-        
-        // Проверка автозавершения, когда цель становится активной
-        CheckActiveObjective();
-        activeObjective.CheckProgress(type, identifier, itemID);
-
-        // Повторная проверка после обработки события 
-        firstIncompleteIndex = -1;
-        for (int i = 0; i < _objectives.Count; i++)
-        {
-            if (!_objectives[i].IsCompleted)
+            foreach (var objective in _objectives)
             {
-                firstIncompleteIndex = i;
-                break;
+                objective.Initialize();
             }
-        }
-        if (firstIncompleteIndex != -1 && firstIncompleteIndex != _activeObjectiveIndex)
-        {
-            _activeObjectiveIndex = firstIncompleteIndex;
-            Debug.Log($"Objective completed, updated active index to {firstIncompleteIndex}");
             CheckActiveObjective();
         }
-    }
 
-    private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required)
-    {
-        QuestManager.Instance.ReportObjectiveProgress(objective, current, required);
-    }
-
-    private void HandleObjectiveCompleted()
-    {
-        if (_isCompleted || _isCompleting)
+        public void ProcessObjectiveEvent(ObjectiveType type, string identifier, string itemID)
         {
-            Debug.Log($"Quest {Data.Title} is already completed or completing, skipping HandleObjectiveCompleted.");
-            return;
-        }
-
-        int firstIncompleteIndex = -1;
-        for (int i = 0; i < _objectives.Count; i++)
-        {
-            if (!_objectives[i].IsCompleted)
+            if (_isCompleted || _isCompleting)
             {
-                firstIncompleteIndex = i;
-                break;
+                Debug.Log($"Quest {Data.Title} is already completed or completing, skipping event.");
+                return;
             }
-        }
-        if (firstIncompleteIndex != -1 && firstIncompleteIndex != _activeObjectiveIndex)
-        {
-            _activeObjectiveIndex = firstIncompleteIndex;
-            Debug.Log($"Objective completed, updated active index to {firstIncompleteIndex} from HandleObjectiveCompleted");
-            CheckActiveObjective();
-        }
-        CheckAllObjectivesCompleted();
-    }
+            Debug.Log($"Quest.ProcessObjectiveEvent called: type={type}, identifier={identifier}, objectives count={_objectives.Count}");
 
-    private void CheckActiveObjective()
-    {
-        if (_activeObjectiveIndex < 0 || _activeObjectiveIndex >= _objectives.Count)
-        {
-            Debug.LogWarning($"Invalid activeObjectiveIndex: {_activeObjectiveIndex}");
-            return;
-        }
-
-        Objective activeObjective = _objectives[_activeObjectiveIndex];
-        Debug.Log($"Checking active objective: {activeObjective.GetType().Name}");
-
-        if (activeObjective is CollectItemObjective collectionObj)
-        {
-            Debug.Log($"CollectionObjective detected: TargetItemID={collectionObj.TargetItemID}, RequiredAmount={((CollectItemSO)collectionObj._data).RequiredAmount}");
-            Item item = ItemDataBase.Instance.GetItemByID(collectionObj.TargetItemID);
-            if (item != null)
+            // РџРѕРёСЃРє РїРµСЂРІРѕР№ РЅРµРІС‹РїРѕР»РЅРµРЅРЅРѕР№ С†РµР»Рё
+            var firstIncompleteIndex = -1;
+            for (var i = 0; i < _objectives.Count; i++)
             {
-                Debug.Log($"Item found in database: {item.name}, ID={item.ItemID}");
-                int requiredAmount = ((CollectItemSO)collectionObj._data).RequiredAmount;
-                bool hasItem = InventoryManager.Instance.HasItem(item, requiredAmount);
-                Debug.Log($"Inventory has item? {hasItem}");
-                if (hasItem)
+                if (!_objectives[i].IsCompleted)
                 {
-                    Debug.Log("Auto-completing CollectionObjective.");
-                    QuestManager.Instance.ReportObjectiveProgress((CollectItemSO)collectionObj._data, requiredAmount, requiredAmount);
-                    collectionObj.Complete();
+                    firstIncompleteIndex = i;
+                    break;
                 }
+            }
+
+            // Р•СЃР»Рё РІСЃРµ С†РµР»Рё РІС‹РїРѕР»РЅРµРЅС‹, РЅРёС‡РµРіРѕ РЅРµ РїСЂРѕРёСЃС…РѕРґРёС‚ (CheckAllObjectivesCompleted РѕР±СЂР°Р±РѕС‚Р°РµС‚ Р·Р°РІРµСЂС€РµРЅРёРµ РєРІРµСЃС‚Р°).
+            if (firstIncompleteIndex == -1)
+            {
+                Debug.Log("All objectives completed, skipping ProcessObjectiveEvent.");
+                return;
+            }
+
+            // РћР±РЅРѕРІР»РµРЅРёРµ РёРЅРґРµРєСЃР° Р°РєС‚РёРІРЅРѕР№ С†РµР»Рё
+            _activeObjectiveIndex = firstIncompleteIndex;
+            var activeObjective = _objectives[_activeObjectiveIndex];
+            Debug.Log($"Calling CheckProgress on active objective: {activeObjective.GetType().Name} (Index: {_activeObjectiveIndex})");
+
+            // РџСЂРѕРІРµСЂРєР° Р°РІС‚РѕР·Р°РІРµСЂС€РµРЅРёСЏ, РєРѕРіРґР° С†РµР»СЊ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ Р°РєС‚РёРІРЅРѕР№
+            CheckActiveObjective();
+            activeObjective.CheckProgress(type, identifier, itemID);
+
+            // РџРѕРІС‚РѕСЂРЅР°СЏ РїСЂРѕРІРµСЂРєР° РїРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕР±С‹С‚РёСЏ 
+            firstIncompleteIndex = -1;
+            for (var i = 0; i < _objectives.Count; i++)
+            {
+                if (!_objectives[i].IsCompleted)
+                {
+                    firstIncompleteIndex = i;
+                    break;
+                }
+            }
+            if (firstIncompleteIndex != -1 && firstIncompleteIndex != _activeObjectiveIndex)
+            {
+                _activeObjectiveIndex = firstIncompleteIndex;
+                Debug.Log($"Objective completed, updated active index to {firstIncompleteIndex}");
+                CheckActiveObjective();
+            }
+        }
+
+        private void HandleObjectiveProgress(ObjectiveSO objective, int current, int required) => QuestManager.Instance.ReportObjectiveProgress(objective, current, required);
+
+        private void HandleObjectiveCompleted()
+        {
+            if (_isCompleted || _isCompleting)
+            {
+                Debug.Log($"Quest {Data.Title} is already completed or completing, skipping HandleObjectiveCompleted.");
+                return;
+            }
+
+            var firstIncompleteIndex = -1;
+            for (var i = 0; i < _objectives.Count; i++)
+            {
+                if (!_objectives[i].IsCompleted)
+                {
+                    firstIncompleteIndex = i;
+                    break;
+                }
+            }
+            if (firstIncompleteIndex != -1 && firstIncompleteIndex != _activeObjectiveIndex)
+            {
+                _activeObjectiveIndex = firstIncompleteIndex;
+                Debug.Log($"Objective completed, updated active index to {firstIncompleteIndex} from HandleObjectiveCompleted");
+                CheckActiveObjective();
+            }
+            CheckAllObjectivesCompleted();
+        }
+
+        private void CheckActiveObjective()
+        {
+            if (_activeObjectiveIndex < 0 || _activeObjectiveIndex >= _objectives.Count)
+            {
+                Debug.LogWarning($"Invalid activeObjectiveIndex: {_activeObjectiveIndex}");
+                return;
+            }
+
+            var activeObjective = _objectives[_activeObjectiveIndex];
+            Debug.Log($"Checking active objective: {activeObjective.GetType().Name}");
+
+            if (activeObjective is CollectItemObjective collectionObj)
+            {
+                Debug.Log($"CollectionObjective detected: TargetItemID={collectionObj.TargetItemID}, RequiredAmount={((CollectItemSO)collectionObj._data).RequiredAmount}");
+                var item = ItemDataBase.Instance.GetItemByID(collectionObj.TargetItemID);
+                if (item != null)
+                {
+                    Debug.Log($"Item found in database: {item.name}, ID={item.ItemID}");
+                    var requiredAmount = ((CollectItemSO)collectionObj._data).RequiredAmount;
+                    var hasItem = InventoryManager.Instance.HasItem(item, requiredAmount);
+                    Debug.Log($"Inventory has item? {hasItem}");
+                    if (hasItem)
+                    {
+                        Debug.Log("Auto-completing CollectionObjective.");
+                        QuestManager.Instance.ReportObjectiveProgress((CollectItemSO)collectionObj._data, requiredAmount, requiredAmount);
+                        collectionObj.Complete();
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Item not found in ItemDataBase for ID: {collectionObj.TargetItemID}");
+                }
+            }
+        }
+
+        private void CheckAllObjectivesCompleted()
+        {
+            if (_isCompleted || _isCompleting)
+            {
+                Debug.Log($"Quest {Data.Title} is already completed or completing, skipping CheckAllObjectivesCompleted.");
+                return;
+            }
+
+            if (_objectives.All(o => o.IsCompleted))
+            {
+                _isCompleting = true;
+                Debug.Log($"Quest: {Data.Title} completed, calling QuestManager.CompleteQuest");
+                QuestManager.Instance.CompleteQuest(this);
+                _isCompleted = true;
             }
             else
             {
-                Debug.LogError($"Item not found in ItemDataBase for ID: {collectionObj.TargetItemID}");
+                Debug.Log($"Quest: {Data.Title} not completed, pending objectives: {_objectives.Count(o => !o.IsCompleted)}");
             }
         }
-    }
 
-    private void CheckAllObjectivesCompleted()
-    {
-        if (_isCompleted || _isCompleting)
+        public void Cleanup()
         {
-            Debug.Log($"Quest {Data.Title} is already completed or completing, skipping CheckAllObjectivesCompleted.");
-            return;
-        }
-
-        if (_objectives.All(o => o.IsCompleted))
-        {
-            _isCompleting = true;
-            Debug.Log($"Quest: {Data.Title} completed, calling QuestManager.CompleteQuest");
-            QuestManager.Instance.CompleteQuest(this);
-            _isCompleted = true;
-        }
-        else
-        {
-            Debug.Log($"Quest: {Data.Title} not completed, pending objectives: {_objectives.Count(o => !o.IsCompleted)}");
-        }
-    }
-
-    public void Cleanup()
-    {
-        // Отписываемся от событий
-        foreach (Objective objective in _objectives)
-        {
-            objective.OnProgressChanged -= HandleObjectiveProgress;
-            objective.OnCompleted -= HandleObjectiveCompleted;  
-            objective.Cleanup();                                   
-        }
-        _objectives.Clear();
-        _isCompleted = false;
-        _isCompleting = false;
-        Debug.Log($"Quest: Cleaned up quest {Data.Title}");
-    }
-
-    
-    public List<Objective> GetCompletedObjectives()
-    {
-        return _objectives.Where(o => o.IsCompleted).ToList();
-    }
-
-    
-    public Objective GetCurrentObjective()
-    {
-        int firstIncompleteIndex = -1;
-        for (int i = 0; i < _objectives.Count; i++)
-        {
-            if (!_objectives[i].IsCompleted)
+            // Unsubscribe from events
+            foreach (var objective in _objectives)
             {
-                firstIncompleteIndex = i;
-                break;
+                objective.OnProgressChanged -= HandleObjectiveProgress;
+                objective.OnCompleted -= HandleObjectiveCompleted;
+                objective.Cleanup();
             }
+            _objectives.Clear();
+            _isCompleted = false;
+            _isCompleting = false;
+            Debug.Log($"Quest: Cleaned up quest {Data.Title}");
         }
-        return firstIncompleteIndex >= 0 ? _objectives[firstIncompleteIndex] : null;
-    }
 
-    // Сопоставляем цель с соответствующим ей SO
-    public ObjectiveSO GetObjectiveSO(Objective objective)
-    {
-        int index = _objectives.IndexOf(objective);
-        if (index >= 0 && index < Data.Objectives.Length)
+
+        public List<Objective> GetCompletedObjectives() => _objectives.Where(o => o.IsCompleted).ToList();
+
+
+        public Objective GetCurrentObjective()
         {
-            return Data.Objectives[index];
+            var firstIncompleteIndex = -1;
+            for (var i = 0; i < _objectives.Count; i++)
+            {
+                if (!_objectives[i].IsCompleted)
+                {
+                    firstIncompleteIndex = i;
+                    break;
+                }
+            }
+            return firstIncompleteIndex >= 0 ? _objectives[firstIncompleteIndex] : null;
         }
-        return null;
+
+        // РЎРѕРїРѕСЃС‚Р°РІР»СЏРµРј С†РµР»СЊ СЃ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРј РµР№ SO
+        public ObjectiveSO GetObjectiveSO(Objective objective)
+        {
+            var index = _objectives.IndexOf(objective);
+            if (index >= 0 && index < Data.Objectives.Length)
+            {
+                return Data.Objectives[index];
+            }
+            return null;
+        }
     }
 }

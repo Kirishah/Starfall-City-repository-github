@@ -68,4 +68,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47a6e8f9d4f29fd49b84b934f7aa0f57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacteristicsUI_Toolkit
-  uiDocument: {fileID: 7605576407511508133}
+  _uiDocument: {fileID: 7605576407511508133}

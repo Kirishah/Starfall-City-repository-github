@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -39,11 +39,11 @@ public static class PlayModeReset
         // Delete all keys that start with "Quest_"
         if (PlayerPrefs.HasKey("ActiveQuests"))
         {
-            string activeQuestsData = PlayerPrefs.GetString("ActiveQuests");
+            var activeQuestsData = PlayerPrefs.GetString("ActiveQuests");
             if (!string.IsNullOrEmpty(activeQuestsData))
             {
-                string[] activeQuestNames = activeQuestsData.Split(',');
-                foreach (string questName in activeQuestNames)
+                var activeQuestNames = activeQuestsData.Split(',');
+                foreach (var questName in activeQuestNames)
                 {
                     if (!string.IsNullOrEmpty(questName))
                     {

@@ -8,24 +8,24 @@ namespace QTE
     public class RivalDancer : MonoBehaviour
     {
         [Header("Config & UI")]
-        [SerializeField] private QTEConfig config;
-        [SerializeField] private TextMeshProUGUI rivalScoreText;
-        [SerializeField] private TextMeshProUGUI rivalComboText;
-        [SerializeField] private PersistentReference dancer;
+        [SerializeField] private QTEConfig _config;
+        [SerializeField] private TextMeshProUGUI _rivalScoreText;
+        [SerializeField] private TextMeshProUGUI _rivalComboText;
+        [SerializeField] private PersistentReference _dancer;
 
         private GameObject _dancerGO;
         private Animator _dancerAnimator;
 
-        private int currentScore;
-        private int currentCombo;
+        private int _currentScore;
+        private int _currentCombo;
 
         // Public read-only access
-        public int FinalScore => currentScore;
-        public int FinalCombo => currentCombo;
+        public int FinalScore => _currentScore;
+        public int FinalCombo => _currentCombo;
 
         private void Start()
         {
-            if (config == null) Debug.LogError("QTEConfig missing on RivalDancer!", this);
+            if (_config == null) Debug.LogError("QTEConfig missing on RivalDancer!", this);
         }
 
         private void TryResolveDancer()
@@ -45,13 +45,13 @@ namespace QTE
         private bool ResolveRivalDancer()
         {
             // Resolve Player Dancer
-            if (dancer == null || !dancer.IsValid)
+            if (_dancer == null || !_dancer.IsValid)
             {
                 Debug.LogError("RivalDancer: Player dancer PersistentReference is missing or invalid!");
                 return false;
             }
 
-            _dancerGO = dancer.Get<GameObject>();
+            _dancerGO = _dancer.Get<GameObject>();
             if (_dancerGO == null)
             {
                 Debug.LogError("RivalDancer: Failed to resolve dancer GameObject — check PersistentRegistry fix!");
@@ -86,27 +86,27 @@ namespace QTE
         private void OnQTEEnded(bool _)
         {
             ResetRival();
-            _dancerAnimator?.SetTrigger("stop_dance");
+            _dancerAnimator.SetTrigger("stop_dance");
         }
 
         public void ResetRival()
         {
-            currentScore = 0;
-            currentCombo = 0;
+            _currentScore = 0;
+            _currentCombo = 0;
             UpdateUI();
         }
 
         // React to every arrow that appears (shared track)
         private void OnArrowHittable(DanceArrow arrow)
         {
-            if (!config.enableRival || !QTEGameManager.IsQTEActive) return;
+            if (!_config.enableRival || !QTEGameManager.IsQTEActive) return;
 
             StartCoroutine(ProcessRivalReaction(arrow));
         }
 
         private IEnumerator ProcessRivalReaction(DanceArrow arrow)
         {
-            yield return new WaitForSeconds(config.rivalReactionDelay);
+            yield return new WaitForSeconds(_config.rivalReactionDelay);
 
             // Only succeed if arrow still valid (not passed/missed)
             if (!arrow.gameObject.activeInHierarchy || arrow.hasPassedHitZone)
@@ -115,9 +115,9 @@ namespace QTE
             }
 
             bool isComplex = arrow.type == DanceArrow.ArrowType.Hold || arrow.type == DanceArrow.ArrowType.Double;
-            bool intentionalMiss = UnityEngine.Random.value < config.rivalIntentionalMissChance;
+            bool intentionalMiss = UnityEngine.Random.value < _config.rivalIntentionalMissChance;
 
-            float accuracy = config.rivalAccuracy;
+            float accuracy = _config.rivalAccuracy;
             if (isComplex && intentionalMiss) accuracy *= 0.6f;
 
             bool success = UnityEngine.Random.value < accuracy;
@@ -125,16 +125,16 @@ namespace QTE
             if (success)
             {
                 // Animate rival dance
-                _dancerAnimator?.SetTrigger($"dance_{arrow.direction}");
+                _dancerAnimator.SetTrigger($"dance_{arrow.direction}");
 
                 // Score with combo aggression
-                float aggression = Mathf.Pow(config.rivalComboAggression, currentCombo / 10f);
-                currentCombo++;
-                currentScore += Mathf.RoundToInt(config.basePoints * (1f + currentCombo * config.comboMultiplier) * aggression);
+                float aggression = Mathf.Pow(_config.rivalComboAggression, _currentCombo / 10f);
+                _currentCombo++;
+                _currentScore += Mathf.RoundToInt(_config.basePoints * (1f + (_currentCombo * _config.comboMultiplier)) * aggression);
             }
             else
             {
-                currentCombo = 0;
+                _currentCombo = 0;
                 // Optional: _rivalAnimator?.SetTrigger("miss");
             }
 
@@ -143,26 +143,26 @@ namespace QTE
 
         public void SetAIParameters(float accuracy, float reactionDelay, float intentionalMissChance, float comboAggression)
         {
-            if (config == null)
+            if (_config == null)
             {
                 Debug.LogError("RivalDancer config is null when trying to apply AI parameters!", this);
                 return;
             }
 
             // We mutate the serialized config directly — it's fine because it's a runtime instance
-            config.rivalAccuracy = accuracy;
-            config.rivalReactionDelay = reactionDelay;
-            config.rivalIntentionalMissChance = intentionalMissChance;
-            config.rivalComboAggression = comboAggression;
+            _config.rivalAccuracy = accuracy;
+            _config.rivalReactionDelay = reactionDelay;
+            _config.rivalIntentionalMissChance = intentionalMissChance;
+            _config.rivalComboAggression = comboAggression;
 
             Debug.Log($"RivalDancer AI updated → Acc:{accuracy:F2} Delay:{reactionDelay:F2}s Miss%:{intentionalMissChance:P0}");
         }
 
         private void UpdateUI()
         {
-            if (rivalScoreText) rivalScoreText.text = $"Rival: {currentScore}";
-            if (rivalComboText) rivalComboText.text = $"x{currentCombo}";
-            if (rivalComboText) rivalComboText.color = Color.Lerp(Color.red, Color.magenta, currentCombo / 15f);
+            if (_rivalScoreText) _rivalScoreText.text = $"Rival: {_currentScore}";
+            if (_rivalComboText) _rivalComboText.text = $"x{_currentCombo}";
+            if (_rivalComboText) _rivalComboText.color = Color.Lerp(Color.red, Color.magenta, _currentCombo / 15f);
         }
-    } 
+    }
 }

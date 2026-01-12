@@ -30,14 +30,20 @@ namespace Interaction
             }
         }
 
-        public void HidePrompt() => _currentPrompt?.SetActive(false);
+        public void HidePrompt()
+        {
+            if (_currentPrompt != null)
+            {
+                _currentPrompt.SetActive(false);
+            }
+        }
 
         private void UpdatePromptPosition()
         {
             if (_currentPrompt == null) return;
 
-            Camera mainCam = Camera.main;
-            Camera uiCam = WorldCanvasManager.Instance.worldCanvas.worldCamera;
+            var mainCam = Camera.main;
+            var uiCam = WorldCanvasManager.Instance.worldCanvas.worldCamera;
 
             if (mainCam == null || uiCam == null) return;
 
@@ -50,7 +56,7 @@ namespace Interaction
                 return;
             }
 
-            RectTransform canvasRect = WorldCanvasManager.Instance.worldCanvas.GetComponent<RectTransform>();
+            var canvasRect = WorldCanvasManager.Instance.worldCanvas.GetComponent<RectTransform>();
             RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, uiCam, out Vector2 localPoint);
 
             _currentPrompt.GetComponent<RectTransform>().anchoredPosition = localPoint;

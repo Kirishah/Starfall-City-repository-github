@@ -1,42 +1,33 @@
+﻿using DialogueSystem;
+using core;
+using Movement;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
-using core;
 
 public class IntroManager : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private DialogueManager_UIToolkit dialogueManager;
-
     [Header("Timing")]
-    [SerializeField] private float bossApproachDelay = 6f;
+    [SerializeField] private float _bossApproachDelay = 2f;
 
     [Header("Positions")]
-    [SerializeField] private float bossStoppingDistance = 1.5f;
-    [SerializeField] private float minStartDistance = 3f;
+    [SerializeField] private float _bossStoppingDistance = 0.2f;
+    [SerializeField] private float _minStartDistance = 3f;
 
-    [Header("Events")]
-    [SerializeField] private ScriptedEvent preIntroEvent; // Tags: "Player"
-    [SerializeField] private ScriptedEvent introStartEvent; // Tags: "Boss" for move/wait; no tag for dialogue
-    [SerializeField] private ScriptedEvent postDialogueEvent; // Tags: "Player", "Boss"
+    private GameObject _player;
+    private GameObject _boss;
+    private Vector3 _bossInitialPos;
+    private Vector3 _deskPosition;
+    private bool _isInitialized = false;
 
-    private GameObject player;
-    private GameObject boss;
-    private Vector3 bossInitialPos;
-    private Vector3 deskPosition;
-    private bool isInitialized = false;
-
-    void Start()
-    {
-        Initialize();
-    }
+    void Start() => Initialize();
 
     private void Initialize()
     {
-        if (isInitialized) return;
-        isInitialized = true;
+        if (_isInitialized) return;
+        _isInitialized = true;
 
         if (!ResolveDynamicReferences())
         {
@@ -45,8 +36,8 @@ public class IntroManager : MonoBehaviour
         }
 
         // Lightweight validation
-        var playerMovement = player.GetComponent<PlayerMovement>();
-        var player3DMovement = player.GetComponent<Player3DMovement>();
+        var playerMovement = _player.GetComponent<PlayerMovement>();
+        var player3DMovement = _player.GetComponent<Player3DMovement>();
         if (playerMovement == null && player3DMovement == null)
         {
             Debug.LogError("IntroManager: No valid PlayerMovement or Player3DMovement on Player!");
@@ -54,8 +45,7 @@ public class IntroManager : MonoBehaviour
             return;
         }
 
-        var bossAgent = boss.GetComponent<NavMeshAgent>();
-        if (bossAgent == null)
+        if (!_boss.TryGetComponent<NavMeshAgent>(out var bossAgent))
         {
             Debug.LogError("IntroManager: NavMeshAgent missing on Boss NPC!");
             enabled = false;
@@ -63,7 +53,7 @@ public class IntroManager : MonoBehaviour
         }
 
         bossAgent.enabled = true;
-        bossAgent.stoppingDistance = bossStoppingDistance;
+        bossAgent.stoppingDistance = _bossStoppingDistance;
 
         // Subscribe
         DialogueManager_UIToolkit.OnDialogueEnded += HandleDialogueEnd;
@@ -79,18 +69,18 @@ public class IntroManager : MonoBehaviour
 
     private bool ResolveDynamicReferences()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null) return false;
+        _player = GameObject.FindGameObjectWithTag("Player");
+        if (_player == null) return false;
 
-        boss = GameObject.FindGameObjectWithTag("Boss");
-        if (boss == null) return false;
+        _boss = GameObject.FindGameObjectWithTag("Boss");
+        if (_boss == null) return false;
 
-        bossInitialPos = boss.transform.position;
+        _bossInitialPos = _boss.transform.position;
 
-        GameObject[] potentialDesks = GameObject.FindGameObjectsWithTag("Desk");
+        var potentialDesks = GameObject.FindGameObjectsWithTag("Desk");
         if (potentialDesks.Length == 0)
         {
-            deskPosition = player.transform.position + player.transform.forward * 2f; // Fallback position
+            _deskPosition = _player.transform.position + (_player.transform.forward * 2f); // Fallback position
             Debug.LogWarning("IntroManager: No Desk found; using fallback position.");
         }
         else
@@ -99,23 +89,23 @@ public class IntroManager : MonoBehaviour
             float minDist = float.MaxValue;
             foreach (var deskObj in potentialDesks)
             {
-                float dist = Vector3.Distance(player.transform.position, deskObj.transform.position);
+                float dist = Vector3.Distance(_player.transform.position, deskObj.transform.position);
                 if (dist < minDist)
                 {
                     minDist = dist;
                     closest = deskObj.transform;
                 }
             }
-            deskPosition = closest != null ? closest.position : player.transform.position + player.transform.forward * 2f;
+            _deskPosition = closest != null ? closest.position : _player.transform.position + (_player.transform.forward * 2f);
             Debug.Log($"IntroManager: Selected desk at distance {minDist}.");
         }
 
         // Validate distance (unchanged)
-        float distBetweenPositions = Vector3.Distance(bossInitialPos, deskPosition);
-        if (distBetweenPositions < minStartDistance)
+        float distBetweenPositions = Vector3.Distance(_bossInitialPos, _deskPosition);
+        if (distBetweenPositions < _minStartDistance)
         {
-            bossInitialPos = player.transform.position - (player.transform.forward * 8f) + (player.transform.right * 2f);
-            distBetweenPositions = Vector3.Distance(bossInitialPos, deskPosition);
+            _bossInitialPos = _player.transform.position - (_player.transform.forward * 8f) + (_player.transform.right * 2f);
+            distBetweenPositions = Vector3.Distance(_bossInitialPos, _deskPosition);
             Debug.Log($"IntroManager: Adjusted initial pos. New distance: {distBetweenPositions:F2}m.");
         }
 
@@ -130,10 +120,10 @@ public class IntroManager : MonoBehaviour
 
     private IEnumerator DelayedIntroStart()
     {
-        yield return new WaitForSeconds(bossApproachDelay);
+        yield return new WaitForSeconds(_bossApproachDelay);
         var paramsDict = new Dictionary<string, object>
         {
-            { "deskPos", deskPosition }
+            { "deskPos", _deskPosition }
             // bossInitialPos not needed here
         };
         EventBus.Instance.Publish("IntroStart", paramsDict);
@@ -143,19 +133,16 @@ public class IntroManager : MonoBehaviour
     {
         var returnParams = new Dictionary<string, object>
         {
-            { "bossInitialPos", bossInitialPos }
+            { "bossInitialPos", _bossInitialPos }
         };
         EventBus.Instance.Publish("DialogueEnded:Intro", returnParams);
         DialogueManager_UIToolkit.OnDialogueEnded -= HandleDialogueEnd;
     }
 
-    void OnDestroy()
-    {
-        DialogueManager_UIToolkit.OnDialogueEnded -= HandleDialogueEnd;
-    }
+    void OnDestroy() => DialogueManager_UIToolkit.OnDialogueEnded -= HandleDialogueEnd;
 
     // Scene handling (unchanged)
     void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
     void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => isInitialized = false;
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => _isInitialized = false;
 }

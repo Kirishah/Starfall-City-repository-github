@@ -8,26 +8,15 @@ public class CinemachineRebinder : MonoBehaviour
     [Tooltip("Tag of the object that Cinemachine should follow (usually Player)")]
     public string followTag = "Player";
 
-    private void Start()
-    {
-        RebindAllCameras();
-    }
+    private void Start() => RebindAllCameras();
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
 
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) =>
         // Small delay to ensure transfers are done
         Invoke(nameof(RebindAllCameras), 0.1f);
-    }
 
     private void RebindAllCameras()
     {

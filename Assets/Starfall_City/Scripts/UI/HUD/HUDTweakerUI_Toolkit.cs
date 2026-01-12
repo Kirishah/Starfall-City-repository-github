@@ -1,26 +1,27 @@
+﻿using InventorySystem;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class HUDTweakerUI_Toolkit : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private UIDocument hudDocument;  
-    [SerializeField] private InventoryUI iTweaker;
-    [SerializeField] private PhoneInterfaceController phoneController;
-    [SerializeField] private UIManager menuTweaker;
+    [SerializeField] private UIDocument _hudDocument;
+    [SerializeField] private InventoryUI _iTweaker;
+    [SerializeField] private PhoneInterfaceController _phoneController;
+    [SerializeField] private UIManager _menuTweaker;
 
     // Button references for cleanup
-    private Button inventoryBtn;
-    private Button phoneBtn;
-    private Button settingsBtn;
+    private Button _inventoryBtn;
+    private Button _phoneBtn;
+    private Button _settingsBtn;
 
     private void Awake()
     {
         // Auto-find UIDocument if not assigned (fallback)
-        if (hudDocument == null)
+        if (_hudDocument == null)
         {
-            hudDocument = GetComponent<UIDocument>();
-            if (hudDocument == null)
+            _hudDocument = GetComponent<UIDocument>();
+            if (_hudDocument == null)
             {
                 Debug.LogError("HudTweaker: No UIDocument found on this GameObject! Assign manually.");
                 return;
@@ -28,30 +29,27 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        InitializeButtons();
-    }
+    private void Start() => InitializeButtons();
 
     private void InitializeButtons()
     {
-        if (hudDocument == null || hudDocument.rootVisualElement == null)
+        if (_hudDocument == null || _hudDocument.rootVisualElement == null)
         {
             Debug.LogError("HudTweaker: HUD root is null! Cannot initialize buttons.");
             return;
         }
 
-        var root = hudDocument.rootVisualElement;
+        var root = _hudDocument.rootVisualElement;
 
         // Query buttons by class names (as defined in HUD.uxml)
-        inventoryBtn = root.Q<Button>(className: "inventory-btn");
-        phoneBtn = root.Q<Button>(className: "phone-btn");
-        settingsBtn = root.Q<Button>(className: "settings-btn");
+        _inventoryBtn = root.Q<Button>(className: "inventory-btn");
+        _phoneBtn = root.Q<Button>(className: "phone-btn");
+        _settingsBtn = root.Q<Button>(className: "settings-btn");
 
         // Hook up events
-        if (inventoryBtn != null)
+        if (_inventoryBtn != null)
         {
-            inventoryBtn.clicked += InventoryOpen;
+            _inventoryBtn.clicked += InventoryOpen;
             Debug.Log("HudTweaker: Inventory button hooked up.");
         }
         else
@@ -59,9 +57,9 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
             Debug.LogWarning("HudTweaker: Inventory button not found! Check class name 'inventory-btn' in HUD.uxml.");
         }
 
-        if (phoneBtn != null)
+        if (_phoneBtn != null)
         {
-            phoneBtn.clicked += JournalOpen;
+            _phoneBtn.clicked += JournalOpen;
             Debug.Log("HudTweaker: Phone (Journal) button hooked up.");
         }
         else
@@ -69,9 +67,9 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
             Debug.LogWarning("HudTweaker: Phone button not found! Check class name 'phone-btn' in HUD.uxml.");
         }
 
-        if (settingsBtn != null)
+        if (_settingsBtn != null)
         {
-            settingsBtn.clicked += MenuOpen;
+            _settingsBtn.clicked += MenuOpen;
             Debug.Log("HudTweaker: Settings (Menu) button hooked up.");
         }
         else
@@ -82,9 +80,9 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
 
     public void InventoryOpen()
     {
-        if (iTweaker != null)
+        if (_iTweaker != null)
         {
-            iTweaker.ToggleInventory();
+            _iTweaker.ToggleInventory();
         }
         else
         {
@@ -94,9 +92,9 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
 
     public void JournalOpen()
     {
-        if (phoneController != null)
+        if (_phoneController != null)
         {
-            phoneController.TogglePhone();
+            _phoneController.TogglePhone();
         }
         else
         {
@@ -106,9 +104,9 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
 
     public void MenuOpen()
     {
-        if (menuTweaker != null)
+        if (_menuTweaker != null)
         {
-            menuTweaker.ToggleInGameMenu();
+            _menuTweaker.ToggleInGameMenu();
         }
         else
         {
@@ -119,17 +117,17 @@ public class HUDTweakerUI_Toolkit : MonoBehaviour
     private void OnDestroy()
     {
         // Unregister events to prevent leaks
-        if (inventoryBtn != null)
+        if (_inventoryBtn != null)
         {
-            inventoryBtn.clicked -= InventoryOpen;
+            _inventoryBtn.clicked -= InventoryOpen;
         }
-        if (phoneBtn != null)
+        if (_phoneBtn != null)
         {
-            phoneBtn.clicked -= JournalOpen;
+            _phoneBtn.clicked -= JournalOpen;
         }
-        if (settingsBtn != null)
+        if (_settingsBtn != null)
         {
-            settingsBtn.clicked -= MenuOpen;
+            _settingsBtn.clicked -= MenuOpen;
         }
     }
 }

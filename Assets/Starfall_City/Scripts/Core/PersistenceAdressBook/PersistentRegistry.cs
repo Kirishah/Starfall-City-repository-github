@@ -35,19 +35,25 @@ namespace core
             Debug.Log("PersistentRegistry: READY — all references can now be safely resolved");
         }
 
-        private void Start()
-        {
-            OnReady?.Invoke();
-        }
+        private void Start() => OnReady?.Invoke();
 
         public void Register(IPersistentId obj)
         {
             if (string.IsNullOrEmpty(obj.Id)) return;
-            var unityObj = obj as Object;
-            if (unityObj == null) return;
+            if (obj is not Object unityObj) return;
 
             // Store the GameObject
-            var gameObjectToRegister = (unityObj as Component)?.gameObject ?? unityObj as GameObject;
+            GameObject gameObjectToRegister = null;
+
+            if (unityObj is Component component)
+            {
+                gameObjectToRegister = component.gameObject;
+            }
+            else if (unityObj is GameObject go)
+            {
+                gameObjectToRegister = go;
+            }
+
             if (gameObjectToRegister == null)
             {
                 Debug.LogError($"[PersistentRegistry] Cannot register: {unityObj} has no GameObject");
@@ -62,7 +68,7 @@ namespace core
                 }
                 else if (existing == gameObjectToRegister)
                 {
-                    return; 
+                    return;
                 }
             }
 
@@ -81,5 +87,5 @@ namespace core
 
         public Object Find(string id) => _registry.TryGetValue(id, out var obj) ? obj : null;
         public T Find<T>(string id) where T : Object => Find(id) as T;
-    } 
+    }
 }

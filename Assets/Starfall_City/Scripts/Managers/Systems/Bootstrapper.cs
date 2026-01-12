@@ -32,9 +32,7 @@ public static class Bootstrapper
         }
     }
 
-    private static bool SceneNeedsSystems(string sceneName)
-    {
+    private static bool SceneNeedsSystems(string sceneName) =>
         // Your original whitelist (or blacklist) logic
-        return sceneName != "Menu"; // or use a string[] like PersistentSystems
-    }
+        sceneName != "Menu"; // or use a string[] like PersistentSystems
 }

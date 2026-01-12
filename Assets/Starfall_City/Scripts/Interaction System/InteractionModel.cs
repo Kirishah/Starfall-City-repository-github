@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using static QuestSO;
+using static QuestSystem.QuestSO;
 
 namespace Interaction
 {
@@ -14,7 +13,7 @@ namespace Interaction
         public bool IsInteractable { get; private set; } = true;
         public bool HasBeenEvaluated { get; private set; }
 
-        public event Action<bool>? OnInteractabilityChanged;
+        public event Action<bool> OnInteractabilityChanged;
 
         public InteractionModel(string objectID, string interactionText, List<UnlockCondition> conditions)
         {

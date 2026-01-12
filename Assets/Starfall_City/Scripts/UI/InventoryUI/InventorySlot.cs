@@ -1,25 +1,28 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-[System.Serializable]
-public class InventorySlot
+namespace InventorySystem
 {
-    public Item Item;
-    public int Quantity;
-
-    public InventorySlot(Item item, int quantity)
+    [System.Serializable]
+    public class InventorySlot
     {
-        Item = item;
-        Quantity = quantity;
-    }
+        public Item Item;
+        public int Quantity;
 
-    public void Add(int amount) => Quantity += amount;
-    public void Remove(int amount)
-    {
-        Quantity -= amount;
-        if (Quantity <= 0)
+        public InventorySlot(Item item, int quantity)
         {
-            Item = null;
-            Quantity = 0; // Ensure quantity is non-negative
+            Item = item;
+            Quantity = quantity;
+        }
+
+        public void Add(int amount) => Quantity += amount;
+        public void Remove(int amount)
+        {
+            Quantity -= amount;
+            if (Quantity <= 0)
+            {
+                Item = null;
+                Quantity = 0; // Ensure quantity is non-negative
+            }
         }
     }
 }

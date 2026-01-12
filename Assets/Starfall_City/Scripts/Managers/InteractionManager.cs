@@ -50,7 +50,13 @@ namespace Interaction
             DetectHoverInteractable();
         }
 
-        private void OnInteractKeyPressed(UnityEngine.InputSystem.InputAction.CallbackContext context) => _closestPresenter?.Interact();
+        private void OnInteractKeyPressed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+        {
+            if (_closestPresenter != null)
+            {
+                _closestPresenter.Interact();
+            }
+        }
 
         private void DetectProximityInteractables()
         {
@@ -102,12 +108,12 @@ namespace Interaction
             {
                 if (_raycastBuffer[0].collider.TryGetComponent<InteractionPresenter>(out var newHover))
                 {
-                    if (newHover == _hoveredPresenter) return;
+                    if (_hoveredPresenter == null || newHover == _hoveredPresenter) return;
 
-                    _hoveredPresenter?.SetHovered(false);
+                    _hoveredPresenter.SetHovered(false);
 
                     _hoveredPresenter = newHover;
-                    _hoveredPresenter?.SetHovered(true);
+                    _hoveredPresenter.SetHovered(true);
                     return;
                 }
             }

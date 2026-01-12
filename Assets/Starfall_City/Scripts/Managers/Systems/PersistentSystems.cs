@@ -43,7 +43,7 @@ public class PersistentSystems : MonoBehaviour
 
     private bool ShouldPersistInScene(string sceneName)
     {
-        foreach (string validScene in _persistentInScenes)
+        foreach (var validScene in _persistentInScenes)
         {
             if (sceneName == validScene) return true;
         }

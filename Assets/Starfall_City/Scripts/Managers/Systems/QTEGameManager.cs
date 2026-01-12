@@ -1,4 +1,7 @@
+﻿using QuestSystem;
+using DialogueSystem;
 using Core;
+using Movement;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,29 +20,29 @@ namespace QTE
         public static event System.Action OnQTEStart;
 
         [Header("References")]
-        [SerializeField] private GameObject qteCanvas;
-        [SerializeField] private DanceGameManager danceGameManager;
-        [SerializeField] private Camera mainCamera; // Orthographic camera
-        [SerializeField] private Camera uiCamera;
-        [SerializeField] private Camera qteDance_cam;
-        [SerializeField] private DanceInput danceInput;
+        [SerializeField] private GameObject _qteCanvas;
+        [SerializeField] private DanceGameManager _danceGameManager;
+        [SerializeField] private Camera _mainCamera; // Orthographic camera
+        [SerializeField] private Camera _uiCamera;
+        [SerializeField] private Camera _qteDance_cam;
+        [SerializeField] private DanceInput _danceInput;
 
         [Header("QTE Configurations")]
-        [SerializeField] private QTEConfig defaultConfig;                    // fallback
-        [SerializeField] private TutorialBanner tutorialBanner;           // optional reference
+        [SerializeField] private QTEConfig _defaultConfig; // fallback
+        [SerializeField] private TutorialBanner _tutorialBanner; // optional reference
 
-        private QTEConfig activeConfig;
+        private QTEConfig _activeConfig;
 
-        private PlayerMovement playerMovement;
-        private int playerOriginalLayer;
-        private string mainCameraOriginalTag;
+        private PlayerMovement _playerMovement;
+        private int _playerOriginalLayer;
+        private string _mainCameraOriginalTag;
         private string _currentQTEID;
 
-        private AudioListener audioListener;
-        private AudioListener audioListenerQTE;
-        private bool wasRPGPaused;
-        private List<MonoBehaviour> rpgComponents = new List<MonoBehaviour>(); // Cache list
-        private bool isInitialized = false; // Flag to prevent re-init spam
+        private AudioListener _audioListener;
+        private AudioListener _audioListenerQTE;
+        private bool _wasRPGPaused;
+        private readonly List<MonoBehaviour> _rpgComponents = new(); // Cache list
+        private bool _isInitialized = false; // Flag to prevent re-init spam
 
         private void Awake()
         {
@@ -51,22 +54,19 @@ namespace QTE
             Instance = this;
         }
 
-        private void Start()
-        {
-            Initialize(); // Core init moved here
-        }
+        private void Start() => Initialize(); // Core init moved here
 
         private void Initialize()
         {
-            if (isInitialized) return;
-            isInitialized = true;
+            if (_isInitialized) return;
+            _isInitialized = true;
 
             // Validate static/serialized references (non-dynamic)
-            if (!qteCanvas || !danceGameManager || !mainCamera || !uiCamera || !qteDance_cam)
+            if (!_qteCanvas || !_danceGameManager || !_mainCamera || !_uiCamera || !_qteDance_cam)
             {
-                Debug.LogError($"QTEGameManager: Missing static references! " +
-                    $"qteCanvas={qteCanvas}, danceGameManager={danceGameManager}, " +
-                    $"mainCamera={mainCamera}, uiCamera={uiCamera}, qteDance_cam={qteDance_cam}");
+                Debug.LogError("QTEGameManager: Missing static references!" +
+                    $"qteCanvas={_qteCanvas}, danceGameManager={_danceGameManager}, " +
+                    $"mainCamera={_mainCamera}, uiCamera={_uiCamera}, qteDance_cam={_qteDance_cam}");
                 enabled = false; // Still disable if core scene objects are missing
                 return;
             }
@@ -80,17 +80,17 @@ namespace QTE
             }
 
             // Setup audio and UI (now safe)
-            audioListener = mainCamera.GetComponent<AudioListener>();
-            audioListenerQTE = qteDance_cam.GetComponent<AudioListener>();
-            if (audioListener == null || audioListenerQTE == null)
+            _audioListener = _mainCamera.GetComponent<AudioListener>();
+            _audioListenerQTE = _qteDance_cam.GetComponent<AudioListener>();
+            if (_audioListener == null || _audioListenerQTE == null)
             {
                 Debug.LogError("AudioListener missing on mainCamera or qteDance_cam!", this);
                 enabled = false;
                 return;
             }
-            audioListenerQTE.enabled = false;
-            qteCanvas.SetActive(false);
-            qteDance_cam.enabled = false;
+            _audioListenerQTE.enabled = false;
+            _qteCanvas.SetActive(false);
+            _qteDance_cam.enabled = false;
 
             // Cache RPG components (now includes Player if loaded)
             CacheRPGComponents();
@@ -101,15 +101,15 @@ namespace QTE
         private bool InitializePlayerReferences()
         {
             // Find Player dynamically (adjust tag if needed)
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            var playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj == null)
             {
                 Debug.LogWarning("QTEGameManager: Player GameObject not found yet -- delaying init.");
                 return false;
             }
 
-            playerMovement = playerObj.GetComponent<PlayerMovement>();
-            if (playerMovement == null)
+            _playerMovement = playerObj.GetComponent<PlayerMovement>();
+            if (_playerMovement == null)
             {
                 Debug.LogError("QTEGameManager: PlayerMovement component missing on Player!");
                 enabled = false;
@@ -117,10 +117,10 @@ namespace QTE
             }
 
             // If danceInput is on Player, resolve it too (or keep serialized if it's a prefab)
-            if (danceInput == null)
+            if (_danceInput == null)
             {
-                danceInput = playerObj.GetComponent<DanceInput>();
-                if (danceInput == null)
+                _danceInput = playerObj.GetComponent<DanceInput>();
+                if (_danceInput == null)
                 {
                     Debug.LogError("QTEGameManager: DanceInput missing on Player!");
                     enabled = false;
@@ -139,16 +139,16 @@ namespace QTE
 
         private void CacheRPGComponents()
         {
-            rpgComponents.Clear();
+            _rpgComponents.Clear();
             var allScripts = Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             foreach (var script in allScripts)
             {
                 if (script is IRPGComponent)
                 {
-                    rpgComponents.Add(script);
+                    _rpgComponents.Add(script);
                 }
             }
-            Debug.Log($"QTEGameManager: Cached {rpgComponents.Count} RPG components.");
+            Debug.Log($"QTEGameManager: Cached {_rpgComponents.Count} RPG components.");
         }
 
         private void OnEnable()
@@ -177,20 +177,21 @@ namespace QTE
 
         public void StartQTE(string qteId = "default")
         {
-            activeConfig = Resources.LoadAll<QTEConfig>("QTE")
-                              .FirstOrDefault(c => c.qteId == qteId) ?? defaultConfig;
+            var loadedConfig = Resources.LoadAll<QTEConfig>("QTE")
+                    .FirstOrDefault(c => c.qteId == qteId);
+            _activeConfig = loadedConfig != null ? loadedConfig : _defaultConfig;
 
-            if (activeConfig == null)
+            if (_activeConfig == null)
             {
                 Debug.LogWarning($"No QTEConfig found with ID '{qteId}'! Using default.");
-                activeConfig = defaultConfig;
+                _activeConfig = _defaultConfig;
             }
 
-            ApplyConfig(activeConfig);
+            ApplyConfig(_activeConfig);
             _currentQTEID = qteId;
 
             // Safety: Re-init player refs if somehow missing (e.g., scene reload)
-            if (playerMovement == null)
+            if (_playerMovement == null)
             {
                 if (!InitializePlayerReferences())
                 {
@@ -203,7 +204,7 @@ namespace QTE
             Debug.Log($"QTEGameManager: Starting QTE {qteId}");
             IsQTEActive = true;
             IsQTEPaused = false;
-            wasRPGPaused = PauseManager.IsPaused;
+            _wasRPGPaused = PauseManager.IsPaused;
 
             if (OnQTEStart != null)
             {
@@ -223,37 +224,43 @@ namespace QTE
 
             PauseRPG();
 
-            mainCameraOriginalTag = mainCamera.tag;
-            mainCamera.enabled = false;
-            uiCamera.enabled = false;
-            audioListener.enabled = false;
-            qteDance_cam.enabled = true;
-            qteDance_cam.tag = mainCameraOriginalTag;
-            audioListenerQTE.enabled = true;
+            _mainCameraOriginalTag = _mainCamera.tag;
+            _mainCamera.enabled = false;
+            _uiCamera.enabled = false;
+            _audioListener.enabled = false;
+            _qteDance_cam.enabled = true;
+            _qteDance_cam.tag = _mainCameraOriginalTag;
+            _audioListenerQTE.enabled = true;
 
             // Reset all components 
             DanceGameManager.Instance.ResetPlayerState(); // call to centralized reset
 
-            qteCanvas.SetActive(true);
+            _qteCanvas.SetActive(true);
 
-            if (danceGameManager != null)
+            if (_danceGameManager != null)
             {
-                danceGameManager.StartQTE();
-                danceInput.EnableInput();
+                _danceGameManager.StartQTE();
+                _danceInput.EnableInput();
             }
             else
             {
                 Debug.LogError("QTEGameManager: danceGameManager is null!");
             }
 
-            playerOriginalLayer = playerMovement.gameObject.layer;
-            playerMovement.gameObject.layer = LayerMask.NameToLayer("QTE");
-            NavMeshAgent playerAgent = playerMovement.GetComponent<NavMeshAgent>();
-            playerAgent?.EnterCinematicMode();
+            _playerOriginalLayer = _playerMovement.gameObject.layer;
+            _playerMovement.gameObject.layer = LayerMask.NameToLayer("QTE");
+            if (_playerMovement.TryGetComponent<NavMeshAgent>(out var playerAgent))
+            {
+                playerAgent.EnterCinematicMode();
+            }
+            else
+            {
+                Debug.LogError("QTEGameManager: playerAgent is null!");
+            }
 
             Time.timeScale = 1f; // Ensure normal time for QTE
 
-            if (activeConfig.showTutorialBanner)
+            if (_activeConfig.showTutorialBanner)
             {
                 ShowTutorialBanner();
             }
@@ -264,11 +271,13 @@ namespace QTE
             var spawner = GetComponent<ArrowSpawner>();
             if (spawner) spawner.Config = config;
 
-            if (danceGameManager != null)
+            if (_danceGameManager != null)
             {
                 // Apply music override
-                if (config.musicTrack != null && danceGameManager.musicTrack != null)
-                    danceGameManager.musicTrack.clip = config.musicTrack;
+                if (config.musicTrack != null)
+                {
+                    _danceGameManager.SetMusicClip(config.musicTrack);
+                }
 
                 // You can extend DanceGameManager to expose ApplyConfig() if you want more overrides
             }
@@ -287,12 +296,14 @@ namespace QTE
 
         private void ShowTutorialBanner()
         {
-            if (tutorialBanner != null)
+            if (_tutorialBanner != null)
             {
-                if (activeConfig.tutorialBannerAsset != null)
-                    tutorialBanner.uiDocument.visualTreeAsset = activeConfig.tutorialBannerAsset;
+                if (_activeConfig.tutorialBannerAsset != null)
+                {
+                    _tutorialBanner.SetVisualTreeAsset(_activeConfig.tutorialBannerAsset);
+                }
 
-                tutorialBanner.Show();
+                _tutorialBanner.Show();
             }
             else
             {
@@ -303,7 +314,7 @@ namespace QTE
         public void EndQTE(bool success)
         {
             // Safety: Ensure player refs exist
-            if (playerMovement == null)
+            if (_playerMovement == null)
             {
                 Debug.LogError("QTEGameManager: Cannot end QTE -- Player refs missing!");
                 return;
@@ -314,22 +325,22 @@ namespace QTE
             IsQTEPaused = false;
 
             // Restore player
-            playerMovement.gameObject.layer = playerOriginalLayer;
+            _playerMovement.gameObject.layer = _playerOriginalLayer;
             FindObjectsByType<NavMeshAgent>(FindObjectsSortMode.None)
                 .ToList()
                 .ForEach(a => a.ExitCinematicMode());
 
             // Switch cameras
-            mainCamera.enabled = true;
-            mainCamera.tag = mainCameraOriginalTag;
-            uiCamera.enabled = true;
-            audioListener.enabled = true;
-            audioListenerQTE.enabled = false;
-            qteDance_cam.enabled = false;
-            qteDance_cam.tag = "qteDance_cam";
-            qteCanvas.SetActive(false);
+            _mainCamera.enabled = true;
+            _mainCamera.tag = _mainCameraOriginalTag;
+            _uiCamera.enabled = true;
+            _audioListener.enabled = true;
+            _audioListenerQTE.enabled = false;
+            _qteDance_cam.enabled = false;
+            _qteDance_cam.tag = "qteDance_cam";
+            _qteCanvas.SetActive(false);
 
-            danceInput.DisableInput();
+            _danceInput.DisableInput();
             DanceGameManager.Instance.ResetPlayerState();
 
             // Report QTE success to QuestManager if won
@@ -346,9 +357,9 @@ namespace QTE
         private void PauseRPG()
         {
             // Disable RPG-specific components 
-            foreach (var script in rpgComponents)
+            foreach (var script in _rpgComponents)
             {
-                if (script != null && script.enabled) // Extra safety
+                if (script.enabled) // Extra safety
                 {
                     script.enabled = false;
                 }
@@ -357,19 +368,19 @@ namespace QTE
 
         private void ResumeRPG()
         {
-            foreach (var script in rpgComponents)
+            foreach (var script in _rpgComponents)
             {
                 if (script != null)
                 {
                     script.enabled = true;
                 }
             }
-            Time.timeScale = wasRPGPaused ? 0f : 1f;
+            Time.timeScale = _wasRPGPaused ? 0f : 1f;
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            isInitialized = false; // Reset flag to re-init on new scene
+            _isInitialized = false; // Reset flag to re-init on new scene
             CacheRPGComponents(); // Refresh cache
         }
     }

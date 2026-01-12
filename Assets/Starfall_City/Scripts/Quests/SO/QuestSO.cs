@@ -1,79 +1,79 @@
-using core;
-using Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static Quest;
 
-[CreateAssetMenu(menuName = "Quests/Quest")]
-public class QuestSO : ScriptableObject
+namespace QuestSystem
 {
-    public string QuestID;
-    public string Title;
-    public string Description;
-    public ObjectiveSO[] Objectives;
-    public Scene[] AssociatedScenes;
-    [SerializeField] private int moneyReward; 
-    public int MoneyReward => moneyReward;
-
-    [SerializeField] private string startingDialogueID; 
-    public string StartingDialogueID => startingDialogueID;
-
-    [System.Serializable]
-    public class FollowUpQuest
+    [CreateAssetMenu(menuName = "Quests/Quest")]
+    public class QuestSO : ScriptableObject
     {
-        [SerializeField] private QuestSO quest;
-        [SerializeField] private string dialogueStartID;
-        [SerializeField] private List<UnlockCondition> unlockConditions;
+        public string QuestID;
+        public string Title;
+        public string Description;
+        public ObjectiveSO[] Objectives;
+        public Scene[] AssociatedScenes;
+        [SerializeField] private int _moneyReward;
+        public int MoneyReward => _moneyReward;
 
-        public QuestSO Quest => quest;
-        public string DialogueStartID => dialogueStartID;
-        public List<UnlockCondition> UnlockConditions => unlockConditions;
-    }
+        [SerializeField] private string startingDialogueID;
+        public string StartingDialogueID => startingDialogueID;
 
-    [System.Serializable]
-    public class UnlockCondition
-    {
-        public enum ConditionType
+        [System.Serializable]
+        public class FollowUpQuest
         {
-            QuestCompleted,
-            ObjectiveCompleted,
-            ItemPossessed,
-            GameEventTriggered
+            [SerializeField] private QuestSO quest;
+            [SerializeField] private string dialogueStartID;
+            [SerializeField] private List<UnlockCondition> unlockConditions;
+
+            public QuestSO Quest => quest;
+            public string DialogueStartID => dialogueStartID;
+            public List<UnlockCondition> UnlockConditions => unlockConditions;
         }
 
-        public enum LogicOperator
+        [System.Serializable]
+        public class UnlockCondition
         {
-            AND,
-            OR
-        }
-
-        [SerializeField] private ConditionType type;
-        [SerializeField] private string targetID;
-        [SerializeField] private int requiredAmount = 1;
-        [SerializeField] private LogicOperator nextOperator = LogicOperator.AND;
-
-        public ConditionType Type => type;
-        public string TargetID => targetID;
-        public int RequiredAmount => requiredAmount;
-        public LogicOperator NextOperator => nextOperator;
-    }
-
-    [SerializeField]
-    private List<FollowUpQuest> followUpQuests = new List<FollowUpQuest>(); // Initialize to avoid null
-
-    public List<FollowUpQuest> FollowUpQuests => followUpQuests;
-
-    public List<Objective> GetRuntimeObjectives()
-    {
-        List<Objective> runtimeObjectives = new List<Objective>();
-        foreach (var objectiveSO in Objectives)
-        {
-            if (objectiveSO != null)
+            public enum ConditionType
             {
-                runtimeObjectives.Add(objectiveSO.CreateObjective());
+                QuestCompleted,
+                ObjectiveCompleted,
+                ItemPossessed,
+                GameEventTriggered
             }
+
+            public enum LogicOperator
+            {
+                AND,
+                OR
+            }
+
+            [SerializeField] private ConditionType type;
+            [SerializeField] private string targetID;
+            [SerializeField] private int requiredAmount = 1;
+            [SerializeField] private LogicOperator nextOperator = LogicOperator.AND;
+
+            public ConditionType Type => type;
+            public string TargetID => targetID;
+            public int RequiredAmount => requiredAmount;
+            public LogicOperator NextOperator => nextOperator;
         }
-        return runtimeObjectives;
+
+        [SerializeField]
+        private List<FollowUpQuest> followUpQuests = new(); // Initialize to avoid null
+
+        public List<FollowUpQuest> FollowUpQuests => followUpQuests;
+
+        public List<Objective> GetRuntimeObjectives()
+        {
+            var runtimeObjectives = new List<Objective>();
+            foreach (var objectiveSO in Objectives)
+            {
+                if (objectiveSO != null)
+                {
+                    runtimeObjectives.Add(objectiveSO.CreateObjective());
+                }
+            }
+            return runtimeObjectives;
+        }
     }
 }

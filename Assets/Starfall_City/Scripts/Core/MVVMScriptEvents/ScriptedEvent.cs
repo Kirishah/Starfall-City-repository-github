@@ -106,9 +106,9 @@ namespace core
         public string eventId; // e.g., "IntroStart", "PostDialogueIntro"
 
         [Tooltip("The ordered list of ActionCommands that define this event's behavior. Why: Composes complex sequences from simple, reusable actions; supports delays and parallelism for rich interactions. Example: Move boss, wait for reach, then start dialogue.")]
-        public List<ActionCommand> actions = new List<ActionCommand>();
+        public List<ActionCommand> actions = new();
 
         [Tooltip("An optional string condition for external or legacy triggering of this event. Why: Provides a manual hook for non-EventBus uses; primarily managed via EventSubscriptionConfig for modernity. Example: 'ManualTrigger:Debug' for editor testing.")]
         public string triggerCondition; // e.g., "SceneLoaded:Office" or "DialogueEnded:Intro"
-    } 
+    }
 }

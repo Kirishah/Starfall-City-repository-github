@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -24,26 +24,23 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         // Optional: Validate Player exists on start
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        var player = GameObject.FindGameObjectWithTag("Player");
         if (player == null)
         {
             Debug.LogWarning("GameManager: Player not found on scene start -- will retry on save.");
         }
     }
-    void InitializeData()
-    {
-        PlayerData = new SaveData();
-    }
+    void InitializeData() => PlayerData = gameObject.AddComponent<SaveData>();
 
     public void LoadSceneWithTransition(int targetLocation)
     {
         SaveBeforeSceneTransition();
-        StartCoroutine(LoadSceneAsync(targetLocation));
+        StartCoroutine(LoadScene(targetLocation));
     }
 
-    private IEnumerator LoadSceneAsync(int targetLocation)
+    private IEnumerator LoadScene(int targetLocation)
     {
-        AsyncOperation operation = SceneManager.LoadSceneAsync(targetLocation);
+        var operation = SceneManager.LoadSceneAsync(targetLocation);
         operation.allowSceneActivation = false;
 
         while (!operation.isDone)
@@ -54,25 +51,19 @@ public class GameManager : MonoBehaviour
             }
             yield return null;
         }
-
-        
     }
 
-    public void SaveBeforeSceneTransition()
-    {
+    public void SaveBeforeSceneTransition() =>
         // Save player position/rotation
         StartCoroutine(SavePlayerDataCoroutine());
-    }
 
     private IEnumerator SavePlayerDataCoroutine()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        int retries = 0;
-        while (player == null && retries < 5)
+        var player = GameObject.FindGameObjectWithTag("Player");
+        for (var retries = 0; player == null && retries < 5; retries++)
         {
             yield return null; // Wait a frame
             player = GameObject.FindGameObjectWithTag("Player");
-            retries++;
         }
 
         if (player != null)
@@ -88,21 +79,13 @@ public class GameManager : MonoBehaviour
     }
 
     // For scene reloads (refresh data if needed)
-    void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+    void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
 
-    void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) =>
         // Optional: Restore saved position if loading saved scene
         // GameObject player = GameObject.FindGameObjectWithTag("Player");
         // if (player != null) { player.transform.SetPositionAndRotation(PlayerData.Position, PlayerData.Rotation); }
         Debug.Log("GameManager: Scene loaded -- persistent data ready.");
-    }
 }

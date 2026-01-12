@@ -1,17 +1,20 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class QuestLocationTrigger : MonoBehaviour
+namespace QuestSystem
 {
-    [SerializeField] private QuestSO _questToStart;
-
-    private void OnTriggerEnter(Collider other)
+    public class QuestLocationTrigger : MonoBehaviour
     {
-        Debug.Log("Trigger entered by: " + other.gameObject.name);
-        if (QuestManager.Instance == null) { Debug.LogError("QuestManager instance is null!"); }
-        if (other.CompareTag("Player") && !QuestManager.Instance.IsQuestActive(_questToStart))
+        [SerializeField] private QuestSO _questToStart;
+
+        private void OnTriggerEnter(Collider other)
         {
-            QuestManager.Instance.StartQuest(_questToStart);
-            Debug.Log($"Quest {_questToStart.name} started by entering location.");
+            Debug.Log("Trigger entered by: " + other.gameObject.name);
+            if (QuestManager.Instance == null) { Debug.LogError("QuestManager instance is null!"); }
+            if (other.CompareTag("Player") && !QuestManager.Instance.IsQuestActive(_questToStart))
+            {
+                QuestManager.Instance.StartQuest(_questToStart);
+                Debug.Log($"Quest {_questToStart.name} started by entering location.");
+            }
         }
     }
 }

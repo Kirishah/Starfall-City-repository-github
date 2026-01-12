@@ -1,59 +1,58 @@
+ï»¿using System;
 using System.Collections;
-using System.Threading.Tasks;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ScreenFader : MonoBehaviour
 {
     [Header("UI Setup")]
-    [SerializeField] private VisualTreeAsset blackScreenAsset; // Assign BlackScreen.uxml in Inspector
-    [SerializeField] private PanelSettings panelSettings; // Assign BlackScreenPanelSettings (optional, but recommended for full-screen)
+    [SerializeField] private VisualTreeAsset _blackScreenAsset; // Assign BlackScreen.uxml in Inspector
+    [SerializeField] private PanelSettings _panelSettings; // Assign BlackScreenPanelSettings (optional, but recommended for full-screen)
 
-    private VisualElement blackPanel;
-    private UIDocument blackScreenDoc;
+    private VisualElement _blackPanel;
+    private UIDocument _blackScreenDoc;
 
-    private static ScreenFader instance;
-    public static ScreenFader Instance => instance;
+    private static ScreenFader _instance;
+    public static ScreenFader Instance => _instance;
+
+    private CancellationTokenSource _fadeCts;
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
         }
-        instance = this;
+        _instance = this;
         SetupUI();
     }
 
     private void SetupUI()
     {
         // Add UIDocument if not already present (matches your dialogue GO setup)
-        blackScreenDoc = GetComponent<UIDocument>() ?? gameObject.AddComponent<UIDocument>();
-
-        if (panelSettings != null)
+        _blackScreenDoc = GetComponent<UIDocument>();
+        if (_blackScreenDoc == null)
         {
-            blackScreenDoc.panelSettings = panelSettings; // Handles full-screen scaling/rendering
+            _blackScreenDoc = gameObject.AddComponent<UIDocument>();
         }
 
-        if (blackScreenAsset != null)
+        if (_panelSettings != null)
         {
-            blackScreenDoc.visualTreeAsset = blackScreenAsset; // Auto-builds rootVisualElement
-            blackScreenDoc.enabled = true;
-            blackPanel = blackScreenDoc.rootVisualElement.Q<VisualElement>("BlackScreenPanel");
-            if (blackPanel != null)
-            {
-                // Initial inactive state: Fully hidden (no rendering or picking), even with high sortingOrder
-                blackPanel.style.display = DisplayStyle.None;
-                blackPanel.style.opacity = 0f; // Redundant but safe for reset
-                blackPanel.pickingMode = PickingMode.Ignore; // Redundant with None, but explicit
+            _blackScreenDoc.panelSettings = _panelSettings; // Handles full-screen scaling/rendering
+        }
 
-                // Force full-screen if not in USS
-                blackPanel.style.position = Position.Absolute;
-                blackPanel.style.left = 0;
-                blackPanel.style.right = 0;
-                blackPanel.style.top = 0;
-                blackPanel.style.bottom = 0;
+        if (_blackScreenAsset != null)
+        {
+            _blackScreenDoc.visualTreeAsset = _blackScreenAsset; // Auto-builds rootVisualElement
+            _blackScreenDoc.enabled = true;
+            _blackPanel = _blackScreenDoc.rootVisualElement.Q<VisualElement>("BlackScreenPanel");
+            if (_blackPanel != null)
+            {
+                // Initial hidden state
+                HidePanelInstantly();
             }
             else
             {
@@ -66,96 +65,110 @@ public class ScreenFader : MonoBehaviour
         }
     }
 
-    // Core method: Show black screen for frames, with optional fade
-    public Coroutine FadeToBlack(float duration = 0f, int frameWait = 1)
+    private void HidePanelInstantly()
     {
-        if (blackPanel == null)
-        {
-            Debug.LogWarning("BlackPanel not ready—skipping fade.");
-            return null;
-        }
-        return StartCoroutine(FadeRoutine(true, duration, frameWait));
+        _blackPanel.style.display = DisplayStyle.None;
+        _blackPanel.style.opacity = 0f;
+        _blackPanel.pickingMode = PickingMode.Ignore;
     }
 
-    public Coroutine FadeFromBlack(float duration = 0f)
+    private void ShowPanelInstantly()
     {
-        if (blackPanel == null) return null;
-        return StartCoroutine(FadeRoutine(false, duration, 0));
+        _blackPanel.style.display = DisplayStyle.Flex;
+        _blackPanel.pickingMode = PickingMode.Position;
+        _blackPanel.style.opacity = 1f;
     }
 
-    public async Task FadeToBlackAsync(float duration = 0f, int frameWait = 1)
+    // Public synchronous-style methods (fire-and-forget)
+    public void FadeToBlack(float duration = 0.5f, int frameWait = 1) => FadeToBlackAsync(duration, frameWait).Forget();
+
+    public void FadeFromBlack(float duration = 0.5f) => FadeFromBlackAsync(duration).Forget();
+
+    // Public async methods (awaitable)
+    public UniTask FadeToBlackAsync(float duration = 0.5f, int frameWait = 1)
     {
-        if (blackPanel == null)
+        CancelCurrentFade(); // Prevent overlap
+        return FadeAsync(toBlack: true, duration, frameWait);
+    }
+
+    public UniTask FadeFromBlackAsync(float duration = 0.5f)
+    {
+        CancelCurrentFade();
+        return FadeAsync(toBlack: false, duration, 0);
+    }
+
+    private async UniTask FadeAsync(bool toBlack, float duration, int frameWait)
+    {
+        if (_blackPanel == null)
         {
-            Debug.LogWarning("BlackPanel not ready—skipping async fade.");
+            Debug.LogWarning("BlackPanel not ready â€” skipping fade.");
             return;
         }
-        await WaitForCoroutine(FadeRoutine(true, duration, frameWait));
-    }
 
-    public async Task FadeFromBlackAsync(float duration = 0f)
-    {
-        if (blackPanel == null) return;
-        await WaitForCoroutine(FadeRoutine(false, duration, 0));
-    }
+        _fadeCts = new CancellationTokenSource();
 
-    private IEnumerator FadeRoutine(bool toBlack, float duration, int frameWait)
-    {
-        float startAlpha = toBlack ? 0f : 1f;
-        float endAlpha = toBlack ? 1f : 0f;
-
-        if (toBlack)
+        try
         {
-            // Activate: Show, enable picking, and fade in (blocks UI immediately)
-            blackPanel.style.display = DisplayStyle.Flex;
-            blackPanel.pickingMode = PickingMode.Position;
-            blackPanel.style.opacity = startAlpha;
-        }
-        else
-        {
-            // Start fade out from current (1f)
-            blackPanel.style.opacity = startAlpha;
-        }
+            float startAlpha = toBlack ? 0f : 1f;
+            float targetAlpha = toBlack ? 1f : 0f;
 
-        if (duration > 0)
-        {
-            float elapsed = 0f;
-            while (elapsed < duration)
+            // Setup visibility
+            if (toBlack)
             {
-                elapsed += Time.unscaledDeltaTime;
-                blackPanel.style.opacity = Mathf.Lerp(startAlpha, endAlpha, elapsed / duration);
-                yield return null;
+                _blackPanel.style.display = DisplayStyle.Flex;
+                _blackPanel.pickingMode = PickingMode.Position;
+                _blackPanel.style.opacity = startAlpha;
             }
-            blackPanel.style.opacity = endAlpha;
-        }
-        else
-        {
-            blackPanel.style.opacity = endAlpha; // Instant
-        }
 
-        // Wait specified frames
-        for (int i = 0; i < frameWait; i++)
-        {
-            yield return null;
-        }
+            // Fade
+            if (duration > 0f)
+            {
+                float elapsed = 0f;
+                while (elapsed < duration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    _blackPanel.style.opacity = Mathf.Lerp(startAlpha, targetAlpha, t);
+                    await UniTask.Yield(PlayerLoopTiming.Update, _fadeCts.Token);
+                }
+            }
 
-        if (!toBlack)
+            _blackPanel.style.opacity = targetAlpha;
+
+            // Wait specified frames
+            for (var i = 0; i < frameWait; i++)
+            {
+                await UniTask.DelayFrame(1, PlayerLoopTiming.Update, _fadeCts.Token);
+            }
+
+            // Cleanup if fading out
+            if (!toBlack)
+            {
+                HidePanelInstantly();
+            }
+        }
+        catch (OperationCanceledException)
         {
-            blackPanel.style.display = DisplayStyle.None;
-            blackPanel.pickingMode = PickingMode.Ignore;
+            // Expected when cancelled â€” just exit cleanly
+        }
+        finally
+        {
+            _fadeCts?.Dispose();
+            _fadeCts = null;
         }
     }
 
-    private async Task WaitForCoroutine(IEnumerator routine)
+    private void CancelCurrentFade()
     {
-        var tcs = new TaskCompletionSource<object>();
-        StartCoroutine(RunRoutine(routine, tcs));
-        await tcs.Task;
+        _fadeCts?.Cancel();
+        _fadeCts?.Dispose();
+        _fadeCts = null;
     }
 
-    private IEnumerator RunRoutine(IEnumerator routine, TaskCompletionSource<object> tcs)
+    private void OnDestroy()
     {
-        yield return routine;
-        tcs.SetResult(null);
+        CancelCurrentFade();
+        if (_instance == this)
+            _instance = null;
     }
 }

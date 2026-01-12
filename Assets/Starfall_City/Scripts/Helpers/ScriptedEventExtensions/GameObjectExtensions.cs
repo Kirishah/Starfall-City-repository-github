@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
@@ -69,7 +69,7 @@ public static class GameObjectExtensions
 
     public static string GetParamString(this Dictionary<string, object> paramsDict, string key, string fallback = "")
     {
-        if (paramsDict != null && paramsDict.TryGetValue(key, out object val) && val is string str)
+        if (paramsDict != null && paramsDict.TryGetValue(key, out var val) && val is string str)
             return str;
         return fallback;
     }

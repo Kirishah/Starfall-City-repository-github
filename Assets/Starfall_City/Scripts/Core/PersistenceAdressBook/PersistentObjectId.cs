@@ -28,26 +28,15 @@ namespace core
 
         private void Reset() => id = Generate();
 
-        private void Awake()
-        {
+        private void Awake() =>
             // Ensure we survive scene loads and always retry registration
             TryRegisterWithDeduplication();
-        }
 
-        private void OnEnable()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
+        private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
 
-        private void OnDisable()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
+        private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            TryRegisterWithDeduplication();
-        }
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => TryRegisterWithDeduplication();
 
         private void TryRegisterWithDeduplication()
         {

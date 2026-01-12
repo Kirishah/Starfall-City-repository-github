@@ -5,7 +5,7 @@ public static class NavMeshAgentExtensions
 {
     public static void EnterCinematicMode(this NavMeshAgent agent)
     {
-        if (agent == null || !agent.isOnNavMesh && !agent.isActiveAndEnabled) return;
+        if (agent == null || (!agent.isOnNavMesh && !agent.isActiveAndEnabled)) return;
         agent.isStopped = true;
         agent.updatePosition = false;
         agent.updateRotation = false;
@@ -18,7 +18,7 @@ public static class NavMeshAgentExtensions
     public static void ExitCinematicMode(this NavMeshAgent agent)
     {
         if (agent == null || !agent.isActiveAndEnabled) return;
-        if (NavMesh.SamplePosition(agent.transform.position, out NavMeshHit hit, 3f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(agent.transform.position, out var hit, 3f, NavMesh.AllAreas))
         {
             agent.Warp(hit.position);
             agent.isStopped = false;

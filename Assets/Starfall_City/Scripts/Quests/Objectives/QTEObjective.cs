@@ -1,34 +1,34 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class QTEObjective : Objective
+namespace QuestSystem
 {
-    private readonly string _qteID;
-    private int _successCount;
-    private readonly int _requiredCount;
-
-    public QTEObjective(QTEObjectiveSO data) : base(data) 
+    public class QTEObjective : Objective
     {
-        _data = data;  
-        _qteID = data.QTEID;
-        _requiredCount = data.RequiredSuccessCount;
-        _successCount = 0;
-    }
+        private readonly string _qteID;
+        private int _successCount;
+        private readonly int _requiredCount;
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
-    {
-        if (type == ObjectiveType.QTE && identifier == _qteID)
+        public QTEObjective(QTEObjectiveSO data) : base(data)
         {
-            _successCount++;
-            UpdateProgress(_successCount, _requiredCount);
-            if (_successCount >= _requiredCount)
+            _data = data;
+            _qteID = data.QTEID;
+            _requiredCount = data.RequiredSuccessCount;
+            _successCount = 0;
+        }
+
+        public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
+        {
+            if (type == ObjectiveType.QTE && identifier == _qteID)
             {
-                Complete();
+                _successCount++;
+                UpdateProgress(_successCount, _requiredCount);
+                if (_successCount >= _requiredCount)
+                {
+                    Complete();
+                }
             }
         }
-    }
 
-    protected override ObjectiveType GetObjectiveType()
-    {
-        return ObjectiveType.QTE;
+        protected override ObjectiveType GetObjectiveType() => ObjectiveType.QTE;
     }
 }

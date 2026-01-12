@@ -1,115 +1,105 @@
+﻿using CharacteristicsSystem;
+using QuestSystem;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class PhoneInterfaceController : MonoBehaviour
 {
-    [SerializeField] private UIDocument phoneDocument;
-    [SerializeField] private UIDocument questUIPrefab; 
-    [SerializeField] private UIDocument characteristicsUIPrefab;
-    [SerializeField] private UIDocument reputationUIPrefab;
+    [SerializeField] private UIDocument _phoneDocument;
+    [SerializeField] private UIDocument _questUIPrefab;
+    [SerializeField] private UIDocument _characteristicsUIPrefab;
+    [SerializeField] private UIDocument _reputationUIPrefab;
 
-    private VisualElement root;
-    private UIDocument currentQuestUIInstance;
-    private UIDocument currentCharacteristicsUIInstance;
-    private UIDocument currentReputationUIInstance;
-    private QuestUI_Toolkit questUI;
-    private GameObject questGO;  // Track for OnDestroy
+    private VisualElement _root;
+    private UIDocument _currentQuestUIInstance;
+    private UIDocument _currentCharacteristicsUIInstance;
+    private UIDocument _currentReputationUIInstance;
+    private QuestUI_Toolkit _questUI;
+    private GameObject _questGO;  // Track for OnDestroy
 
-    private VisualElement questsPanel;
-    private VisualElement personalityPanel;
-    private VisualElement reputationPanel;
-    private VisualElement codexPanel;
+    private VisualElement _questsPanel;
+    private VisualElement _personalityPanel;
+    private VisualElement _reputationPanel;
+    private VisualElement _codexPanel;
 
-    private Button questsTab;
-    private Button personalityTab;
-    private Button reputationTab;
-    private Button codexTab;
-    private Button closeButton;
-    private Label sectionTitle;
+    private Button _questsTab;
+    private Button _personalityTab;
+    private Button _reputationTab;
+    private Button _codexTab;
+    private Button _closeButton;
+    private Label _sectionTitle;
 
-    private bool isInitialized = false;
-    private string currentActiveTab = "quests";
+    private bool _isInitialized = false;
+    private string _currentActiveTab = "quests";
 
-    private void Start()
-    {
-        InitializePhoneUI();
-    }
+    private void Start() => InitializePhoneUI();
 
     private void InitializePhoneUI()
     {
-        if (phoneDocument == null)
+        if (_phoneDocument == null)
         {
             Debug.LogError("PhoneInterfaceController: phoneDocument is not assigned!");
             return;
         }
 
-        root = phoneDocument.rootVisualElement;
+        _root = _phoneDocument.rootVisualElement;
 
-        if (root == null)
+        if (_root == null)
         {
             Debug.LogError("PhoneInterfaceController: rootVisualElement is null!");
             return;
         }
 
         // Get shared title
-        sectionTitle = root.Q<Label>("SectionTitle");
-        if (sectionTitle == null)
+        _sectionTitle = _root.Q<Label>("SectionTitle");
+        if (_sectionTitle == null)
         {
             Debug.LogError("SectionTitle not found in Phone.uxml!");
         }
 
         // Get panel references
-        questsPanel = root.Q<VisualElement>("QuestsPanel");
-        personalityPanel = root.Q<VisualElement>("PersonalityPanel");
-        reputationPanel = root.Q<VisualElement>("ReputationPanel");
-        codexPanel = root.Q<VisualElement>("CodexPanel");
+        _questsPanel = _root.Q<VisualElement>("QuestsPanel");
+        _personalityPanel = _root.Q<VisualElement>("PersonalityPanel");
+        _reputationPanel = _root.Q<VisualElement>("ReputationPanel");
+        _codexPanel = _root.Q<VisualElement>("CodexPanel");
 
         // Get tab references
-        questsTab = root.Q<Button>("QuestsTab");
-        personalityTab = root.Q<Button>("PersonalityTab");
-        reputationTab = root.Q<Button>("ReputationTab");
-        codexTab = root.Q<Button>("CodexTab");
-        closeButton = root.Q<Button>("CloseButton");
+        _questsTab = _root.Q<Button>("QuestsTab");
+        _personalityTab = _root.Q<Button>("PersonalityTab");
+        _reputationTab = _root.Q<Button>("ReputationTab");
+        _codexTab = _root.Q<Button>("CodexTab");
+        _closeButton = _root.Q<Button>("CloseButton");
 
         // Only register events if elements are found
-        if (questsTab != null) questsTab.clicked += () => SwitchTab("quests");
-        if (personalityTab != null) personalityTab.clicked += () => SwitchTab("personality");
-        if (reputationTab != null) reputationTab.clicked += () => SwitchTab("reputation");
-        if (codexTab != null) codexTab.clicked += () => SwitchTab("codex");
-        if (closeButton != null) closeButton.clicked += ClosePhone;
+        if (_questsTab != null) _questsTab.clicked += () => SwitchTab("quests");
+        if (_personalityTab != null) _personalityTab.clicked += () => SwitchTab("personality");
+        if (_reputationTab != null) _reputationTab.clicked += () => SwitchTab("reputation");
+        if (_codexTab != null) _codexTab.clicked += () => SwitchTab("codex");
+        if (_closeButton != null) _closeButton.clicked += ClosePhone;
 
-        isInitialized = true;
+        _isInitialized = true;
 
         // Initialize persistent QuestUI
-        if (questUIPrefab != null)
+        if (_questUIPrefab != null)
         {
-            var questUXML = questUIPrefab.visualTreeAsset;
+            var questUXML = _questUIPrefab.visualTreeAsset;
             if (questUXML != null)
             {
                 var questRoot = questUXML.Instantiate();
-                if (questsPanel != null)
+                if (_questsPanel != null)
                 {
-                    questsPanel.Add(questRoot);
+                    _questsPanel.Add(questRoot);
                 }
 
-                questGO = new GameObject("QuestUI");
-                questGO.transform.SetParent(transform);
+                _questGO = new GameObject("QuestUI");
+                _questGO.transform.SetParent(transform);
 
-                questUI = questGO.AddComponent<QuestUI_Toolkit>();
+                _questUI = _questGO.AddComponent<QuestUI_Toolkit>();
 
                 // Get the QuestUI_Toolkit component from the prefab to copy serialized fields
-                var prefabQuestUI = questUIPrefab.GetComponent<QuestUI_Toolkit>();
-                if (prefabQuestUI != null)
+                if (_questUIPrefab.TryGetComponent<QuestUI_Toolkit>(out var prefabQuestUI))
                 {
-                    questUI.questEntryUXML = prefabQuestUI.questEntryUXML;
-                    questUI.objectiveDisplayUXML = prefabQuestUI.objectiveDisplayUXML;
-                    questUI.completeIcon = prefabQuestUI.completeIcon;
-                    questUI.incompleteIcon = prefabQuestUI.incompleteIcon;
-                    questUI.newQuestSound = prefabQuestUI.newQuestSound;
-                    questUI.objectiveCompleteSound = prefabQuestUI.objectiveCompleteSound;
-                    questUI.globalNotificationUXML = prefabQuestUI.globalNotificationUXML;
-                    questUI.mainUIDocument = prefabQuestUI.mainUIDocument;
-                    questUI.notificationDuration = prefabQuestUI.notificationDuration;
+                    _questUI.CopyConfigurationFromQUI(prefabQuestUI);
                 }
                 else
                 {
@@ -126,8 +116,7 @@ public class PhoneInterfaceController : MonoBehaviour
 
                 if (hudDocument != null)
                 {
-                    questUI.mainUIDocument = hudDocument;
-                    Debug.Log("QuestUI: HUD UIDocument assigned for global notifications.");
+                    _questUI.SetNotificationRootDocument(hudDocument);
                 }
                 else
                 {
@@ -135,7 +124,7 @@ public class PhoneInterfaceController : MonoBehaviour
                 }
 
                 // Initialize with the instantiated root (integrated into phone hierarchy)
-                questUI.Initialize(questRoot);
+                _questUI.Initialize(questRoot);
             }
         }
 
@@ -146,17 +135,17 @@ public class PhoneInterfaceController : MonoBehaviour
 
     public void SwitchTab(string tabName)
     {
-        if (!isInitialized) return;
+        if (!_isInitialized) return;
 
-        if (tabName != currentActiveTab)
+        if (tabName != _currentActiveTab)
         {
-            CleanupPreviousTab(currentActiveTab);
+            CleanupPreviousTab(_currentActiveTab);
         }
 
         // Update title
-        if (sectionTitle != null)
+        if (_sectionTitle != null)
         {
-            sectionTitle.text = tabName switch
+            _sectionTitle.text = tabName switch
             {
                 "quests" => "Quests",
                 "personality" => "Personality",
@@ -173,31 +162,31 @@ public class PhoneInterfaceController : MonoBehaviour
         switch (tabName)
         {
             case "quests":
-                if (questsPanel != null) questsPanel.AddToClassList("active");
-                if (questsTab != null) questsTab.AddToClassList("active");
-                if (questUI != null)
+                if (_questsPanel != null) _questsPanel.AddToClassList("active");
+                if (_questsTab != null) _questsTab.AddToClassList("active");
+                if (_questUI != null)
                 {
-                    questUI.RefreshQuestLog();
+                    _questUI.RefreshQuestLog();
                 }
                 break;
             case "personality":
-                if (personalityPanel != null) personalityPanel.AddToClassList("active");
-                if (personalityTab != null) personalityTab.AddToClassList("active");
+                if (_personalityPanel != null) _personalityPanel.AddToClassList("active");
+                if (_personalityTab != null) _personalityTab.AddToClassList("active");
                 InitializeCharacteristicsUI();
                 break;
             case "reputation":
-                if (reputationPanel != null) reputationPanel.AddToClassList("active");
-                if (reputationTab != null) reputationTab.AddToClassList("active");
+                if (_reputationPanel != null) _reputationPanel.AddToClassList("active");
+                if (_reputationTab != null) _reputationTab.AddToClassList("active");
                 InitializeReputationUI();
                 break;
             case "codex":
-                if (codexPanel != null) codexPanel.AddToClassList("active");
-                if (codexTab != null) codexTab.AddToClassList("active");
+                if (_codexPanel != null) _codexPanel.AddToClassList("active");
+                if (_codexTab != null) _codexTab.AddToClassList("active");
                 InitializeCodexUI();
                 break;
         }
 
-        currentActiveTab = tabName;
+        _currentActiveTab = tabName;
     }
 
     private void CleanupPreviousTab(string prevTab)
@@ -221,23 +210,23 @@ public class PhoneInterfaceController : MonoBehaviour
 
     private void DeactivateAllPanels()
     {
-        if (questsPanel != null) questsPanel.RemoveFromClassList("active");
-        if (personalityPanel != null) personalityPanel.RemoveFromClassList("active");
-        if (reputationPanel != null) reputationPanel.RemoveFromClassList("active");
-        if (codexPanel != null) codexPanel.RemoveFromClassList("active");
+        if (_questsPanel != null) _questsPanel.RemoveFromClassList("active");
+        if (_personalityPanel != null) _personalityPanel.RemoveFromClassList("active");
+        if (_reputationPanel != null) _reputationPanel.RemoveFromClassList("active");
+        if (_codexPanel != null) _codexPanel.RemoveFromClassList("active");
     }
 
     private void DeactivateAllTabs()
     {
-        if (questsTab != null) questsTab.RemoveFromClassList("active");
-        if (personalityTab != null) personalityTab.RemoveFromClassList("active");
-        if (reputationTab != null) reputationTab.RemoveFromClassList("active");
-        if (codexTab != null) codexTab.RemoveFromClassList("active");
+        if (_questsTab != null) _questsTab.RemoveFromClassList("active");
+        if (_personalityTab != null) _personalityTab.RemoveFromClassList("active");
+        if (_reputationTab != null) _reputationTab.RemoveFromClassList("active");
+        if (_codexTab != null) _codexTab.RemoveFromClassList("active");
     }
 
     private void InitializeCharacteristicsUI()
     {
-        if (personalityPanel == null || characteristicsUIPrefab == null)
+        if (_personalityPanel == null || _characteristicsUIPrefab == null)
         {
             Debug.LogError("Characteristics setup missing!");
             return;
@@ -245,43 +234,42 @@ public class PhoneInterfaceController : MonoBehaviour
 
         CleanupCharacteristicsUI();  // Helper
 
-        var charGO = Instantiate(characteristicsUIPrefab);
-        currentCharacteristicsUIInstance = charGO.GetComponent<UIDocument>();
-        var charRoot = currentCharacteristicsUIInstance.rootVisualElement;
+        var charGO = Instantiate(_characteristicsUIPrefab);
+        _currentCharacteristicsUIInstance = charGO.GetComponent<UIDocument>();
+        var charRoot = _currentCharacteristicsUIInstance.rootVisualElement;
         if (charRoot != null)
         {
-            personalityPanel.Clear();
-            personalityPanel.Add(charRoot);
-            var charUI = charGO.GetComponent<CharacteristicsUI_Toolkit>();
-            if (charUI != null) charUI.UpdateAllBars();
+            _personalityPanel.Clear();
+            _personalityPanel.Add(charRoot);
+            if (charGO.TryGetComponent<CharacteristicsUI_Toolkit>(out var charUI)) charUI.UpdateAllBars();
         }
     }
 
     // Helpers for cleanup (call in SwitchTab if switching away)
     private void DisableQuestUI()  // RENAMED
     {
-        if (currentQuestUIInstance != null)
+        if (_currentQuestUIInstance != null)
         {
-            Destroy(currentQuestUIInstance.gameObject);
-            currentQuestUIInstance = null;
+            Destroy(_currentQuestUIInstance.gameObject);
+            _currentQuestUIInstance = null;
         }
     }
 
     private void CleanupCharacteristicsUI()
     {
-        if (currentCharacteristicsUIInstance != null)
+        if (_currentCharacteristicsUIInstance != null)
         {
-            Destroy(currentCharacteristicsUIInstance.gameObject);
-            currentCharacteristicsUIInstance = null;
+            Destroy(_currentCharacteristicsUIInstance.gameObject);
+            _currentCharacteristicsUIInstance = null;
         }
     }
 
     private void CleanupReputationUI()
     {
-        if (currentReputationUIInstance != null)
+        if (_currentReputationUIInstance != null)
         {
-            Destroy(currentReputationUIInstance.gameObject);
-            currentReputationUIInstance = null;
+            Destroy(_currentReputationUIInstance.gameObject);
+            _currentReputationUIInstance = null;
         }
     }
 
@@ -292,7 +280,7 @@ public class PhoneInterfaceController : MonoBehaviour
 
     private void InitializeReputationUI()
     {
-        if (reputationPanel == null || reputationUIPrefab == null)
+        if (_reputationPanel == null || _reputationUIPrefab == null)
         {
             Debug.LogError("Reputation setup missing! Assign reputationUIPrefab in Inspector.");
             return;
@@ -300,41 +288,38 @@ public class PhoneInterfaceController : MonoBehaviour
 
         CleanupReputationUI();  // Helper
 
-        var repGO = Instantiate(reputationUIPrefab);
-        currentReputationUIInstance = repGO.GetComponent<UIDocument>();
-        var repRoot = currentReputationUIInstance.rootVisualElement;
+        var repGO = Instantiate(_reputationUIPrefab);
+        _currentReputationUIInstance = repGO.GetComponent<UIDocument>();
+        var repRoot = _currentReputationUIInstance.rootVisualElement;
         if (repRoot != null)
         {
-            reputationPanel.Clear();
-            reputationPanel.Add(repRoot);
-            var repUI = repGO.GetComponent<ReputationUI_Toolkit>();
-            if (repUI != null) repUI.RefreshUI();
+            _reputationPanel.Clear();
+            _reputationPanel.Add(repRoot);
+            if (repGO.TryGetComponent<ReputationUI_Toolkit>(out var repUI)) repUI.RefreshUI();
         }
     }
 
-    private void InitializeCodexUI()
-    {
+    private void InitializeCodexUI() =>
         // TODO: Implement codex UI
         Debug.Log("Codex UI - To be implemented");
-    }
 
     public void TogglePhone()
     {
-        if (!isInitialized || root == null)
+        if (!_isInitialized || _root == null)
         {
             Debug.LogWarning("PhoneInterface not properly initialized. Cannot toggle.");
             return;
         }
 
-        bool isVisible = root.style.display == DisplayStyle.Flex;
+        bool isVisible = _root.style.display == DisplayStyle.Flex;
         SetPhoneVisible(!isVisible);
     }
 
     private void SetPhoneVisible(bool visible)
     {
-        if (!isInitialized || root == null) return;
+        if (!_isInitialized || _root == null) return;
 
-        root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        _root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
 
         if (visible)
         {
@@ -349,10 +334,10 @@ public class PhoneInterfaceController : MonoBehaviour
 
     private void RefreshCurrentTab()
     {
-        if (!isInitialized) return;
+        if (!_isInitialized) return;
 
         // Re-initialize the current active tab
-        SwitchTab(currentActiveTab);
+        SwitchTab(_currentActiveTab);
     }
 
     private void CleanupUIInstances()
@@ -363,15 +348,12 @@ public class PhoneInterfaceController : MonoBehaviour
         CleanupCodexUI();
     }
 
-    private void ClosePhone()
-    {
-        SetPhoneVisible(false);
-    }
+    private void ClosePhone() => SetPhoneVisible(false);
 
     public bool IsPhoneVisible()
     {
-        if (!isInitialized || root == null) return false;
-        return root.style.display == DisplayStyle.Flex;
+        if (!_isInitialized || _root == null) return false;
+        return _root.style.display == DisplayStyle.Flex;
     }
 
     private void Update()
@@ -386,13 +368,13 @@ public class PhoneInterfaceController : MonoBehaviour
     private void OnDestroy()
     {
         CleanupUIInstances();
-        if (questGO != null) Destroy(questGO);
+        if (_questGO != null) Destroy(_questGO);
 
         // Unregister events
-        if (questsTab != null) questsTab.clicked -= () => SwitchTab("quests");
-        if (personalityTab != null) personalityTab.clicked -= () => SwitchTab("personality");
-        if (reputationTab != null) reputationTab.clicked -= () => SwitchTab("reputation");
-        if (codexTab != null) codexTab.clicked -= () => SwitchTab("codex");
-        if (closeButton != null) closeButton.clicked -= ClosePhone;
+        if (_questsTab != null) _questsTab.clicked -= () => SwitchTab("quests");
+        if (_personalityTab != null) _personalityTab.clicked -= () => SwitchTab("personality");
+        if (_reputationTab != null) _reputationTab.clicked -= () => SwitchTab("reputation");
+        if (_codexTab != null) _codexTab.clicked -= () => SwitchTab("codex");
+        if (_closeButton != null) _closeButton.clicked -= ClosePhone;
     }
 }

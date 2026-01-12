@@ -1,10 +1,12 @@
 ﻿#nullable enable
 
-using QTE;
 using System;
 using System.Collections;
-using UnityEngine;
+using Cysharp.Threading.Tasks;
 using Interaction;
+using Movement;
+using QTE;
+using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
@@ -22,7 +24,7 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField] private float _smoothTime = 0.1f;
 
     [Header("Pose State")]
-    [SerializeField] private PoseConfig? _currentConfig;
+    [SerializeField] private PoseConfig _currentConfig;
     private Coroutine? _currentEnterCoroutine;
     private Coroutine? _currentExitCoroutine;
     private float _currentSpeed;
@@ -33,7 +35,7 @@ public class PlayerAnimation : MonoBehaviour
 
     // Public read-only access
     public bool IsInPose { get; private set; }
-    public PoseConfig? CurrentConfig => _currentConfig;
+    public PoseConfig CurrentConfig => _currentConfig;
     public string? CurrentPoseID { get; private set; }
     public string? CurrentExitTrigger { get; private set; }
 
@@ -58,9 +60,9 @@ public class PlayerAnimation : MonoBehaviour
     // Public setters for tracking (called from PosePresenter)
     public void SetCurrentPose(string? poseID, PoseConfig? config)
     {
-        CurrentPoseID = poseID ?? throw new ArgumentNullException(nameof(poseID));
-        _currentConfig = config ?? throw new ArgumentNullException(nameof(config));
-        Debug.Log($"Entered pose: {CurrentPoseID} (using config: {config?.name ?? "null"})");
+        CurrentPoseID = poseID != null ? poseID : throw new ArgumentNullException(nameof(poseID));
+        _currentConfig = config != null ? config : throw new ArgumentNullException(nameof(config));
+        Debug.Log($"Entered pose: {CurrentPoseID} (using config: {config.name ?? "null"})");
     }
 
     public void SetCurrentExitTrigger(string exitTrigger) => CurrentExitTrigger = exitTrigger ?? throw new ArgumentNullException(nameof(exitTrigger));
@@ -102,7 +104,7 @@ public class PlayerAnimation : MonoBehaviour
 
         float targetSpeed = velocity.magnitude;
         _currentSpeed = Mathf.Lerp(_currentSpeed, targetSpeed, _smoothTime);
-        bool isMoving = _currentSpeed > _speedThreshold;
+        var isMoving = _currentSpeed > _speedThreshold;
 
 
         if (isMoving)
@@ -120,7 +122,7 @@ public class PlayerAnimation : MonoBehaviour
     void CheckTurnAnimation()
     {
         // Get desired direction based on movement mode
-        Vector3 desired = Vector3.zero;
+        Vector3 desired;
         if (_playerMovement.player.enabled)
         {
             desired = _playerMovement.GetDesiredDirection();
@@ -131,7 +133,7 @@ public class PlayerAnimation : MonoBehaviour
         }
 
         // Only check for turns when moving and have a valid desired direction
-        if (desired.magnitude > 0.01f && _animator.GetBool("is_Walking"))
+        if (desired.sqrMagnitude > 0.01f * 0.01f && _animator.GetBool("is_Walking"))
         {
             // Calculate turn angle between previous desired and current desired
             float turnAngle = Vector3.SignedAngle(_previousDesired, desired, Vector3.up);
@@ -183,10 +185,10 @@ public class PlayerAnimation : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         // Poll for state entry (generic; customize per anim if needed)
-        float maxWaitTime = 1f;
+        const float maxWaitTime = 1f;
         float elapsed = 0f;
         AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-        bool stateEntered = false;
+        var stateEntered = false;
 
 
         while (elapsed < maxWaitTime)
@@ -225,7 +227,7 @@ public class PlayerAnimation : MonoBehaviour
             _player3DMovement.IsInTransitionAnimation = false;
         }
 
-        _player3DMovement?.SnapToSurface();
+        _player3DMovement.SnapToSurface();
 
         Debug.Log("Pose enter complete.");
     }
@@ -241,13 +243,13 @@ public class PlayerAnimation : MonoBehaviour
         Debug.Log($"Instant exit from pose '{CurrentPoseID}'.");
 
         // Black screen in (instant)
-        yield return ScreenFader.Instance.FadeToBlack(duration: 0f, frameWait: 0);
+        yield return ScreenFader.Instance.FadeToBlackAsync(duration: 0f, frameWait: 0).ToCoroutine();
 
         // Immediately start transition out of pose (hidden under black)
         IsInPose = false;
         _animator.SetBool("isSitting", false); // Starts blend to standing now
 
-        float holdDuration = config?.blackHoldDuration ?? 0.5f; // Quick 0.5s
+        float holdDuration = config.blackHoldDuration; // Quick 0.5s
         yield return new WaitForSecondsRealtime(holdDuration);
 
         // Re-enable movement
@@ -255,7 +257,7 @@ public class PlayerAnimation : MonoBehaviour
         if (_player3DMovement != null) _player3DMovement.controlsEnabled = true;
 
         // Fade out
-        yield return ScreenFader.Instance.FadeFromBlack(duration: 0f);
+        yield return ScreenFader.Instance.FadeFromBlackAsync(duration: 0f).ToCoroutine();
 
         // Reset tracking
         CurrentPoseID = null;

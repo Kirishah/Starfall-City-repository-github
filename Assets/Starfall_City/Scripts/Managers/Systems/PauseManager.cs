@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using QTE;
 
@@ -22,15 +22,9 @@ namespace Core
             pauseAction.performed += _ => TogglePause();
         }
 
-        private void OnEnable()
-        {
-            pauseAction.Enable();
-        }
+        private void OnEnable() => pauseAction.Enable();
 
-        private void OnDisable()
-        {
-            pauseAction.Disable();
-        }
+        private void OnDisable() => pauseAction.Disable();
 
         private void OnDestroy()
         {

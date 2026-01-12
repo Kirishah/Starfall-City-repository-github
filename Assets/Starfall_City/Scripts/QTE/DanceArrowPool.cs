@@ -21,7 +21,7 @@ namespace QTE
         {
             poolDictionary = new Dictionary<ArrowDirection, Queue<GameObject>>();
 
-            foreach (Pool pool in pools)
+            foreach (var pool in pools)
             {
                 if (pool.prefab == null)
                 {
@@ -39,10 +39,10 @@ namespace QTE
                     continue;
                 }
 
-                Queue<GameObject> objectPool = new Queue<GameObject>();
-                for (int i = 0; i < pool.size; i++)
+                var objectPool = new Queue<GameObject>();
+                for (var i = 0; i < pool.size; i++)
                 {
-                    GameObject obj = Instantiate(pool.prefab, transform);
+                    var obj = Instantiate(pool.prefab, transform);
                     obj.SetActive(false);
                     objectPool.Enqueue(obj);
                 }
@@ -61,7 +61,7 @@ namespace QTE
             if (poolDictionary[direction].Count == 0)
             {
                 // Cap expansion to prevent unbounded growth
-                Pool targetPool = pools.Find(p => p.direction == direction);
+                var targetPool = pools.Find(p => p.direction == direction);
                 if (poolDictionary[direction].Count > targetPool.size * 2)
                 {
                     Debug.LogWarning($"Pool for {direction} exceeded 2x initial size ({targetPool.size}). Not expanding further.");
@@ -70,12 +70,11 @@ namespace QTE
                 ExpandPool(direction);
             }
 
-            GameObject arrow = poolDictionary[direction].Dequeue();
+            var arrow = poolDictionary[direction].Dequeue();
             arrow.SetActive(true);
-            DanceArrow danceArrow = arrow.GetComponent<DanceArrow>();
-            if (danceArrow != null)
+            if (arrow.TryGetComponent<DanceArrow>(out var danceArrow))
             {
-                DanceInput.Instance?.RegisterArrow(danceArrow); // Register with DanceInput
+                DanceInput.Instance.RegisterArrow(danceArrow); // Register with DanceInput
             }
             return arrow;
         }
@@ -85,14 +84,14 @@ namespace QTE
             if (arrow == null) return;
             arrow.gameObject.SetActive(false);
             poolDictionary[arrow.direction].Enqueue(arrow.gameObject);
-            DanceInput.Instance?.UnregisterArrow(arrow);
+            DanceInput.Instance.UnregisterArrow(arrow);
         }
 
         private void ExpandPool(ArrowDirection direction)
         {
-            Pool targetPool = pools.Find(p => p.direction == direction);
+            var targetPool = pools.Find(p => p.direction == direction);
             if (targetPool == null || targetPool.prefab == null) return;
-            GameObject obj = Instantiate(targetPool.prefab, transform);
+            var obj = Instantiate(targetPool.prefab, transform);
             obj.SetActive(false);
             poolDictionary[direction].Enqueue(obj);
         }
@@ -101,18 +100,17 @@ namespace QTE
         {
             foreach (Transform child in transform)
             {
-                DanceArrow arrow = child.GetComponent<DanceArrow>();
-                if (arrow != null)
+                if (child.TryGetComponent<DanceArrow>(out var arrow))
                 {
                     arrow.gameObject.SetActive(false); // Ensure deactivation
                     if (!poolDictionary[arrow.direction].Contains(arrow.gameObject))
                     {
                         poolDictionary[arrow.direction].Enqueue(arrow.gameObject); // Return to pool
                     }
-                    DanceInput.Instance?.UnregisterArrow(arrow); // Unregister from DanceInput
+                    DanceInput.Instance.UnregisterArrow(arrow); // Unregister from DanceInput
                 }
             }
             Debug.Log("ResetAllArrows: All arrows deactivated and reset", this);
         }
-    } 
+    }
 }

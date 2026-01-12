@@ -6,42 +6,42 @@ namespace core
 {
     public class ScriptedEventViewModel : MonoBehaviour
     {
-        [SerializeField] private EventSubscriptionConfig eventSubscriptionConfig;
-        [SerializeField] private ScriptedEventExecutor executor;
+        [SerializeField] private EventSubscriptionConfig _eventSubscriptionConfig;
+        [SerializeField] private ScriptedEventExecutor _executor;
 
-        private Dictionary<string, System.Action> simpleCallbacks = new Dictionary<string, System.Action>();
-        private Dictionary<string, System.Action<Dictionary<string, object>>> paramCallbacks = new Dictionary<string, System.Action<Dictionary<string, object>>>();
+        private Dictionary<string, System.Action> _simpleCallbacks = new();
+        private Dictionary<string, System.Action<Dictionary<string, object>>> _paramCallbacks = new();
 
-        private bool subscriptionsSetup = false;
+        private bool _subscriptionsSetup = false;
 
         private void Awake() => TrySetupSubscriptions();
         private void Start() => TrySetupSubscriptions();
 
         private void TrySetupSubscriptions()
         {
-            if (subscriptionsSetup || EventBus.Instance == null) return;
+            if (_subscriptionsSetup || EventBus.Instance == null) return;
             SetupSubscriptions();
         }
 
         private void SetupSubscriptions()
         {
-            subscriptionsSetup = true;
-            if (eventSubscriptionConfig == null) { Debug.LogWarning("No EventSubscriptionConfig!"); return; }
+            _subscriptionsSetup = true;
+            if (_eventSubscriptionConfig == null) { Debug.LogWarning("No EventSubscriptionConfig!"); return; }
 
-            foreach (var sub in eventSubscriptionConfig.subscriptions)
+            foreach (var sub in _eventSubscriptionConfig.subscriptions)
             {
                 if (string.IsNullOrEmpty(sub.sourceEventType) || string.IsNullOrEmpty(sub.targetEventId)) continue;
 
                 if (sub.expectsParams)
                 {
-                    var callback = new System.Action<Dictionary<string, object>>(p => _ = executor.ExecuteEventAsync(sub.targetEventId, p));
-                    paramCallbacks[sub.sourceEventType] = callback;
+                    var callback = new System.Action<Dictionary<string, object>>(p => _ = _executor.ExecuteEventAsync(sub.targetEventId, p));
+                    _paramCallbacks[sub.sourceEventType] = callback;
                     EventBus.Instance.Subscribe(sub.sourceEventType, callback);
                 }
                 else
                 {
-                    var callback = new System.Action(() => _ = executor.ExecuteEventAsync(sub.targetEventId));
-                    simpleCallbacks[sub.sourceEventType] = callback;
+                    var callback = new System.Action(() => _ = _executor.ExecuteEventAsync(sub.targetEventId));
+                    _simpleCallbacks[sub.sourceEventType] = callback;
                     EventBus.Instance.Subscribe(sub.sourceEventType, callback);
                 }
             }
@@ -50,8 +50,8 @@ namespace core
         private void OnDestroy()
         {
             if (EventBus.Instance == null) return;
-            foreach (var kvp in simpleCallbacks) EventBus.Instance.Unsubscribe(kvp.Key, kvp.Value);
-            foreach (var kvp in paramCallbacks) EventBus.Instance.Unsubscribe(kvp.Key, kvp.Value);
+            foreach (var kvp in _simpleCallbacks) EventBus.Instance.Unsubscribe(kvp.Key, kvp.Value);
+            foreach (var kvp in _paramCallbacks) EventBus.Instance.Unsubscribe(kvp.Key, kvp.Value);
         }
     }
 }

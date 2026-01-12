@@ -15,24 +15,24 @@ namespace core
 
             // ── 1. Show the label
             EditorGUI.BeginProperty(position, label, property);
-            Rect labelRect = EditorGUI.PrefixLabel(position, label);
+            var labelRect = EditorGUI.PrefixLabel(position, label);
 
             // ── 2. Layout
             float buttonWidth = 60f;
             float pingWidth = 40f;
             float spacing = 4f;
 
-            Rect fieldRect = new Rect(labelRect.x, position.y,
-                position.width - labelRect.width - buttonWidth - pingWidth - spacing * 2,
+            var fieldRect = new Rect(labelRect.x, position.y,
+                position.width - labelRect.width - buttonWidth - pingWidth - (spacing * 2),
                 EditorGUIUtility.singleLineHeight);
 
-            Rect assignRect = new Rect(fieldRect.xMax + spacing, position.y, buttonWidth, EditorGUIUtility.singleLineHeight);
-            Rect pingRect = new Rect(assignRect.xMax + spacing, position.y, pingWidth, EditorGUIUtility.singleLineHeight);
+            var assignRect = new Rect(fieldRect.xMax + spacing, position.y, buttonWidth, EditorGUIUtility.singleLineHeight);
+            var pingRect = new Rect(assignRect.xMax + spacing, position.y, pingWidth, EditorGUIUtility.singleLineHeight);
 
             // ── 3. Resolve target (safe even if registry not ready yet)
             Object target = null;
-            string displayName = nameProp.stringValue;
-            string displayType = typeProp.stringValue;
+            var displayName = nameProp.stringValue;
+            var displayType = typeProp.stringValue;
 
             if (!string.IsNullOrEmpty(idProp.stringValue))
             {
@@ -46,14 +46,14 @@ namespace core
 
             // ── 4. Draw preview field (always enabled for dragging)
             EditorGUI.BeginChangeCheck();
-            Object dropped = EditorGUI.ObjectField(fieldRect, target, typeof(Object), true);
+            var dropped = EditorGUI.ObjectField(fieldRect, target, typeof(Object), true);
             if (EditorGUI.EndChangeCheck() && dropped != null)
             {
                 AssignFromObject(property, dropped);
             }
 
             // ── 5. Status text
-            string status = target != null
+            var status = target != null
                 ? $"<b>{displayName}</b> <color=#888>({displayType})</color>"
                 : string.IsNullOrEmpty(idProp.stringValue)
                     ? "<i>(Drag here or click Assign)</i>"
@@ -82,7 +82,7 @@ namespace core
             }
 
             // ── 7. Ping button (only when we actually have the object at runtime)
-            bool canPing = target != null;
+            var canPing = target != null;
             EditorGUI.BeginDisabledGroup(!canPing);
             if (GUI.Button(pingRect, "Ping", EditorStyles.miniButtonRight))
             {
@@ -124,10 +124,7 @@ namespace core
             }
         }
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            return EditorGUIUtility.singleLineHeight * 2f;
-        }
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => EditorGUIUtility.singleLineHeight * 2f;
     }
 }
 #endif

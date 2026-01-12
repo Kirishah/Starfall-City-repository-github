@@ -1,17 +1,19 @@
-
-[System.Serializable]
-public struct HistoryEntry
+﻿namespace DialogueSystem
 {
-    public string speaker;
-    public string text;
-    public bool isNarrative;
-    public bool isPlayer;
-
-    public HistoryEntry(string speaker, string text, bool isNarrative = false, bool isPlayer = false)
+    [System.Serializable]
+    public struct HistoryEntry
     {
-        this.speaker = speaker;
-        this.text = text;
-        this.isNarrative = isNarrative;
-        this.isPlayer = isPlayer;
+        public string speaker;
+        public string text;
+        public bool isNarrative;
+        public bool isPlayer;
+
+        public HistoryEntry(string speaker, string text, bool isNarrative = false, bool isPlayer = false)
+        {
+            this.speaker = speaker;
+            this.text = text;
+            this.isNarrative = isNarrative;
+            this.isPlayer = isPlayer;
+        }
     }
 }

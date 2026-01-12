@@ -1,6 +1,7 @@
-using Core;
+﻿using CharacteristicsSystem;
+using InventorySystem;
+using QuestSystem;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 public class SaveManager : MonoBehaviour

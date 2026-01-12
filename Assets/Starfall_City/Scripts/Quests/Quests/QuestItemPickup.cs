@@ -1,17 +1,20 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
-public class QuestItemPickup : MonoBehaviour
+namespace QuestSystem
 {
-    [SerializeField] private QuestSO _questToStart;
-    [SerializeField] private string _itemID; 
-
-    // Вызывается системой инвентаря при взаимодействии с предметом
-    public void OnItemPickedUp(string pickedUpItemID)
+    public class QuestItemPickup : MonoBehaviour
     {
-        if (pickedUpItemID == _itemID && !QuestManager.Instance.IsQuestActive(_questToStart))
+        [SerializeField] private QuestSO _questToStart;
+        [SerializeField] private string _itemID;
+
+        // Р’С‹Р·С‹РІР°РµС‚СЃСЏ СЃРёСЃС‚РµРјРѕР№ РёРЅРІРµРЅС‚Р°СЂСЏ РїСЂРё РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёРё СЃ РїСЂРµРґРјРµС‚РѕРј
+        public void OnItemPickedUp(string pickedUpItemID)
         {
-            QuestManager.Instance.StartQuest(_questToStart);
-            Debug.Log($"Quest {_questToStart.name} started by picking up item {_itemID}.");
+            if (pickedUpItemID == _itemID && !QuestManager.Instance.IsQuestActive(_questToStart))
+            {
+                QuestManager.Instance.StartQuest(_questToStart);
+                Debug.Log($"Quest {_questToStart.name} started by picking up item {_itemID}.");
+            }
         }
     }
 }

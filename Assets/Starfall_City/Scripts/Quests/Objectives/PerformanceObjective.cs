@@ -1,27 +1,27 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-public class PerformanceObjective : Objective
+namespace QuestSystem
 {
-    private readonly string _challengeID;
-
-    public PerformanceObjective(PerformanceSO data) : base(data)
+    public class PerformanceObjective : Objective
     {
-        _data = data;
-        _challengeID = data.ChallengeID;
-    }
+        private readonly string _challengeID;
 
-    public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
-    {
-        if (type == ObjectiveType.Performance && identifier == _challengeID)
+        public PerformanceObjective(PerformanceSO data) : base(data)
         {
-            // Ïðåäïîëîæèì, ÷òî èäåíòèôèêàòîð ïîäòâåðæäàåò óñïåõ (íàïðèìåð, «Challenge123:Success»)
-            UpdateProgress(1, 1);
-            Complete();
+            _data = data;
+            _challengeID = data.ChallengeID;
         }
-    }
 
-    protected override ObjectiveType GetObjectiveType()
-    {
-        return ObjectiveType.Performance;
+        public override void CheckProgress(ObjectiveType type, string identifier, string itemID = null)
+        {
+            if (type == ObjectiveType.Performance && identifier == _challengeID)
+            {
+                // ÐŸÑ€ÐµÐ´Ð¿Ð¾Ð»Ð¾Ð¶Ð¸Ð¼, Ñ‡Ñ‚Ð¾ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´Ð°ÐµÑ‚ ÑƒÑÐ¿ÐµÑ… (Ð½Ð°Ð¿Ñ€Ð¸Ð¼ÐµÑ€, Â«Challenge123:SuccessÂ»)
+                UpdateProgress(1, 1);
+                Complete();
+            }
+        }
+
+        protected override ObjectiveType GetObjectiveType() => ObjectiveType.Performance;
     }
 }

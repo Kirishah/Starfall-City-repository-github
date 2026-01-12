@@ -1066,8 +1066,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c9e5f6743228ca44a9d1b0c73c2687a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialBanner
-  uiDocument: {fileID: 5210603260236847946}
-  closeButtonName: CloseButton
+  _uiDocument: {fileID: 5210603260236847946}
+  _closeButtonName: CloseButton
 --- !u!1 &1832574303008403504
 GameObject:
   m_ObjectHideFlags: 0
@@ -1458,8 +1458,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba0c64768e43dfc408ec9af77087c605, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScriptedEventViewModel
-  eventSubscriptionConfig: {fileID: 11400000, guid: 38bc616f3df31f6429bf0a8c6b562370, type: 2}
-  executor: {fileID: 5961774369491454428}
+  _eventSubscriptionConfig: {fileID: 11400000, guid: 38bc616f3df31f6429bf0a8c6b562370, type: 2}
+  _executor: {fileID: 5961774369491454428}
 --- !u!114 &5961774369491454428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1528,9 +1528,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab255325847d64e9967e0fb4e846ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
-  arrowPool: {fileID: 5762162872725837600}
-  holdProgressBar: {fileID: 5989979664159490789}
+  _config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
+  _arrowPool: {fileID: 5762162872725837600}
+  _holdProgressBar: {fileID: 5989979664159490789}
 --- !u!1 &2288058280603362622
 GameObject:
   m_ObjectHideFlags: 0
@@ -1599,7 +1599,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d7bc7bcac079444090b9b867b336d52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueUI_Toolkit
-  uiDocument: {fileID: 7005889573704610072}
+  _uiDocument: {fileID: 7005889573704610072}
 --- !u!1 &2935730807115008858
 GameObject:
   m_ObjectHideFlags: 0
@@ -1973,9 +1973,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3902a9b28aa80b4b8db0214f56a702a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueManager_UIToolkit
-  dialogueLoader: {fileID: 1640447655283053804}
-  uiHandler: {fileID: 2581091222501620966}
-  audioSource: {fileID: 1244826432188115576}
+  _dialogueLoader: {fileID: 1640447655283053804}
+  _uiHandler: {fileID: 2581091222501620966}
+  _audioSource: {fileID: 1244826432188115576}
 --- !u!114 &1640447655283053804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2000,8 +2000,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f51c48c215a5d0847b3c788eddd3dd7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueDatabase
-  loader: {fileID: 1640447655283053804}
-  dialogueJsonPath: Dialogue
+  _loader: {fileID: 1640447655283053804}
+  _dialogueJsonPath: Dialogue
 --- !u!1 &3191214802829507644
 GameObject:
   m_ObjectHideFlags: 0
@@ -2070,8 +2070,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17bd129288cdd594f9f8f701fa9d1a12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScreenFader
-  blackScreenAsset: {fileID: 9197481963319205126, guid: bcfac79a2994b814fa7828229c34fc90, type: 3}
-  panelSettings: {fileID: 11400000, guid: 1de6757f69a345540b06d8bdcd5087b1, type: 2}
+  _blackScreenAsset: {fileID: 9197481963319205126, guid: bcfac79a2994b814fa7828229c34fc90, type: 3}
+  _panelSettings: {fileID: 11400000, guid: 1de6757f69a345540b06d8bdcd5087b1, type: 2}
 --- !u!1 &3250853540839006456
 GameObject:
   m_ObjectHideFlags: 0
@@ -2336,10 +2336,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0432958d40d84d341ad143d1d5b49cfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDTweakerUI_Toolkit
-  hudDocument: {fileID: 5054523385867966312}
-  iTweaker: {fileID: 3508158687154083383}
-  phoneController: {fileID: 8063187077999836890}
-  menuTweaker: {fileID: 4173547743644430687}
+  _hudDocument: {fileID: 5054523385867966312}
+  _iTweaker: {fileID: 3508158687154083383}
+  _phoneController: {fileID: 8063187077999836890}
+  _menuTweaker: {fileID: 4173547743644430687}
 --- !u!114 &6731283708825091922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2352,7 +2352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25b5398732b18c4790650be8d429da7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthDisplay
-  hudDocument: {fileID: 5054523385867966312}
+  _hudDocument: {fileID: 5054523385867966312}
 --- !u!1 &3816808885363150549
 GameObject:
   m_ObjectHideFlags: 0
@@ -2493,11 +2493,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0cbea79ecacecd4db0a58f0a296f97d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Core.BackgroundMusicManager
-  musicPlaylist:
+  _musicPlaylist:
   - {fileID: 8300000, guid: 12c2a5f51c6166c4cbc7308718b49d33, type: 3}
   - {fileID: 8300000, guid: 1e53974a13c5169409210c49fea29fea, type: 3}
-  musicVolume: 0.1
-  fadeDuration: 1
+  _musicVolume: 0.1
+  _fadeDuration: 1
 --- !u!82 &5832783830432053212
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2821,22 +2821,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0756af426363b0d4c98bb2e2988e5785, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QTE.DanceGameManager
-  config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
-  dancer:
+  _config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
+  _dancer:
     id: Ch43_nonPBR Variant_76de92d30527
-    debugName: Ch43_nonPBR Variant
+    debugName: Ch43_nonPBR Variant 1
     objectType: GameObject
-  musicTrack: {fileID: 1413257221177747235}
-  hitSFX: {fileID: 8300000, guid: 141e2298069cdeb49a69dfab78b8c70b, type: 3}
-  missSFX: {fileID: 8300000, guid: f91f79f24bccbc34bb56bfd7cd76b020, type: 3}
-  comboBreakSFX: {fileID: 8300000, guid: 11236a4516d83e042b51d0627c101cfd, type: 3}
-  scoreText: {fileID: 7516938900033441075}
-  comboText: {fileID: 8546241777150208592}
-  wideCam: {fileID: 7415780407882180457}
-  closeUpCam: {fileID: 5860722252724752722}
-  dynamicCam: {fileID: 4176670672511000870}
-  qteDance_cam: {fileID: 7073895236775151929}
-  pool: {fileID: 5762162872725837600}
+  _musicTrack: {fileID: 1413257221177747235}
+  _hitSFX: {fileID: 8300000, guid: 141e2298069cdeb49a69dfab78b8c70b, type: 3}
+  _missSFX: {fileID: 8300000, guid: f91f79f24bccbc34bb56bfd7cd76b020, type: 3}
+  _comboBreakSFX: {fileID: 8300000, guid: 11236a4516d83e042b51d0627c101cfd, type: 3}
+  _scoreText: {fileID: 7516938900033441075}
+  _comboText: {fileID: 8546241777150208592}
+  _wideCam: {fileID: 7415780407882180457}
+  _closeUpCam: {fileID: 5860722252724752722}
+  _dynamicCam: {fileID: 4176670672511000870}
+  _qteDance_cam: {fileID: 7073895236775151929}
+  _pool: {fileID: 5762162872725837600}
 --- !u!114 &8339850502146014087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2930,10 +2930,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51745bf925c71f04594d005f1f0666fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QTE.RivalDancer
-  config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
-  rivalScoreText: {fileID: 1331607748214114984}
-  rivalComboText: {fileID: 3056439444526764383}
-  dancer:
+  _config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
+  _rivalScoreText: {fileID: 1331607748214114984}
+  _rivalComboText: {fileID: 3056439444526764383}
+  _dancer:
     id: Boss Michael_6eb45b8842374825a5c
     debugName: Boss Michael
     objectType: GameObject
@@ -3481,13 +3481,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16220d58b4115a94280b358a6a233142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IntroManager
-  dialogueManager: {fileID: 5931975876995255804}
-  bossApproachDelay: 2
-  bossStoppingDistance: 0.2
-  minStartDistance: 3
-  preIntroEvent: {fileID: 11400000, guid: 3467bf6d96ef08449920e1c6b436cb2e, type: 2}
-  introStartEvent: {fileID: 11400000, guid: 1404ecf6fc97d284cb130576b0822c04, type: 2}
-  postDialogueEvent: {fileID: 11400000, guid: c204f8802d0039648baf38188728dbe4, type: 2}
+  _bossApproachDelay: 2
+  _bossStoppingDistance: 0.2
+  _minStartDistance: 3
 --- !u!1 &7309597383336716758
 GameObject:
   m_ObjectHideFlags: 0
@@ -3925,14 +3921,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dfd80edaf06f774ca176160541fe13c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  qteCanvas: {fileID: 3580911852268166509}
-  danceGameManager: {fileID: 1732698636826235943}
-  mainCamera: {fileID: 7811361248072422451}
-  uiCamera: {fileID: 4145455962073050416}
-  qteDance_cam: {fileID: 7073895236775151929}
-  danceInput: {fileID: 4661843349927170033}
-  defaultConfig: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
-  tutorialBanner: {fileID: 2135425277635160571}
+  _qteCanvas: {fileID: 3580911852268166509}
+  _danceGameManager: {fileID: 1732698636826235943}
+  _mainCamera: {fileID: 7811361248072422451}
+  _uiCamera: {fileID: 4145455962073050416}
+  _qteDance_cam: {fileID: 7073895236775151929}
+  _danceInput: {fileID: 4661843349927170033}
+  _defaultConfig: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
+  _tutorialBanner: {fileID: 2135425277635160571}
 --- !u!1 &8929273360454097050
 GameObject:
   m_ObjectHideFlags: 0
@@ -4138,10 +4134,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 648cce2f4b923b647a83b48c23b6309e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhoneInterfaceController
-  phoneDocument: {fileID: 4095199405986148033}
-  questUIPrefab: {fileID: 5451050500027293076, guid: 3da34ac1ab7894c4294867fba960e29c, type: 3}
-  characteristicsUIPrefab: {fileID: 7605576407511508133, guid: 09934084a73a4ec49aadc547a8b7cd74, type: 3}
-  reputationUIPrefab: {fileID: 4310941647519529328, guid: f58eb2da26447ef4190cf814b0bbba86, type: 3}
+  _phoneDocument: {fileID: 4095199405986148033}
+  _questUIPrefab: {fileID: 5451050500027293076, guid: 3da34ac1ab7894c4294867fba960e29c, type: 3}
+  _characteristicsUIPrefab: {fileID: 7605576407511508133, guid: 09934084a73a4ec49aadc547a8b7cd74, type: 3}
+  _reputationUIPrefab: {fileID: 4310941647519529328, guid: f58eb2da26447ef4190cf814b0bbba86, type: 3}
 --- !u!1 &9036198689553248466
 GameObject:
   m_ObjectHideFlags: 0
@@ -4536,6 +4532,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6140358036053115891, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
       propertyPath: transparentMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 78e442715331c2d45963f51ca905dfdf, type: 2}
+    - target: {fileID: 6140358036053115891, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}
+      propertyPath: _transparentMaterial
       value: 
       objectReference: {fileID: 2100000, guid: 78e442715331c2d45963f51ca905dfdf, type: 2}
     - target: {fileID: 8407827597948261956, guid: da40446bcc1db0e4c830f5986f9a5d65, type: 3}

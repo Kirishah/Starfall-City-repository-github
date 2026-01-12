@@ -1,4 +1,8 @@
-﻿using System;
+﻿using CharacteristicsSystem;
+using InventorySystem;
+using QuestSystem;
+using DialogueSystem;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -52,7 +56,7 @@ namespace core
                 Debug.LogError($"Invalid condition format in dialogue {currentDialogue?.id}, condition '{fullCondition}': {condition}");
                 return false;
             }
-            string conditionType = parts[0];
+            var conditionType = parts[0];
             switch (conditionType)
             {
                 case "Char":
@@ -70,7 +74,7 @@ namespace core
                     if (parts.Length != 3) return false;
                     Item item = ItemDataBase.Instance.GetItemByID(parts[1]);
                     if (item == null) return false;
-                    if (!int.TryParse(parts[2], out int requiredAmount))
+                    if (!int.TryParse(parts[2], out var requiredAmount))
                     {
                         Debug.LogError($"Invalid amount in HasItem in dialogue {currentDialogue?.id}: {parts[2]}");
                         return false;
@@ -95,12 +99,12 @@ namespace core
                 Debug.LogError($"Invalid characteristic condition format: {fullCondition}");
                 return false;
             }
-            if (!Enum.TryParse<CharacteristicType>(parts[1], out CharacteristicType charType))
+            if (!Enum.TryParse<CharacteristicType>(parts[1], out var charType))
             {
                 Debug.LogError($"Unknown characteristic type: {parts[1]}");
                 return false;
             }
-            if (!int.TryParse(parts[2], out int requiredValue))
+            if (!int.TryParse(parts[2], out var requiredValue))
             {
                 Debug.LogError($"Invalid required value: {parts[2]}");
                 return false;
@@ -146,7 +150,7 @@ namespace core
             {
                 case QuestSO.UnlockCondition.ConditionType.QuestCompleted:
                     if (QuestMemory.Instance == null) return false;
-                    QuestSO targetQuest = Resources.Load<QuestSO>("Quests/" + cond.TargetID);
+                    var targetQuest = Resources.Load<QuestSO>("Quests/" + cond.TargetID);
                     if (targetQuest == null)
                     {
                         Debug.LogError($"Condition Evaluation Failed: Quest '{cond.TargetID}' not found in Resources/Quests/");
@@ -196,5 +200,5 @@ namespace core
             }
             return false;
         }
-    } 
+    }
 }

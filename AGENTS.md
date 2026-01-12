@@ -2,7 +2,7 @@
 - Project name: Neighbours-call-repository-github
 - Unity version: Unity 6000.3.2f1
 - Active game object:
-  - Name: Environment
+  - Name: mixamorig7:RightHandPinky1
   - Tag: Untagged
-  - Layer: Default
+  - Layer: Floor 2
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

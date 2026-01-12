@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 
 namespace QTE
@@ -13,12 +13,12 @@ namespace QTE
         }
         public ArrowType type = ArrowType.Single; // Default to single-click
         public ArrowDirection direction; // "Up", "Down", "Left", "Right"
-        [SerializeField] private QTEConfig config; // Centralized config
+        [SerializeField] private QTEConfig _config; // Centralized config
 
-        private Canvas canvas;
-        private RectTransform rectTransform;
-        private Vector2 startPosition;
-        private float currentTravelTime;
+        private Canvas _canvas;
+        private RectTransform _rectTransform;
+        private Vector2 _startPosition;
+        private float _currentTravelTime;
 
         public bool IsInHitZone { get; private set; }
         public bool hasPassedHitZone { get; private set; }
@@ -33,18 +33,18 @@ namespace QTE
 
         void Awake()
         {
-            rectTransform = GetComponent<RectTransform>();
-            if (rectTransform == null || config == null || singleClickVisual == null || holdVisual == null || doubleClickVisual == null)
+            _rectTransform = GetComponent<RectTransform>();
+            if (_rectTransform == null || _config == null || singleClickVisual == null || holdVisual == null || doubleClickVisual == null)
             {
                 Debug.LogError($"Missing required components on {gameObject.name}!", this);
                 enabled = false;
                 return;
             }
-            canvas = GetComponentInParent<Canvas>();
-            if (canvas != null)
+            _canvas = GetComponentInParent<Canvas>();
+            if (_canvas != null)
             {
-                float canvasWidth = canvas.GetComponent<RectTransform>().rect.width;
-                startPosition = new Vector2(canvasWidth / 2f + 100f, rectTransform.anchoredPosition.y); // Start off-screen right
+                float canvasWidth = _canvas.GetComponent<RectTransform>().rect.width;
+                _startPosition = new Vector2((canvasWidth / 2f) + 100f, _rectTransform.anchoredPosition.y); // Start off-screen right
             }
             else
             {
@@ -62,18 +62,18 @@ namespace QTE
 
         public void ResetArrow()
         {
-            if (rectTransform == null)
+            if (_rectTransform == null)
             {
                 Debug.LogError($"RectTransform is null in ResetArrow for {gameObject.name}!", this);
                 return;
             }
-            rectTransform.anchoredPosition = startPosition;
-            currentTravelTime = 0f; // Will be set by spawner
+            _rectTransform.anchoredPosition = _startPosition;
+            _currentTravelTime = 0f; // Will be set by spawner
             gameObject.SetActive(true);
             hasPassedHitZone = false;
             IsInHitZone = false;
 
-            DanceInput.Instance?.RegisterArrow(this);
+            DanceInput.Instance.RegisterArrow(this);
             // Explicitly disable all visuals before re-enabling correct one
             if (singleClickVisual != null) singleClickVisual.SetActive(false);
             if (holdVisual != null) holdVisual.SetActive(false);
@@ -94,24 +94,23 @@ namespace QTE
 
         void Update()
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || rectTransform == null) return;
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || _rectTransform == null) return;
 
-            bool wasInHitZone = IsInHitZone;
+            var wasInHitZone = IsInHitZone;
 
-            if (currentTravelTime > 0f && canvas != null && this != DanceInput.CurrentHoldArrow)
+            if (_currentTravelTime > 0f && _canvas != null && this != DanceInput.CurrentHoldArrow)
             {
                 // Calculate required speed: distance / time
-                float canvasWidth = canvas.GetComponent<RectTransform>().rect.width;
-                float distanceToHitZone = startPosition.x - config.hitZoneRange.y; // from start to right edge of hit zone
+                float distanceToHitZone = _startPosition.x - _config.hitZoneRange.y; // from start to right edge of hit zone
 
-                float speed = distanceToHitZone / currentTravelTime;
-                rectTransform.anchoredPosition += Vector2.left * speed * Time.deltaTime;
+                float speed = distanceToHitZone / _currentTravelTime;
+                _rectTransform.anchoredPosition += speed * Time.deltaTime * Vector2.left;
             }
 
             // Define hit zone (e.g., between x = -100 and x = 0)
-            float xPos = rectTransform.anchoredPosition.x;
-            float hitZoneStart = canvas != null ? canvas.GetComponent<RectTransform>().rect.width * config.hitZoneRange.x / 1920f : config.hitZoneRange.x;
-            float hitZoneEnd = config.hitZoneRange.y;
+            float xPos = _rectTransform.anchoredPosition.x;
+            float hitZoneStart = _canvas != null ? _canvas.GetComponent<RectTransform>().rect.width * _config.hitZoneRange.x / 1920f : _config.hitZoneRange.x;
+            float hitZoneEnd = _config.hitZoneRange.y;
             IsInHitZone = xPos <= hitZoneEnd && xPos >= hitZoneStart;
 
             if (!wasInHitZone && IsInHitZone)
@@ -120,7 +119,7 @@ namespace QTE
                 if (DanceInput.IsHolding && this != DanceInput.CurrentHoldArrow)
                 {
                     DanceGameManager.Instance.HandleArrowEvent(direction, type, true);
-                    DanceInput.Instance?.ReturnArrowToPool(this);
+                    DanceInput.Instance.ReturnArrowToPool(this);
                     return;  // Skip miss/off-screen checks
                 }
             }
@@ -129,24 +128,21 @@ namespace QTE
             if (this != DanceInput.CurrentHoldArrow && xPos < hitZoneStart && !hasPassedHitZone)
             {
                 hasPassedHitZone = true;
-                if (gameObject.activeInHierarchy) 
+                if (gameObject.activeInHierarchy)
                 {
                     DanceGameManager.Instance.HandleMiss();
-                    DanceInput.Instance?.ReturnArrowToPool(this);
+                    DanceInput.Instance.ReturnArrowToPool(this);
                 }
             }
 
             // Deactivate if off-screen
-            if ( this != DanceInput.CurrentHoldArrow && xPos < -canvas.GetComponent<RectTransform>().rect.width * 0.5f)
+            if ( this != DanceInput.CurrentHoldArrow && xPos < -_canvas.GetComponent<RectTransform>().rect.width * 0.5f)
             {
                 gameObject.SetActive(false);
-                DanceInput.Instance?.ReturnArrowToPool(this);
+                DanceInput.Instance.ReturnArrowToPool(this);
             }
         }
 
-        public void SetTravelTime(float travelTime)
-        {
-            currentTravelTime = travelTime;
-        }
-    } 
+        public void SetTravelTime(float travelTime) => _currentTravelTime = travelTime;
+    }
 }

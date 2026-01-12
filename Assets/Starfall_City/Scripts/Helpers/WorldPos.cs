@@ -1,4 +1,4 @@
-
+﻿
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,7 +11,7 @@ public class WorldPos : Editor
     {
         base.OnInspectorGUI();
 
-        Transform transform = (Transform)target;
+        var transform = (Transform)target;
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("World Position", transform.position.ToString());
     }

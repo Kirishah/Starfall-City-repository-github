@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   direction: 3
-  config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
+  _config: {fileID: 11400000, guid: cd5ff8a79f26d4848932509e54728c8a, type: 2}
   singleClickVisual: {fileID: 1790582311791628694}
   holdVisual: {fileID: 313312273351676159}
   doubleClickVisual: {fileID: 7529575016688810482}

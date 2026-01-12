@@ -19,18 +19,18 @@ namespace QTE
         public VisualTreeAsset tutorialBannerAsset;
 
         [Header("Hit Detection")]
-        [SerializeField, Tooltip("Range of the hit zone in pixels, relative to canvas width (e.g., 1920).")]
+        [Tooltip("Range of the hit zone in pixels, relative to canvas width (e.g., 1920).")]
         public Vector2 hitZoneRange = new(-100f, 0f);
-        [SerializeField, Tooltip("Time window for detecting a double click (seconds).")]
+        [Tooltip("Time window for detecting a double click (seconds).")]
         public float doubleClickThreshold = 0.2f;
-        [SerializeField, Tooltip("Duration required to hold an arrow to succeed (seconds).")]
+        [Tooltip("Duration required to hold an arrow to succeed (seconds).")]
         public float holdDuration = 2f;
 
 
         [Header("Scoring")]
-        [SerializeField, Tooltip("Base points awarded for a successful QTE input.")]
+        [Tooltip("Base points awarded for a successful QTE input.")]
         [Min(0)] public int basePoints = 100;
-        [SerializeField, Tooltip("Multiplier applied to score based on combo count.")]
+        [Tooltip("Multiplier applied to score based on combo count.")]
         [Range(0f, 1f)] public float comboMultiplier = 0.1f;
 
 
@@ -43,9 +43,9 @@ namespace QTE
         [Range(1, 8)] public int beatsToHitZone = 4;
         [Tooltip("Global offset in seconds (positive = spawn earlier, negative = later).")]
         public float beatOffset = 0f;
-        [SerializeField, Tooltip("Total duration of the QTE (seconds).")]
+        [Tooltip("Total duration of the QTE (seconds).")]
         [Min(0f)] public float qteDuration = 90f;
-        [SerializeField, Tooltip("Delay before the arrows start spawn")]
+        [Tooltip("Delay before the arrows start spawn")]
         [Min(0f)] public float initialSpawnDelay = 2f;
 
 
@@ -69,8 +69,7 @@ namespace QTE
         [UnityEditor.MenuItem("Assets/Generate Uniform Beats")]
         private static void GenerateUniformBeats()
         {
-            var config = UnityEditor.Selection.activeObject as QTEConfig;
-            if (config == null) return;
+            if (UnityEditor.Selection.activeObject is not QTEConfig config) return;
 
             config.beatSpawnTimes.Clear();
             float beatDuration = 60f / config.bpm;
@@ -84,10 +83,7 @@ namespace QTE
         }
 
         [MenuItem("Assets/Generate Uniform Beats", true)]
-        private static bool ValidateGenerateUniformBeats()
-        {
-            return Selection.activeObject is QTEConfig;
-        }
+        private static bool ValidateGenerateUniformBeats() => Selection.activeObject is QTEConfig;
 #endif
     }
 }

@@ -16,18 +16,18 @@ namespace QTE
         public delegate void ArrowEvent(ArrowDirection direction, DanceArrow.ArrowType type, bool success);
         public static event ArrowEvent OnArrowEvent;
 
-        [SerializeField] private QTEConfig config;
-        [SerializeField] private DanceArrowPool arrowPool;
-        [SerializeField] private ProgressBar holdProgressBar;
-        private Dictionary<ArrowDirection, List<DanceArrow>> activeArrowsByDirection = new();
+        [SerializeField] private QTEConfig _config;
+        [SerializeField] private DanceArrowPool _arrowPool;
+        [SerializeField] private ProgressBar _holdProgressBar;
+        private readonly Dictionary<ArrowDirection, List<DanceArrow>> _activeArrowsByDirection = new();
 
-        private float holdStartTime;
-        private Dictionary<ArrowDirection, float> lastPressTimes = new(); // Track last press time per direction
+        private float _holdStartTime;
+        private readonly Dictionary<ArrowDirection, float> _lastPressTimes = new(); // Track last press time per direction
 
         // Add a flag to track if we're waiting for a second click for double arrows
-        private Dictionary<ArrowDirection, DanceArrow> pendingDoubleClickArrows = new();
+        private readonly Dictionary<ArrowDirection, DanceArrow> _pendingDoubleClickArrows = new();
 
-        private PlayerControls controls;
+        private PlayerControls _controls;
 
         private void Awake()
         {
@@ -37,19 +37,19 @@ namespace QTE
                 return;
             }
             Instance = this;
-            controls = new PlayerControls();
+            _controls = new PlayerControls();
 
             // Initialize all direction lists
-            activeArrowsByDirection[ArrowDirection.Up] = new List<DanceArrow>();
-            activeArrowsByDirection[ArrowDirection.Down] = new List<DanceArrow>();
-            activeArrowsByDirection[ArrowDirection.Left] = new List<DanceArrow>();
-            activeArrowsByDirection[ArrowDirection.Right] = new List<DanceArrow>();
+            _activeArrowsByDirection[ArrowDirection.Up] = new List<DanceArrow>();
+            _activeArrowsByDirection[ArrowDirection.Down] = new List<DanceArrow>();
+            _activeArrowsByDirection[ArrowDirection.Left] = new List<DanceArrow>();
+            _activeArrowsByDirection[ArrowDirection.Right] = new List<DanceArrow>();
         }
 
         // Called by QTEGameManager to enable input actions
         public void EnableInput()
         {
-            if (controls == null)
+            if (_controls == null)
             {
                 Debug.LogError("DanceControls is null in DanceInput", this);
                 return;
@@ -58,35 +58,35 @@ namespace QTE
             DisableInput();
 
             // Subscribe to all events
-            controls.DanceActions.Up.performed += OnUpPerformed;
-            controls.DanceActions.Up.canceled += OnUpCanceled;
-            controls.DanceActions.Down.performed += OnDownPerformed;
-            controls.DanceActions.Down.canceled += OnDownCanceled;
-            controls.DanceActions.Left.performed += OnLeftPerformed;
-            controls.DanceActions.Left.canceled += OnLeftCanceled;
-            controls.DanceActions.Right.performed += OnRightPerformed;
-            controls.DanceActions.Right.canceled += OnRightCanceled;
+            _controls.DanceActions.Up.performed += OnUpPerformed;
+            _controls.DanceActions.Up.canceled += OnUpCanceled;
+            _controls.DanceActions.Down.performed += OnDownPerformed;
+            _controls.DanceActions.Down.canceled += OnDownCanceled;
+            _controls.DanceActions.Left.performed += OnLeftPerformed;
+            _controls.DanceActions.Left.canceled += OnLeftCanceled;
+            _controls.DanceActions.Right.performed += OnRightPerformed;
+            _controls.DanceActions.Right.canceled += OnRightCanceled;
 
-            controls.Enable();
-            if (holdProgressBar != null) holdProgressBar.gameObject.SetActive(false);
+            _controls.Enable();
+            if (_holdProgressBar != null) _holdProgressBar.gameObject.SetActive(false);
         }
 
         // Called by QTEGameManager to disable input actions
         public void DisableInput()
         {
-            if (controls != null)
+            if (_controls != null)
             {
                 // Unsubscribe from all events
-                controls.DanceActions.Up.performed -= OnUpPerformed;
-                controls.DanceActions.Up.canceled -= OnUpCanceled;
-                controls.DanceActions.Down.performed -= OnDownPerformed;
-                controls.DanceActions.Down.canceled -= OnDownCanceled;
-                controls.DanceActions.Left.performed -= OnLeftPerformed;
-                controls.DanceActions.Left.canceled -= OnLeftCanceled;
-                controls.DanceActions.Right.performed -= OnRightPerformed;
-                controls.DanceActions.Right.canceled -= OnRightCanceled;
+                _controls.DanceActions.Up.performed -= OnUpPerformed;
+                _controls.DanceActions.Up.canceled -= OnUpCanceled;
+                _controls.DanceActions.Down.performed -= OnDownPerformed;
+                _controls.DanceActions.Down.canceled -= OnDownCanceled;
+                _controls.DanceActions.Left.performed -= OnLeftPerformed;
+                _controls.DanceActions.Left.canceled -= OnLeftCanceled;
+                _controls.DanceActions.Right.performed -= OnRightPerformed;
+                _controls.DanceActions.Right.canceled -= OnRightCanceled;
 
-                controls.Disable();
+                _controls.Disable();
             }
             ClearRegisteredArrows();
         }
@@ -104,89 +104,89 @@ namespace QTE
         // Register an arrow when spawned
         public void RegisterArrow(DanceArrow arrow)
         {
-            if (!activeArrowsByDirection.ContainsKey(arrow.direction))
-                activeArrowsByDirection[arrow.direction] = new List<DanceArrow>();
-            if (!activeArrowsByDirection[arrow.direction].Contains(arrow))
+            if (!_activeArrowsByDirection.ContainsKey(arrow.direction))
+                _activeArrowsByDirection[arrow.direction] = new List<DanceArrow>();
+            if (!_activeArrowsByDirection[arrow.direction].Contains(arrow))
             {
-                activeArrowsByDirection[arrow.direction].Add(arrow);
-                Debug.Log($"Registered {arrow.direction} arrow. Total in direction: {activeArrowsByDirection[arrow.direction].Count}");
+                _activeArrowsByDirection[arrow.direction].Add(arrow);
+                Debug.Log($"Registered {arrow.direction} arrow. Total in direction: {_activeArrowsByDirection[arrow.direction].Count}");
             }
         }
 
         // Unregister an arrow when returned to pool
         public void UnregisterArrow(DanceArrow arrow)
         {
-            if (activeArrowsByDirection.ContainsKey(arrow.direction))
+            if (_activeArrowsByDirection.ContainsKey(arrow.direction))
             {
-                activeArrowsByDirection[arrow.direction].Remove(arrow);
-                Debug.Log($"Unregistered {arrow.direction} arrow. Total in direction: {activeArrowsByDirection[arrow.direction].Count}");
+                _activeArrowsByDirection[arrow.direction].Remove(arrow);
+                Debug.Log($"Unregistered {arrow.direction} arrow. Total in direction: {_activeArrowsByDirection[arrow.direction].Count}");
             }
 
             // Also remove from pending double clicks if needed
-            if (pendingDoubleClickArrows.ContainsKey(arrow.direction) && pendingDoubleClickArrows[arrow.direction] == arrow)
+            if (_pendingDoubleClickArrows.ContainsKey(arrow.direction) && _pendingDoubleClickArrows[arrow.direction] == arrow)
             {
-                pendingDoubleClickArrows.Remove(arrow.direction);
+                _pendingDoubleClickArrows.Remove(arrow.direction);
             }
         }
 
         public void ClearRegisteredArrows()
         {
-            foreach (var kvp in activeArrowsByDirection)
+            foreach (var kvp in _activeArrowsByDirection)
             {
                 kvp.Value.Clear();
             }
-            pendingDoubleClickArrows.Clear();
-            lastPressTimes.Clear();
+            _pendingDoubleClickArrows.Clear();
+            _lastPressTimes.Clear();
             IsHolding = false;
             CurrentHoldArrow = null;
-            if (holdProgressBar != null)
+            if (_holdProgressBar != null)
             {
-                holdProgressBar.SetProgress(0f);
-                holdProgressBar.gameObject.SetActive(false);
+                _holdProgressBar.SetProgress(0f);
+                _holdProgressBar.gameObject.SetActive(false);
             }
             Debug.Log("Cleared all registered arrows and reset input state in DanceInput", this);
         }
 
         private void HandleInput(ArrowDirection direction)
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || config == null) return; // Exit early if QTE not active
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || _config == null) return; // Exit early if QTE not active
 
             float currentTime = Time.time;
-            bool isDoubleClick = false;
+            var isDoubleClick = false;
 
             // Check if this is a potential double-click
-            if (lastPressTimes.ContainsKey(direction))
+            if (_lastPressTimes.ContainsKey(direction))
             {
-                float timeSinceLastPress = currentTime - lastPressTimes[direction];
-                if (timeSinceLastPress <= config.doubleClickThreshold) // 0.2 seconds threshold for double-click
+                float timeSinceLastPress = currentTime - _lastPressTimes[direction];
+                if (timeSinceLastPress <= _config.doubleClickThreshold) // 0.2 seconds threshold for double-click
                 {
                     isDoubleClick = true;
-                    lastPressTimes.Remove(direction); // Reset after detecting double-click
+                    _lastPressTimes.Remove(direction); // Reset after detecting double-click
                 }
             }
-            lastPressTimes[direction] = currentTime; // Update last press time
+            _lastPressTimes[direction] = currentTime; // Update last press time
 
             // Check if we have a pending double-click arrow for this direction
-            if (pendingDoubleClickArrows.ContainsKey(direction) && isDoubleClick)
+            if (_pendingDoubleClickArrows.ContainsKey(direction) && isDoubleClick)
             {
-                DanceArrow arrow = pendingDoubleClickArrows[direction];
+                var arrow = _pendingDoubleClickArrows[direction];
                 if (arrow != null && arrow.gameObject.activeInHierarchy && arrow.IsInHitZone)
                 {
                     OnArrowEvent?.Invoke(direction, arrow.type, true);
                     ReturnArrowToPool(arrow);
-                    pendingDoubleClickArrows.Remove(direction);
+                    _pendingDoubleClickArrows.Remove(direction);
                     return;
                 }
             }
 
-            if (!activeArrowsByDirection.ContainsKey(direction) || activeArrowsByDirection[direction].Count == 0)
+            if (!_activeArrowsByDirection.ContainsKey(direction) || _activeArrowsByDirection[direction].Count == 0)
             {
                 OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Single, false);
                 return;
             }
 
             // Check active arrows for a hit
-            foreach (DanceArrow arrow in activeArrowsByDirection[direction])
+            foreach (var arrow in _activeArrowsByDirection[direction])
             {
                 if (arrow.IsInHitZone && arrow.gameObject.activeInHierarchy)
                 {
@@ -195,12 +195,12 @@ namespace QTE
                     {
                         IsHolding = true;
                         CurrentHoldArrow = arrow;
-                        holdStartTime = Time.time;
+                        _holdStartTime = Time.time;
 
-                        if (holdProgressBar != null)
+                        if (_holdProgressBar != null)
                         {
-                            holdProgressBar.SetProgress(0f);
-                            holdProgressBar.gameObject.SetActive(true); // Optional: Show if hidden
+                            _holdProgressBar.SetProgress(0f);
+                            _holdProgressBar.gameObject.SetActive(true); // Optional: Show if hidden
                         }
 
                         OnArrowEvent?.Invoke(direction, arrow.type, true);
@@ -220,7 +220,7 @@ namespace QTE
                         else
                         {
                             // Store for potential double-click
-                            pendingDoubleClickArrows[direction] = arrow;
+                            _pendingDoubleClickArrows[direction] = arrow;
                         }
                     }
                     return;
@@ -231,26 +231,26 @@ namespace QTE
             OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Single, false);
 
             // If no arrow matched, check if it was a stale double-click attempt
-            if (pendingDoubleClickArrows.ContainsKey(direction))
+            if (_pendingDoubleClickArrows.ContainsKey(direction))
             {
-                pendingDoubleClickArrows.Remove(direction);
+                _pendingDoubleClickArrows.Remove(direction);
             }
         }
 
         private void HandleInputRelease(ArrowDirection direction)
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || CurrentHoldArrow == null || 
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || CurrentHoldArrow == null ||
                 CurrentHoldArrow.direction != direction) return;
 
-            float elapsed = Time.time - holdStartTime;
-            bool success = elapsed >= config.holdDuration;
+            float elapsed = Time.time - _holdStartTime;
+            var success = elapsed >= _config.holdDuration;
             OnArrowEvent?.Invoke(direction, DanceArrow.ArrowType.Hold, success);
 
             // Reset the progress bar before returning to pool
-            if (holdProgressBar != null)
+            if (_holdProgressBar != null)
             {
-                holdProgressBar.SetProgress(0f);
-                holdProgressBar.gameObject.SetActive(false); // Optional: Hide when not holding
+                _holdProgressBar.SetProgress(0f);
+                _holdProgressBar.gameObject.SetActive(false); // Optional: Hide when not holding
             }
 
             if (CurrentHoldArrow != null)
@@ -264,24 +264,24 @@ namespace QTE
 
         private void Update()
         {
-            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || CurrentHoldArrow == null || config == null) return;
+            if (!QTEGameManager.IsQTEActive || QTEGameManager.IsQTEPaused || !IsHolding || CurrentHoldArrow == null || _config == null) return;
 
-            float elapsed = Time.time - holdStartTime;
-            float progress = Mathf.Clamp01(elapsed / config.holdDuration);
+            float elapsed = Time.time - _holdStartTime;
+            float progress = Mathf.Clamp01(elapsed / _config.holdDuration);
 
-            if (holdProgressBar != null)
+            if (_holdProgressBar != null)
             {
-                holdProgressBar.SetProgress(progress);
+                _holdProgressBar.SetProgress(progress);
             }
 
-            if (elapsed >= config.holdDuration)
+            if (elapsed >= _config.holdDuration)
             {
-                DanceGameManager.Instance?.HandleArrowEvent(CurrentHoldArrow.direction, DanceArrow.ArrowType.Hold, true);
+                DanceGameManager.Instance.HandleArrowEvent(CurrentHoldArrow.direction, DanceArrow.ArrowType.Hold, true);
                 // Reset the progress bar before returning to pool
-                if (holdProgressBar != null)
+                if (_holdProgressBar != null)
                 {
-                    holdProgressBar.SetProgress(0f);
-                    holdProgressBar.gameObject.SetActive(false); // Optional
+                    _holdProgressBar.SetProgress(0f);
+                    _holdProgressBar.gameObject.SetActive(false); // Optional
                 }
                 ReturnArrowToPool(CurrentHoldArrow);
                 IsHolding = false;
@@ -290,19 +290,19 @@ namespace QTE
 
             // Cleanup stale lastPressTimes and pending doubles
             List<ArrowDirection> toRemove = new List<ArrowDirection>();
-            foreach (var kvp in lastPressTimes)
+            foreach (var kvp in _lastPressTimes)
             {
-                if (Time.time - kvp.Value > config.doubleClickThreshold * 2) // Twice threshold for safety
+                if (Time.time - kvp.Value > _config.doubleClickThreshold * 2) // Twice threshold for safety
                 {
                     toRemove.Add(kvp.Key);
                 }
             }
             foreach (var dir in toRemove)
             {
-                lastPressTimes.Remove(dir);
-                if (pendingDoubleClickArrows.ContainsKey(dir))
+                _lastPressTimes.Remove(dir);
+                if (_pendingDoubleClickArrows.ContainsKey(dir))
                 {
-                    pendingDoubleClickArrows.Remove(dir);
+                    _pendingDoubleClickArrows.Remove(dir);
                 }
             }
         }
@@ -310,14 +310,14 @@ namespace QTE
         // Pooling version of input handling
         public void ReturnArrowToPool(DanceArrow arrow)
         {
-            if (arrowPool != null && arrow != null)
+            if (_arrowPool != null && arrow != null)
             {
-                arrowPool.ReturnArrow(arrow);
+                _arrowPool.ReturnArrow(arrow);
                 UnregisterArrow(arrow);
             }
             else
             {
-                Debug.LogError($"ArrowPool or arrow is null in DanceInput! arrowPool={arrowPool}, arrow={arrow}", this);
+                Debug.LogError($"ArrowPool or arrow is null in DanceInput! arrowPool={_arrowPool}, arrow={arrow}", this);
             }
         }
 
@@ -325,10 +325,10 @@ namespace QTE
         private void OnDestroy()
         {
             DisableInput();
-            if (controls != null)
+            if (_controls != null)
             {
-                controls.Dispose();
+                _controls.Dispose();
             }
         }
-    } 
+    }
 }

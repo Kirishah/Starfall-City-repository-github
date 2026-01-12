@@ -1,114 +1,105 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class QuestMemory : MonoBehaviour
+namespace QuestSystem
 {
-    public static QuestMemory Instance { get; private set; }
-    private HashSet<string> _completedQuests = new HashSet<string>();
-    private HashSet<string> _completedObjectives = new HashSet<string>();
-
-    void Awake()
+    public class QuestMemory : MonoBehaviour
     {
-        if (Instance != null && Instance != this)
+        public static QuestMemory Instance { get; private set; }
+        private readonly HashSet<string> _completedQuests = new();
+        private readonly HashSet<string> _completedObjectives = new();
+
+        void Awake()
         {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
-        Debug.Log("!!! PLAYERPREFS WIPED !!!");
-
-        LoadCompletedQuests();
-        LoadCompletedObjectives();
-    }
-
-    public void MarkQuestCompleted(QuestSO quest)
-    {
-        if (quest != null && !string.IsNullOrEmpty(quest.QuestID) && !_completedQuests.Contains(quest.QuestID))
-        {
-            _completedQuests.Add(quest.QuestID);
-            SaveCompletedQuests();
-            Debug.Log($"Marked quest {quest.QuestID} as completed.");
-        }
-    }
-
-    public bool IsQuestCompleted(QuestSO quest)
-    {
-        return quest != null && !string.IsNullOrEmpty(quest.QuestID) && _completedQuests.Contains(quest.QuestID);
-    }
-
-    public void MarkObjectiveCompleted(string objectiveID)
-    {
-        if (!string.IsNullOrEmpty(objectiveID) && !_completedObjectives.Contains(objectiveID))
-        {
-            _completedObjectives.Add(objectiveID);
-            SaveCompletedObjectives();
-            Debug.Log($"Marked objective {objectiveID} as completed.");
-        }
-    }
-
-    public bool IsObjectiveCompleted(string objectiveID)
-    {
-        return !string.IsNullOrEmpty(objectiveID) && _completedObjectives.Contains(objectiveID);
-    }
-
-    public HashSet<string> GetCompletedQuestNames()
-    {
-        return new HashSet<string>(_completedQuests);
-    }
-
-    public HashSet<string> GetCompletedObjectiveIDs()
-    {
-        return new HashSet<string>(_completedObjectives);
-    }
-
-    private void SaveCompletedQuests()
-    {
-        string json = string.Join(",", _completedQuests);
-        PlayerPrefs.SetString("CompletedQuests", json);
-    }
-
-    private void LoadCompletedQuests()
-    {
-        string json = PlayerPrefs.GetString("CompletedQuests", "");
-        if (!string.IsNullOrEmpty(json))
-        {
-            string[] quests = json.Split(',');
-            _completedQuests.Clear();
-            foreach (string questName in quests)
+            if (Instance != null && Instance != this)
             {
-                if (!string.IsNullOrEmpty(questName))
-                {
-                    _completedQuests.Add(questName);
-                }
+                Destroy(gameObject);
+                return;
             }
-            Debug.Log($"Loaded completed quests: {string.Join(", ", _completedQuests)}");
+            Instance = this;
+
+            PlayerPrefs.DeleteAll();
+            PlayerPrefs.Save();
+            Debug.Log("!!! PLAYERPREFS WIPED !!!");
+
+            LoadCompletedQuests();
+            LoadCompletedObjectives();
         }
-    }
 
-    private void SaveCompletedObjectives()
-    {
-        string json = string.Join(",", _completedObjectives);
-        PlayerPrefs.SetString("CompletedObjectives", json);
-    }
-
-    private void LoadCompletedObjectives()
-    {
-        string json = PlayerPrefs.GetString("CompletedObjectives", "");
-        if (!string.IsNullOrEmpty(json))
+        public void MarkQuestCompleted(QuestSO quest)
         {
-            string[] objectives = json.Split(',');
-            _completedObjectives.Clear();
-            foreach (string objectiveID in objectives)
+            if (quest != null && !string.IsNullOrEmpty(quest.QuestID) && !_completedQuests.Contains(quest.QuestID))
             {
-                if (!string.IsNullOrEmpty(objectiveID))
-                {
-                    _completedObjectives.Add(objectiveID);
-                }
+                _completedQuests.Add(quest.QuestID);
+                SaveCompletedQuests();
+                Debug.Log($"Marked quest {quest.QuestID} as completed.");
             }
-            Debug.Log($"Loaded completed objectives: {string.Join(", ", _completedObjectives)}");
+        }
+
+        public bool IsQuestCompleted(QuestSO quest) => quest != null && !string.IsNullOrEmpty(quest.QuestID) && _completedQuests.Contains(quest.QuestID);
+
+        public void MarkObjectiveCompleted(string objectiveID)
+        {
+            if (!string.IsNullOrEmpty(objectiveID) && !_completedObjectives.Contains(objectiveID))
+            {
+                _completedObjectives.Add(objectiveID);
+                SaveCompletedObjectives();
+                Debug.Log($"Marked objective {objectiveID} as completed.");
+            }
+        }
+
+        public bool IsObjectiveCompleted(string objectiveID) => !string.IsNullOrEmpty(objectiveID) && _completedObjectives.Contains(objectiveID);
+
+        public HashSet<string> GetCompletedQuestNames() => new(_completedQuests);
+
+        public HashSet<string> GetCompletedObjectiveIDs() => new(_completedObjectives);
+
+        private void SaveCompletedQuests()
+        {
+            var json = string.Join(",", _completedQuests);
+            PlayerPrefs.SetString("CompletedQuests", json);
+        }
+
+        private void LoadCompletedQuests()
+        {
+            var json = PlayerPrefs.GetString("CompletedQuests", "");
+            if (!string.IsNullOrEmpty(json))
+            {
+                var quests = json.Split(',');
+                _completedQuests.Clear();
+                foreach (var questName in quests)
+                {
+                    if (!string.IsNullOrEmpty(questName))
+                    {
+                        _completedQuests.Add(questName);
+                    }
+                }
+                Debug.Log($"Loaded completed quests: {string.Join(", ", _completedQuests)}");
+            }
+        }
+
+        private void SaveCompletedObjectives()
+        {
+            var json = string.Join(",", _completedObjectives);
+            PlayerPrefs.SetString("CompletedObjectives", json);
+        }
+
+        private void LoadCompletedObjectives()
+        {
+            var json = PlayerPrefs.GetString("CompletedObjectives", "");
+            if (!string.IsNullOrEmpty(json))
+            {
+                var objectives = json.Split(',');
+                _completedObjectives.Clear();
+                foreach (var objectiveID in objectives)
+                {
+                    if (!string.IsNullOrEmpty(objectiveID))
+                    {
+                        _completedObjectives.Add(objectiveID);
+                    }
+                }
+                Debug.Log($"Loaded completed objectives: {string.Join(", ", _completedObjectives)}");
+            }
         }
     }
 }

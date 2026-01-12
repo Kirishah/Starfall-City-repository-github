@@ -1,3 +1,4 @@
+﻿using DialogueSystem;
 using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -16,7 +17,7 @@ public static class AsyncWaitExtensions
             throw new ArgumentNullException(nameof(agent));
 
         float threshold = agent.stoppingDistance + extraTolerance;
-        int frames = 0;
+        var frames = 0;
         const int maxStartupFrames = 30;
 
         Debug.Log($"[WaitUntilReached] Start: agent.enabled={agent.enabled}, agent.isOnNavMesh={agent.isOnNavMesh}, " +
@@ -49,8 +50,8 @@ public static class AsyncWaitExtensions
         }
 
         // Phase 2: Wait for agent to start moving (avoid false-positive early exit)
-        Vector3 startPos = agent.transform.position;
-        int startupFrames = 0;
+        var startPos = agent.transform.position;
+        var startupFrames = 0;
         while (startupFrames < maxStartupFrames &&
                Vector3.Distance(agent.transform.position, startPos) < 0.01f)
         {
@@ -78,9 +79,9 @@ public static class AsyncWaitExtensions
             }
 
             // Anti-stuck measure
-            if (agent.velocity.magnitude < 0.1f && frames > 60 && frames % 30 == 0)
+            if (agent.velocity.sqrMagnitude < 0.1f * 0.1f && frames > 60 && frames % 30 == 0)
             {
-                Debug.Log("[WaitUntilReached] Agent stuck � resetting path and destination");
+                Debug.Log("[WaitUntilReached] Agent stuck — resetting path and destination");
                 agent.ResetPath();
                 agent.SetDestination(destination);
                 await UniTask.Yield(); // Give it a frame to recalculate
@@ -129,11 +130,9 @@ public static class AsyncWaitExtensions
         }
 
         var tcs = new UniTaskCompletionSource<bool>();
-        Action handler = null;
-
-        handler = () =>
+        void handler()
         {
-            string currentId = dialogueManager.currentStartID;
+            var currentId = dialogueManager.currentStartID;
 
             bool match = string.IsNullOrEmpty(expectedDialogueId) ||
                          currentId == expectedDialogueId ||
@@ -145,7 +144,7 @@ public static class AsyncWaitExtensions
                 tcs.TrySetResult(true);
                 Debug.Log($"[WaitForDialogueEnd] Completed for '{expectedDialogueId ?? "<any>"}'");
             }
-        };
+        }
 
         DialogueManager_UIToolkit.OnDialogueEnded += handler;
 

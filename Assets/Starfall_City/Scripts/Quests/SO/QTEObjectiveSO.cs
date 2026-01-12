@@ -1,10 +1,13 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-[CreateAssetMenu(menuName = "Quests/Objectives/QTE")]
-public class QTEObjectiveSO : ObjectiveSO
+namespace QuestSystem
 {
-    public string QTEID;
-    public int RequiredSuccessCount;
+    [CreateAssetMenu(menuName = "Quests/Objectives/QTE")]
+    public class QTEObjectiveSO : ObjectiveSO
+    {
+        public string QTEID { get; }
+        public int RequiredSuccessCount { get; }
 
-    public override Objective CreateObjective() => new QTEObjective(this);
+        public override Objective CreateObjective() => new QTEObjective(this);
+    }
 }

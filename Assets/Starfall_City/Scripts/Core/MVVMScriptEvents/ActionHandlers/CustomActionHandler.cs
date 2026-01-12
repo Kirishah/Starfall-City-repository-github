@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DialogueSystem;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
@@ -33,15 +34,15 @@ namespace core
                     break;
 
                 case ScriptedEvent.ActionCommand.CustomType.ExitPose:
-                    await HandleExitPose(cmd, _executor);
+                    await HandleExitPoseAsync(cmd, _executor);
                     break;
 
                 case ScriptedEvent.ActionCommand.CustomType.EnterPose:
-                    await HandleEnterPose(cmd, @params, _executor);
+                    await HandleEnterPoseAsync(cmd, @params, _executor);
                     break;
 
                 case ScriptedEvent.ActionCommand.CustomType.FadeBlackFlash:
-                    await HandleFadeBlackFlash();
+                    await HandleFadeBlackFlashAsync();
                     break;
 
                 default:
@@ -52,19 +53,25 @@ namespace core
 
         private void HandleFindClosestObject(ScriptedEvent.ActionCommand cmd, Dictionary<string, object> @params)
         {
-            string hideTag = @params.GetParamString("hideTag");
-            string refTag = @params.GetParamString("referenceTag", "Player");
+            var hideTag = @params.GetParamString("hideTag");
+            var refTag = @params.GetParamString("referenceTag", "Player");
 
             if (string.IsNullOrEmpty(hideTag)) return;
 
-            GameObject reference = GameObject.FindGameObjectWithTag(refTag) ?? GameObject.FindWithTag("Player");
+            var reference = GameObject.FindGameObjectWithTag(refTag);
+
+            if (reference == null)
+            {
+                reference = GameObject.FindWithTag("Player");
+            }
+
             if (reference == null) return;
 
             GameObject closest = null;
-            float bestDist = float.MaxValue;
+            var bestDist = float.MaxValue;
 
             var allWithTag = this.FindAllWithTagIncludingInactive(hideTag); // using your extension
-            foreach (GameObject go in allWithTag)
+            foreach (var go in allWithTag)
             {
                 float dist = Vector3.Distance(go.transform.position, reference.transform.position);
                 if (dist < bestDist)
@@ -85,7 +92,7 @@ namespace core
 
         private void HandleRotateToFace(ScriptedEvent.ActionCommand cmd, GameObject target)
         {
-            string lookAtTag = string.IsNullOrEmpty(cmd.paramName) ? "Player" : cmd.paramName;
+            var lookAtTag = string.IsNullOrEmpty(cmd.paramName) ? "Player" : cmd.paramName;
             var lookAt = GameObject.FindGameObjectWithTag(lookAtTag);
             if (lookAt != null && target != null)
             {
@@ -96,7 +103,7 @@ namespace core
             }
         }
 
-        private async UniTask HandleExitPose(ScriptedEvent.ActionCommand cmd, ScriptedEventExecutor executor)
+        private async UniTask HandleExitPoseAsync(ScriptedEvent.ActionCommand cmd, ScriptedEventExecutor executor)
         {
             var player = string.IsNullOrEmpty(cmd.poseTargetTag)
                 ? GameObject.FindGameObjectWithTag("Player")
@@ -112,7 +119,7 @@ namespace core
 
             if (PosePresenter.Instance != null)
             {
-                PoseConfig config = playerAnim?.CurrentConfig;
+                var config = playerAnim.CurrentConfig;
                 PosePresenter.Instance.ExitPose(config);
             }
 
@@ -122,7 +129,10 @@ namespace core
                 await UniTask.Delay(2000);
         }
 
-        private async UniTask HandleEnterPose(ScriptedEvent.ActionCommand cmd, Dictionary<string, object> @params, ScriptedEventExecutor executor)
+        private async UniTask HandleEnterPoseAsync(
+            ScriptedEvent.ActionCommand cmd,
+            Dictionary<string, object> @params,
+            ScriptedEventExecutor executor)
         {
             var player = string.IsNullOrEmpty(cmd.poseTargetTag)
                 ? GameObject.FindGameObjectWithTag("Player")
@@ -134,9 +144,9 @@ namespace core
                 return;
             }
 
-            PoseConfig enterConfig = cmd.poseConfig;
+            var enterConfig = cmd.poseConfig;
 
-            string poseID = @params.GetParamString("poseID");
+            var poseID = @params.GetParamString("poseID");
             if (!string.IsNullOrEmpty(poseID))
             {
                 var configs = Resources.LoadAll<PoseConfig>("PoseConfigs");
@@ -149,7 +159,7 @@ namespace core
                     enterConfig.poseID = "DefaultPose";
                 }
             }
-            else if (enterConfig == null && @params != null && @params.TryGetValue("poseConfig", out object configObj) && configObj is PoseConfig pc)
+            else if (enterConfig == null && @params != null && @params.TryGetValue("poseConfig", out var configObj) && configObj is PoseConfig pc)
             {
                 enterConfig = pc;
             }
@@ -164,22 +174,22 @@ namespace core
 
             // Resolve position
             Vector3 enterPos = cmd.targetPosition;
-            if (!string.IsNullOrEmpty(cmd.positionParamKey) && @params != null && @params.TryGetValue(cmd.positionParamKey, out object posObj) && posObj is Vector3 vPos)
+            if (!string.IsNullOrEmpty(cmd.positionParamKey) && @params != null && @params.TryGetValue(cmd.positionParamKey, out var posObj) && posObj is Vector3 vPos)
             {
                 enterPos = vPos;
             }
-            else if (@params != null && @params.TryGetValue("foundPosition", out object foundPos) && foundPos is Vector3 fPos)
+            else if (@params != null && @params.TryGetValue("foundPosition", out var foundPos) && foundPos is Vector3 fPos)
             {
                 enterPos = fPos;
             }
 
             // Resolve rotation Y
             float enterYRot = 0f;
-            if (@params != null && @params.TryGetValue("foundRotationY", out object rotObj) && rotObj is float fRot)
+            if (@params != null && @params.TryGetValue("foundRotationY", out var rotObj) && rotObj is float fRot)
             {
                 enterYRot = fRot;
             }
-            else if (!string.IsNullOrEmpty(cmd.rotationParamKey) && @params != null && @params.TryGetValue(cmd.rotationParamKey, out object rObj) && rObj is float rotVal)
+            else if (!string.IsNullOrEmpty(cmd.rotationParamKey) && @params != null && @params.TryGetValue(cmd.rotationParamKey, out var rObj) && rObj is float rotVal)
             {
                 enterYRot = rotVal;
             }
@@ -196,13 +206,13 @@ namespace core
             }
 
             // Wait for black screen hold
-            int delayMs = (int)(enterConfig.blackHoldDuration * 1000) + 500;
+            var delayMs = (int)(enterConfig.blackHoldDuration * 1000) + 500;
             await UniTask.Delay(delayMs);
 
             Debug.Log("EnterPose completed");
         }
 
-        private async UniTask HandleFadeBlackFlash()
+        private async UniTask HandleFadeBlackFlashAsync()
         {
             if (ScreenFader.Instance != null)
             {

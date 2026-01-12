@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using QuestSystem;
+using DialogueSystem;
+using UnityEngine;
 
 namespace Interaction
 {

@@ -1,8 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class CollectItemSO : ObjectiveSO
+namespace QuestSystem
 {
-    public string TargetItemID; 
-    public int RequiredAmount;
-    public override Objective CreateObjective() => new CollectItemObjective(this);
+    public class CollectItemSO : ObjectiveSO
+    {
+        public string TargetItemID { get; }
+        public int RequiredAmount { get; }
+        public override Objective CreateObjective() => new CollectItemObjective(this);
+    }
 }

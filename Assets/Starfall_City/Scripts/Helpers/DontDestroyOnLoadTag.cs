@@ -1,14 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [DefaultExecutionOrder(-1000)]
 public class DontDestroyOnLoadTag : MonoBehaviour
 {
-    private Scene originalScene;
+    private Scene _originalScene;
 
     private void Awake()
     {
-        originalScene = gameObject.scene;
+        _originalScene = gameObject.scene;
         DontDestroyOnLoad(gameObject);
 
         // Optional: Clean name
@@ -22,7 +22,7 @@ public class DontDestroyOnLoadTag : MonoBehaviour
         // Optional: only do this if we're in a real scene (not DDOL)
         if (gameObject.scene.buildIndex == -1) // DDOL scene
         {
-            Scene targetScene = SceneManager.GetActiveScene();
+            var targetScene = SceneManager.GetActiveScene();
             if (targetScene.isLoaded)
                 SceneManager.MoveGameObjectToScene(gameObject, targetScene);
         }
